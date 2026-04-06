@@ -11,6 +11,7 @@ import {
   Font,
 } from '@react-pdf/renderer'
 import { Quotation } from '@/types/quotation'
+import { NARATHONG_LOGO_BASE64 } from '@/lib/logoBase64'
 
 // Register NotoSansThai font for Thai language support
 // Use absolute URL so both server-side (API route) and client-side can load it
@@ -307,7 +308,7 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
         {/* Header */}
         <View style={styles.headerRow}>
           <Image
-            src="/narathong-plus-logo.jpg"
+            src={NARATHONG_LOGO_BASE64}
             style={styles.logo}
           />
           <View style={styles.companyInfo}>
