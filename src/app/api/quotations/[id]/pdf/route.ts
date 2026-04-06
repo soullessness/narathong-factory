@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import React from 'react'
-import { renderToBuffer } from '@react-pdf/renderer'
-import { QuotationPDF } from '@/components/quotation/QuotationPDF'
 
 export async function GET(
   _request: NextRequest,
@@ -34,9 +31,13 @@ export async function GET(
       } catch { /* ignore */ }
     }
 
+    const ReactPDF = await import('@react-pdf/renderer')
+    const React = (await import('react')).default
+    const { QuotationPDF } = await import('@/components/quotation/QuotationPDFServer')
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const element = React.createElement(QuotationPDF as any, { quotation }) as any
-    const buffer = await renderToBuffer(element)
+    const buffer = await ReactPDF.renderToBuffer(element)
     const uint8Array = new Uint8Array(buffer)
 
     return new NextResponse(uint8Array, {
