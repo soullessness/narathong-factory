@@ -203,7 +203,11 @@ export function ProjectDialog({
                   onValueChange={(v) => setForm((f) => ({ ...f, customer_id: (!v || v === 'none') ? undefined : v }))}
                 >
                   <SelectTrigger id="proj-customer" className="flex-1">
-                    <SelectValue placeholder="เลือกลูกค้า" />
+                    <SelectValue placeholder="เลือกลูกค้า">
+                      {form.customer_id
+                        ? (customers.find((c) => c.id === form.customer_id)?.name ?? 'เลือกลูกค้า')
+                        : 'เลือกลูกค้า'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">— ไม่ระบุ —</SelectItem>
@@ -304,7 +308,11 @@ export function ProjectDialog({
                   }
                 >
                   <SelectTrigger id="proj-sales">
-                    <SelectValue placeholder="เลือก Sales" />
+                    <SelectValue placeholder="เลือก Sales">
+                      {form.assigned_sales
+                        ? (salesProfiles.find((p) => p.id === form.assigned_sales)?.full_name ?? 'เลือก Sales')
+                        : 'เลือก Sales'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">— ไม่ระบุ —</SelectItem>
