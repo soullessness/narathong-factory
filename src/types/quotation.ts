@@ -7,6 +7,10 @@ export interface QuotationItem {
   unit_price: number
   total: number
   image_url?: string | null
+  // Area pricing (จากสินค้า catalog)
+  price_per_sqm?: number | null
+  price_per_pack?: number | null
+  pieces_per_pack?: number | null
 }
 
 export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'

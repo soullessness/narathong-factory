@@ -389,6 +389,16 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
                   {item.description}
                 </Text>
               ) : null}
+              {item.price_per_sqm ? (
+                <Text style={[styles.tdText, { color: '#7B4F2E', fontSize: 8, marginTop: 2 }]}>
+                  📐 {formatCurrency(item.price_per_sqm)} บาท/ตร.ม.
+                </Text>
+              ) : null}
+              {item.price_per_pack && item.pieces_per_pack ? (
+                <Text style={[styles.tdText, { color: '#555', fontSize: 8, marginTop: 1 }]}>
+                  📦 {formatCurrency(item.price_per_pack)} บาท/แพ็ค ({item.pieces_per_pack} แผ่น/แพ็ค)
+                </Text>
+              ) : null}
             </View>
             <Text style={[styles.tdText, styles.colQty]}>
               {item.quantity.toLocaleString()}
