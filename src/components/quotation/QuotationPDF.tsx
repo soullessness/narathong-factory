@@ -13,17 +13,16 @@ import {
 import { Quotation } from '@/types/quotation'
 
 // Register NotoSansThai font for Thai language support
+// Use absolute URL so both server-side (API route) and client-side can load it
+const FONT_URL = typeof window !== 'undefined'
+  ? '/fonts/NotoSansThai-Regular.ttf'
+  : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://factory.narathong.cloud'}/fonts/NotoSansThai-Regular.ttf`
+
 Font.register({
   family: 'NotoSansThai',
   fonts: [
-    {
-      src: 'https://fonts.gstatic.com/s/notosansthai/v25/iJWnBXeUZi_OHPqn4wq6hQ2_hbJ1xyN9wd43SofpUtQ.ttf',
-      fontWeight: 'normal',
-    },
-    {
-      src: 'https://fonts.gstatic.com/s/notosansthai/v25/iJWnBXeUZi_OHPqn4wq6hQ2_hbJ1xyN9wd43SofpUtQ.ttf',
-      fontWeight: 'bold',
-    },
+    { src: FONT_URL, fontWeight: 'normal' },
+    { src: FONT_URL, fontWeight: 'bold' },
   ],
 })
 
