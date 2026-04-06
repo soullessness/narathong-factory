@@ -49,7 +49,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body: { stage: CRMStage; note?: string } = await request.json()
+    const body: { stage: CRMStage; note?: string; value?: number; deposit_amount?: number } = await request.json()
 
     if (!body.stage) {
       return NextResponse.json({ error: 'Stage จำเป็นต้องระบุ' }, { status: 400 })
@@ -74,6 +74,8 @@ export async function POST(
       .update({
         stage: body.stage,
         status: body.stage === 'completed' || body.stage === 'cancelled' ? body.stage : 'active',
+        ...(body.value !== undefined && { value: body.value }),
+        ...(body.deposit_amount !== undefined && { deposit_amount: body.deposit_amount }),
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -81,7 +83,7 @@ export async function POST(
         `
         *,
         customers (id, name, contact_name, phone, email, address, customer_type, notes),
-        changer_profile:profiles!crm_stage_logs_changed_by_fkey (id, full_name, role)
+        sales_profile:profiles!projects_assigned_sales_fkey (id, full_name, role)
       `
       )
       .single()

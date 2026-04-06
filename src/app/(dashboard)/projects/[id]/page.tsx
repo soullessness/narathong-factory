@@ -76,6 +76,8 @@ export default function ProjectDetailPage() {
   const [changingStage, setChangingStage] = useState(false)
   const [newStage, setNewStage] = useState<CRMStage | ''>('')
   const [stageNote, setStageNote] = useState('')
+  const [stageValue, setStageValue] = useState('')
+  const [stageDeposit, setStageDeposit] = useState('')
   const [stageLoading, setStageLoading] = useState(false)
   const [stageError, setStageError] = useState<string | null>(null)
 
@@ -125,7 +127,12 @@ export default function ProjectDetailPage() {
       const res = await fetch(`/api/projects/${id}/stage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stage: newStage, note: stageNote }),
+        body: JSON.stringify({
+          stage: newStage,
+          note: stageNote,
+          value: stageValue ? parseFloat(stageValue) : undefined,
+          deposit_amount: stageDeposit ? parseFloat(stageDeposit) : undefined,
+        }),
       })
       const json = await res.json()
       if (!res.ok) {
@@ -339,6 +346,30 @@ export default function ProjectDetailPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                  {(newStage === 'quotation' || newStage === 'deposit') && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">มูลค่าโปรเจค (บาท)</Label>
+                      <input
+                        type="number"
+                        value={stageValue}
+                        onChange={(e) => setStageValue(e.target.value)}
+                        placeholder="0.00"
+                        className="w-full border rounded-md px-3 py-1.5 text-sm"
+                      />
+                    </div>
+                  )}
+                  {newStage === 'deposit' && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs">ยอดมัดจำ (บาท)</Label>
+                      <input
+                        type="number"
+                        value={stageDeposit}
+                        onChange={(e) => setStageDeposit(e.target.value)}
+                        placeholder="0.00"
+                        className="w-full border rounded-md px-3 py-1.5 text-sm"
+                      />
+                    </div>
+                  )}
                   <div className="space-y-1.5">
                     <Label className="text-xs">หมายเหตุ</Label>
                     <Textarea
@@ -358,6 +389,8 @@ export default function ProjectDetailPage() {
                         setChangingStage(false)
                         setNewStage('')
                         setStageNote('')
+                        setStageValue('')
+                        setStageDeposit('')
                         setStageError(null)
                       }}
                       className="flex-1"
