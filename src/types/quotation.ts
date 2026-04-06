@@ -11,6 +11,8 @@ export interface QuotationItem {
   price_per_sqm?: number | null
   price_per_pack?: number | null
   pieces_per_pack?: number | null
+  // Category for area breakdown
+  category_slug?: string | null  // 'floor' | 'wall' | 'ceiling' | etc.
 }
 
 export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'
@@ -32,6 +34,11 @@ export interface Quotation {
   created_by: string | null
   created_at: string
   updated_at: string
+  // Sales & agent info
+  sales_name?: string | null
+  sales_phone?: string | null
+  agent_name?: string | null
+  agent_phone?: string | null
   // Joins
   projects?: {
     id: string

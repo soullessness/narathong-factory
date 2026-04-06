@@ -64,6 +64,10 @@ export default function NewQuotationPage() {
   const [discountType, setDiscountType] = useState<'amount' | 'percent'>('amount')
   const [vatEnabled, setVatEnabled] = useState(true)
   const [notes, setNotes] = useState('')
+  const [salesName, setSalesName] = useState('')
+  const [salesPhone, setSalesPhone] = useState('')
+  const [agentName, setAgentName] = useState('')
+  const [agentPhone, setAgentPhone] = useState('')
   const [saving, setSaving] = useState(false)
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
   const [productPickerOpen, setProductPickerOpen] = useState(false)
@@ -119,6 +123,7 @@ export default function NewQuotationPage() {
       price_per_sqm: computed.price_per_sqm ?? null,
       price_per_pack: product.price_per_pack ?? null,
       pieces_per_pack: product.pieces_per_pack ?? null,
+      category_slug: (product as { category?: { slug?: string } }).category?.slug ?? null,
     }
     setItems((prev) => [...prev, newItem])
   }
@@ -173,6 +178,10 @@ export default function NewQuotationPage() {
           status,
           valid_until: validUntil,
           notes,
+          sales_name: salesName || null,
+          sales_phone: salesPhone || null,
+          agent_name: agentName || null,
+          agent_phone: agentPhone || null,
         }),
       })
       const json = await res.json()
@@ -254,6 +263,53 @@ export default function NewQuotationPage() {
                   className="text-sm"
                 />
               </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Sales & Agent Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">พนักงานขาย / ตัวแทนจำหน่าย</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-gray-500 mb-1 block">พนักงานขาย</Label>
+              <Input
+                value={salesName}
+                onChange={(e) => setSalesName(e.target.value)}
+                placeholder="ชื่อพนักงานขาย"
+                className="text-sm"
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500 mb-1 block">โทรศัพท์</Label>
+              <Input
+                value={salesPhone}
+                onChange={(e) => setSalesPhone(e.target.value)}
+                placeholder="063-xxx-xxxx"
+                className="text-sm"
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500 mb-1 block">ตัวแทนจำหน่าย</Label>
+              <Input
+                value={agentName}
+                onChange={(e) => setAgentName(e.target.value)}
+                placeholder="ชื่อตัวแทน"
+                className="text-sm"
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-gray-500 mb-1 block">โทรศัพท์</Label>
+              <Input
+                value={agentPhone}
+                onChange={(e) => setAgentPhone(e.target.value)}
+                placeholder="063-xxx-xxxx"
+                className="text-sm"
+              />
             </div>
           </div>
         </CardContent>

@@ -130,30 +130,125 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // ─── SECTION 3: พื้นที่รวม ────────────────────────────────────
-  areaSummaryRow: {
+  // ─── SECTION 3: พื้นที่แยกประเภท ────────────────────────────
+  areaBreakdownBox: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: LIGHT_BG,
-    borderRadius: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginBottom: 8,
     borderWidth: 1,
     borderColor: '#e8d5c4',
+    borderRadius: 4,
+    marginBottom: 8,
+    overflow: 'hidden',
   },
-  areaSummaryLabel: {
-    fontSize: 9,
+  areaBreakdownLeft: {
+    flex: 1,
+    padding: 8,
+    backgroundColor: LIGHT_BG,
+    borderRightWidth: 1,
+    borderRightColor: '#e8d5c4',
+  },
+  areaBreakdownRight: {
+    width: 130,
+    padding: 8,
+    backgroundColor: LIGHT_BG,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  areaBreakdownTitle: {
+    fontSize: 8.5,
     fontFamily: 'NotoSansThai',
     color: '#555',
     fontWeight: 'bold',
+    marginBottom: 4,
   },
-  areaSummaryValue: {
-    fontSize: 10,
+  areaBreakdownRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  areaCheckBox: {
+    width: 8,
+    height: 8,
+    borderWidth: 1,
+    borderColor: BROWN,
+    borderRadius: 1,
+    marginRight: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  areaCheckBoxFilled: {
+    backgroundColor: BROWN,
+  },
+  areaCheckMark: {
+    fontSize: 6,
+    color: '#fff',
+    fontFamily: 'NotoSansThai',
+  },
+  areaRowLabel: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    color: '#444',
+    width: 52,
+  },
+  areaRowValue: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    color: '#1a1a1a',
+    fontWeight: 'bold',
+  },
+  areaTotalLabel: {
+    fontSize: 8,
+    fontFamily: 'NotoSansThai',
+    color: '#555',
+    marginBottom: 3,
+  },
+  areaTotalValue: {
+    fontSize: 14,
     fontFamily: 'NotoSansThai',
     fontWeight: 'bold',
     color: BROWN,
-    marginLeft: 6,
+  },
+  areaTotalUnit: {
+    fontSize: 8,
+    fontFamily: 'NotoSansThai',
+    color: '#555',
+    marginTop: 1,
+  },
+
+  // ─── SECTION 3b: พนักงานขาย + ตัวแทน ────────────────────────
+  salesAgentBox: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginBottom: 8,
+    backgroundColor: '#fafafa',
+    gap: 20,
+  },
+  salesAgentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  salesAgentLabel: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    color: '#888',
+    width: 72,
+    flexShrink: 0,
+  },
+  salesAgentName: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    color: '#1a1a1a',
+    fontWeight: 'bold',
+    flex: 1,
+  },
+  salesAgentPhone: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    color: '#555',
   },
 
   // ─── SECTION 4: Table ────────────────────────────────────────
@@ -375,16 +470,40 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
     .replace(/__META__[\s\S]*?__END__/, '')
     .trim()
 
-  // คำนวณพื้นที่รวม (จาก items ที่มี price_per_sqm)
-  const totalArea = quotation.items.reduce((sum, item) => {
+  // คำนวณพื้นที่แยกตาม category_slug
+  const calcSqm = (slug: string) =>
+    quotation.items
+      .filter((i) => i.category_slug === slug)
+      .reduce((sum, item) => {
+        const area = getAreaPerPiece(item)
+        return area !== null ? sum + item.quantity * area : sum
+      }, 0)
+
+  const floorSqm = calcSqm('floor')
+  const wallSqm = calcSqm('wall')
+  const ceilingSqm = calcSqm('ceiling')
+  const totalArea = floorSqm + wallSqm + ceilingSqm
+
+  // fallback: ถ้าไม่มี category_slug เลย คำนวณรวมจากทุก item ที่มี price_per_sqm
+  const totalAreaFallback = quotation.items.reduce((sum, item) => {
     const area = getAreaPerPiece(item)
     if (area !== null) {
       return sum + item.quantity * area
     }
     return sum
   }, 0)
+
+  const hasCategoryData = quotation.items.some((i) => i.category_slug)
+  const effectiveTotalArea = hasCategoryData ? totalArea : totalAreaFallback
+
   const hasSqmItems = quotation.items.some(
     (item) => item.price_per_sqm && item.price_per_sqm > 0
+  )
+
+  // พนักงานขาย / ตัวแทน
+  const hasSalesInfo = !!(
+    quotation.sales_name ||
+    quotation.agent_name
   )
 
   return (
@@ -459,13 +578,92 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           </View>
         </View>
 
-        {/* ─── SECTION 3: พื้นที่รวม (ถ้ามี) ─── */}
+        {/* ─── SECTION 3: พื้นที่แยกประเภท (ถ้ามี) ─── */}
         {hasSqmItems && (
-          <View style={styles.areaSummaryRow}>
-            <Text style={styles.areaSummaryLabel}>พื้นที่รวม:</Text>
-            <Text style={styles.areaSummaryValue}>
-              {totalArea.toFixed(2)} ตร.ม.
-            </Text>
+          <View style={styles.areaBreakdownBox}>
+            {/* LEFT: แสดงพื้นที่แยกประเภท */}
+            <View style={styles.areaBreakdownLeft}>
+              <Text style={styles.areaBreakdownTitle}>พื้นที่</Text>
+              {hasCategoryData ? (
+                <>
+                  {floorSqm > 0 && (
+                    <View style={styles.areaBreakdownRow}>
+                      <View style={[styles.areaCheckBox, styles.areaCheckBoxFilled]}>
+                        <Text style={styles.areaCheckMark}>✓</Text>
+                      </View>
+                      <Text style={styles.areaRowLabel}>ปูพื้น</Text>
+                      <Text style={styles.areaRowValue}>{floorSqm.toFixed(2)} ตร.ม.</Text>
+                    </View>
+                  )}
+                  {wallSqm > 0 && (
+                    <View style={styles.areaBreakdownRow}>
+                      <View style={[styles.areaCheckBox, styles.areaCheckBoxFilled]}>
+                        <Text style={styles.areaCheckMark}>✓</Text>
+                      </View>
+                      <Text style={styles.areaRowLabel}>กรุผนัง</Text>
+                      <Text style={styles.areaRowValue}>{wallSqm.toFixed(2)} ตร.ม.</Text>
+                    </View>
+                  )}
+                  {ceilingSqm > 0 && (
+                    <View style={styles.areaBreakdownRow}>
+                      <View style={[styles.areaCheckBox, styles.areaCheckBoxFilled]}>
+                        <Text style={styles.areaCheckMark}>✓</Text>
+                      </View>
+                      <Text style={styles.areaRowLabel}>ฝ้า</Text>
+                      <Text style={styles.areaRowValue}>{ceilingSqm.toFixed(2)} ตร.ม.</Text>
+                    </View>
+                  )}
+                  {floorSqm === 0 && wallSqm === 0 && ceilingSqm === 0 && (
+                    <View style={styles.areaBreakdownRow}>
+                      <View style={[styles.areaCheckBox, styles.areaCheckBoxFilled]}>
+                        <Text style={styles.areaCheckMark}>✓</Text>
+                      </View>
+                      <Text style={styles.areaRowLabel}>รวม</Text>
+                      <Text style={styles.areaRowValue}>{effectiveTotalArea.toFixed(2)} ตร.ม.</Text>
+                    </View>
+                  )}
+                </>
+              ) : (
+                <View style={styles.areaBreakdownRow}>
+                  <View style={[styles.areaCheckBox, styles.areaCheckBoxFilled]}>
+                    <Text style={styles.areaCheckMark}>✓</Text>
+                  </View>
+                  <Text style={styles.areaRowLabel}>รวม</Text>
+                  <Text style={styles.areaRowValue}>{effectiveTotalArea.toFixed(2)} ตร.ม.</Text>
+                </View>
+              )}
+            </View>
+
+            {/* RIGHT: พื้นที่รวม */}
+            <View style={styles.areaBreakdownRight}>
+              <Text style={styles.areaTotalLabel}>พื้นที่รวม</Text>
+              <Text style={styles.areaTotalValue}>{effectiveTotalArea.toFixed(2)}</Text>
+              <Text style={styles.areaTotalUnit}>ตร.ม.</Text>
+            </View>
+          </View>
+        )}
+
+        {/* ─── SECTION 3b: พนักงานขาย + ตัวแทน (ถ้ามี) ─── */}
+        {hasSalesInfo && (
+          <View style={styles.salesAgentBox}>
+            {quotation.sales_name ? (
+              <View style={styles.salesAgentRow}>
+                <Text style={styles.salesAgentLabel}>พนักงานขาย:</Text>
+                <Text style={styles.salesAgentName}>{quotation.sales_name}</Text>
+                {quotation.sales_phone ? (
+                  <Text style={styles.salesAgentPhone}>โทร. {quotation.sales_phone}</Text>
+                ) : null}
+              </View>
+            ) : null}
+            {quotation.agent_name ? (
+              <View style={styles.salesAgentRow}>
+                <Text style={styles.salesAgentLabel}>ตัวแทนจำหน่าย:</Text>
+                <Text style={styles.salesAgentName}>{quotation.agent_name}</Text>
+                {quotation.agent_phone ? (
+                  <Text style={styles.salesAgentPhone}>โทร. {quotation.agent_phone}</Text>
+                ) : null}
+              </View>
+            ) : null}
           </View>
         )}
 

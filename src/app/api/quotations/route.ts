@@ -1,6 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { CreateQuotationInput } from '@/types/quotation'
+import { CreateQuotationInput, Quotation } from '@/types/quotation'
+
+function parseMeta(notes: string | null): Record<string, unknown> {
+  if (!notes) return {}
+  const match = notes.match(/__META__([\s\S]*?)__END__/)
+  if (!match) return {}
+  try {
+    return JSON.parse(match[1])
+  } catch {
+    return {}
+  }
+}
+
+function enrichWithMeta(row: Quotation): Quotation {
+  const meta = parseMeta(row.notes)
+  return {
+    ...row,
+    discount_type: (meta.discount_type as 'amount' | 'percent') ?? 'amount',
+    vat_enabled: (meta.vat_enabled as boolean) ?? false,
+    vat_amount: (meta.vat_amount as number) ?? 0,
+    sales_name: (meta.sales_name as string | null) ?? null,
+    sales_phone: (meta.sales_phone as string | null) ?? null,
+    agent_name: (meta.agent_name as string | null) ?? null,
+    agent_phone: (meta.agent_phone as string | null) ?? null,
+  }
+}
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient()
@@ -28,7 +53,8 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data })
+  const enriched = (data as Quotation[]).map(enrichWithMeta)
+  return NextResponse.json({ data: enriched })
 }
 
 export async function POST(req: NextRequest) {
@@ -36,17 +62,22 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body: CreateQuotationInput = await req.json()
+  const body: CreateQuotationInput & {
+    sales_name?: string | null
+    sales_phone?: string | null
+    agent_name?: string | null
+    agent_phone?: string | null
+  } = await req.json()
 
-  // Store extra fields (discount_type, vat_enabled, vat_amount) in items metadata
-  // since the DB schema doesn't have these columns directly
-  // We'll embed them in items as a special "__meta" entry approach
-  // Actually we'll store them in notes as JSON prefix or use a workaround
-  // Better: store vat/discount_type in notes as base64 JSON suffix
+  // Store extra fields in __META__ block in notes
   const metaNote = `__META__${JSON.stringify({
     discount_type: body.discount_type,
     vat_enabled: body.vat_enabled,
     vat_amount: body.vat_amount,
+    sales_name: body.sales_name ?? null,
+    sales_phone: body.sales_phone ?? null,
+    agent_name: body.agent_name ?? null,
+    agent_phone: body.agent_phone ?? null,
   })}__END__`
   const notesWithMeta = body.notes
     ? `${body.notes}\n${metaNote}`
@@ -76,5 +107,5 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data }, { status: 201 })
+  return NextResponse.json({ data: enrichWithMeta(data as Quotation) }, { status: 201 })
 }
