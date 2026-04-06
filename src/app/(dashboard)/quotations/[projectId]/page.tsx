@@ -5,9 +5,20 @@ import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Plus, FileText, Calendar, DollarSign, Download } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { ArrowLeft, Plus, FileText, Calendar, DollarSign, Download, Pencil, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
+import { toast } from 'sonner'
 import type { Quotation } from '@/types/quotation'
 
 const STATUS_LABEL: Record<string, { label: string; className: string }> = {
@@ -44,6 +55,8 @@ export default function QuotationListPage() {
 
   const [quotations, setQuotations] = useState<Quotation[]>([])
   const [loading, setLoading] = useState(true)
+  const [deleteTarget, setDeleteTarget] = useState<Quotation | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const fetchQuotations = useCallback(async () => {
     try {
@@ -68,6 +81,25 @@ export default function QuotationListPage() {
     link.href = `/api/quotations/${quotationId}/pdf`
     link.download = `${quotationNumber}.pdf`
     link.click()
+  }
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/quotations/${deleteTarget.id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const json = await res.json()
+        throw new Error(json.error || 'ลบไม่สำเร็จ')
+      }
+      toast.success(`ลบใบเสนอราคา ${deleteTarget.quotation_number} สำเร็จ`)
+      setDeleteTarget(null)
+      await fetchQuotations()
+    } catch (err) {
+      toast.error(`เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : 'unknown'}`)
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const projectName = quotations[0]?.projects?.name || 'โปรเจค'
@@ -159,14 +191,14 @@ export default function QuotationListPage() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       variant="outline"
                       size="sm"
                       className="gap-1.5"
                       onClick={() => handleDownloadPDF(q.id, q.quotation_number || q.id)}
                     >
-                      <Download className="w-3.5 h-3.5" /> Download PDF
+                      <Download className="w-3.5 h-3.5" /> ดาวน์โหลด PDF
                     </Button>
                     <Button
                       variant="outline"
@@ -174,7 +206,23 @@ export default function QuotationListPage() {
                       onClick={() => window.open(`/api/quotations/${q.id}/pdf`, '_blank')}
                       className="gap-1.5"
                     >
-                      <FileText className="w-3.5 h-3.5" /> Preview PDF
+                      <FileText className="w-3.5 h-3.5" /> ดู PDF
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/quotations/${projectId}/edit/${q.id}`)}
+                      className="gap-1.5 text-amber-700 border-amber-300 hover:bg-amber-50"
+                    >
+                      <Pencil className="w-3.5 h-3.5" /> แก้ไข
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDeleteTarget(q)}
+                      className="gap-1.5 text-red-600 border-red-300 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> ลบ
                     </Button>
                   </div>
                 </CardContent>
@@ -183,6 +231,36 @@ export default function QuotationListPage() {
           })}
         </div>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>ยืนยันการลบใบเสนอราคา</AlertDialogTitle>
+            <AlertDialogDescription>
+              คุณต้องการลบใบเสนอราคา{' '}
+              <span className="font-semibold text-gray-800">
+                {deleteTarget?.quotation_number}
+              </span>{' '}
+              ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                'ลบใบเสนอราคา'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
