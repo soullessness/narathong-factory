@@ -10,12 +10,15 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, Plus, Trash2, Upload, X } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, Upload, X, Package } from 'lucide-react'
 import { format, addDays } from 'date-fns'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { ProductPickerModal } from '@/components/product/ProductPickerModal'
 import type { QuotationItem } from '@/types/quotation'
 import type { CRMProject } from '@/types/crm'
+import type { Product } from '@/types/product'
+import { computeAreaPricing } from '@/types/product'
 
 function generateQuotationNumber(): string {
   const now = new Date()
@@ -63,6 +66,7 @@ export default function NewQuotationPage() {
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
+  const [productPickerOpen, setProductPickerOpen] = useState(false)
 
   const fetchProject = useCallback(async () => {
     try {
@@ -100,6 +104,23 @@ export default function NewQuotationPage() {
   }
 
   const addItem = () => setItems((prev) => [...prev, DEFAULT_ITEM()])
+
+  const addItemFromProduct = (product: Product) => {
+    const computed = computeAreaPricing(product)
+    const newItem: QuotationItem = {
+      id: uuidv4(),
+      name: product.name,
+      description: product.price_per_sqm
+        ? `${computed.price_per_sqm?.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.`
+        : '',
+      quantity: 1,
+      unit: product.unit,
+      unit_price: product.price_per_unit,
+      total: product.price_per_unit,
+      image_url: product.image_url ?? null,
+    }
+    setItems((prev) => [...prev, newItem])
+  }
 
   const removeItem = (idx: number) =>
     setItems((prev) => prev.filter((_, i) => i !== idx))
@@ -242,9 +263,19 @@ export default function NewQuotationPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">รายการสินค้า</CardTitle>
-            <Button size="sm" variant="outline" onClick={addItem} className="gap-1">
-              <Plus className="w-3.5 h-3.5" /> เพิ่มรายการ
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setProductPickerOpen(true)}
+                className="gap-1 text-amber-700 border-amber-300 hover:bg-amber-50"
+              >
+                <Package className="w-3.5 h-3.5" /> เลือกจากสินค้า
+              </Button>
+              <Button size="sm" variant="outline" onClick={addItem} className="gap-1">
+                <Plus className="w-3.5 h-3.5" /> เพิ่มรายการ
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -494,6 +525,13 @@ export default function NewQuotationPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Product Picker */}
+      <ProductPickerModal
+        open={productPickerOpen}
+        onClose={() => setProductPickerOpen(false)}
+        onSelect={addItemFromProduct}
+      />
 
       {/* Action Buttons */}
       <div className="flex gap-3 justify-end pb-8">

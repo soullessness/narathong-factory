@@ -10,6 +10,7 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Package,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -33,6 +34,11 @@ const navItems = [
     href: '/customers',
     label: 'ลูกค้า',
     icon: Users,
+  },
+  {
+    href: '/products',
+    label: 'สินค้า',
+    icon: Package,
   },
   {
     href: '/production',
