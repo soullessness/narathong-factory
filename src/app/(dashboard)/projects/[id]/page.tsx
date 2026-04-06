@@ -174,8 +174,8 @@ export default function ProjectDetailPage() {
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Back + Title */}
       <div className="flex items-start gap-4">
-        <Button variant="ghost" size="sm" onClick={() => router.push('/crm')} className="gap-1 mt-1">
-          <ArrowLeft className="w-4 h-4" /> CRM
+        <Button variant="ghost" size="sm" onClick={() => router.push('/projects')} className="gap-1 mt-1">
+          <ArrowLeft className="w-4 h-4" /> โปรเจค
         </Button>
         <div className="flex-1">
           <div className="flex items-start justify-between gap-2">

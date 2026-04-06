@@ -30,8 +30,8 @@ const navItems = [
     icon: FolderKanban,
   },
   {
-    href: '/crm',
-    label: 'ลูกค้า (CRM)',
+    href: '/customers',
+    label: 'ลูกค้า',
     icon: Users,
   },
   {
