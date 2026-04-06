@@ -17,6 +17,16 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
   ArrowLeft,
   Calendar,
   DollarSign,
@@ -29,6 +39,7 @@ import {
   Building2,
   FileText,
   Plus,
+  Trash2,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -96,6 +107,24 @@ export default function ProjectDetailPage() {
 
   // Edit dialog
   const [showEdit, setShowEdit] = useState(false)
+
+  // Delete dialog
+  const [showDelete, setShowDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        router.push('/projects')
+      }
+    } catch {
+      // ignore
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   const fetchProject = useCallback(async () => {
     try {
@@ -225,6 +254,14 @@ export default function ProjectDetailPage() {
               </Badge>
               <Button size="sm" variant="outline" onClick={() => setShowEdit(true)} className="gap-1">
                 <Edit className="w-3.5 h-3.5" /> แก้ไข
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowDelete(true)}
+                className="gap-1 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+              >
+                <Trash2 className="w-3.5 h-3.5" /> ลบ
               </Button>
             </div>
           </div>
@@ -580,6 +617,28 @@ export default function ProjectDetailPage() {
         initialStage={project.stage}
         editProject={project}
       />
+
+      {/* Delete Confirm Dialog */}
+      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>ยืนยันการลบโปรเจค</AlertDialogTitle>
+            <AlertDialogDescription>
+              ยืนยันการลบโปรเจค &ldquo;{project.name}&rdquo;? การดำเนินการนี้ไม่สามารถยกเลิกได้
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? 'กำลังลบ...' : 'ลบโปรเจค'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
