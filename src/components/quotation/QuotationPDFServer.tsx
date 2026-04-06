@@ -153,14 +153,15 @@ const styles = StyleSheet.create({
   tableRowAlt: {
     backgroundColor: '#fdf6f0',
   },
-  colNo: { width: 20, textAlign: 'center' },
-  colImg: { width: 76 },
+  colNo: { width: 18, textAlign: 'center' },
+  colImg: { width: 72 },
   colName: { flex: 1, paddingLeft: 4 },
-  colQty: { width: 36, textAlign: 'right' },
-  colUnit: { width: 30, textAlign: 'center' },
-  colPrice: { width: 54, textAlign: 'right' },
-  colSqm: { width: 54, textAlign: 'right' },
-  colTotal: { width: 58, textAlign: 'right' },
+  colQty: { width: 32, textAlign: 'right' },
+  colUnit: { width: 26, textAlign: 'center' },
+  colPrice: { width: 50, textAlign: 'right' },
+  colSqm: { width: 50, textAlign: 'right' },
+  colSqmTotal: { width: 56, textAlign: 'right' },
+  colTotal: { width: 56, textAlign: 'right' },
   thText: {
     fontSize: 9,
     fontFamily: 'NotoSansThai',
@@ -377,6 +378,7 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           <Text style={[styles.thText, styles.colUnit]}>หน่วย</Text>
           <Text style={[styles.thText, styles.colPrice]}>ราคา/หน่วย</Text>
           <Text style={[styles.thText, styles.colSqm]}>ราคา/ตร.ม.</Text>
+          <Text style={[styles.thText, styles.colSqmTotal]}>รวม ตร.ม./แพ็ค</Text>
           <Text style={[styles.thText, styles.colTotal]}>รวม (บาท)</Text>
         </View>
 
@@ -421,6 +423,24 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
             <Text style={[styles.tdText, styles.colSqm]}>
               {item.price_per_sqm ? formatCurrency(item.price_per_sqm) : '-'}
             </Text>
+            <View style={styles.colSqmTotal}>
+              {item.price_per_sqm && item.price_per_sqm > 0 && item.quantity ? (
+                <Text style={[styles.tdText, { textAlign: 'right' }]}>
+                  {(() => {
+                    const areaPer = item.unit_price / item.price_per_sqm!
+                    const totalSqm = item.quantity * areaPer
+                    return `${totalSqm.toFixed(2)} ตร.ม.`
+                  })()}
+                </Text>
+              ) : (
+                <Text style={[styles.tdText, { textAlign: 'right' }]}>-</Text>
+              )}
+              {item.pieces_per_pack && item.pieces_per_pack > 0 && item.quantity ? (
+                <Text style={[styles.tdText, { textAlign: 'right', color: '#166534', fontSize: 8, marginTop: 2 }]}>
+                  {(item.quantity / item.pieces_per_pack).toFixed(1)} แพ็ค
+                </Text>
+              ) : null}
+            </View>
             <Text style={[styles.tdTextBold, styles.colTotal]}>
               {formatCurrency(item.total)}
             </Text>
