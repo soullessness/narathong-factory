@@ -11,14 +11,14 @@ import {
 } from '@react-pdf/renderer'
 import { Quotation } from '@/types/quotation'
 import { NARATHONG_LOGO_BASE64 } from '@/lib/logoBase64'
-import { NOTO_SANS_THAI_BASE64 } from '@/lib/fontBase64'
+import { NOTO_SANS_THAI_BASE64, NOTO_SANS_THAI_BOLD_BASE64 } from '@/lib/fontBase64'
 
-// Register NotoSansThai font using base64 to avoid server-side URL issues
+// Register Kanit font (Thai) using base64 to avoid server-side URL issues
 Font.register({
   family: 'NotoSansThai',
   fonts: [
     { src: NOTO_SANS_THAI_BASE64, fontWeight: 'normal' },
-    { src: NOTO_SANS_THAI_BASE64, fontWeight: 'bold' },
+    { src: NOTO_SANS_THAI_BOLD_BASE64, fontWeight: 'bold' },
   ],
 })
 
@@ -39,8 +39,8 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   logo: {
-    width: 70,
-    height: 70,
+    width: 100,
+    height: 100,
     marginRight: 16,
     objectFit: 'contain',
   },
