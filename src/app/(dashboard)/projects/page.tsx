@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Plus, RefreshCw, LayoutGrid, List } from 'lucide-react'
@@ -32,6 +33,7 @@ function formatValue(val: number | null | undefined): string {
 }
 
 export default function ProjectsPage() {
+  const router = useRouter()
   const [projects, setProjects] = useState<CRMProject[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -102,10 +104,8 @@ export default function ProjectsPage() {
     setShowAdd(true)
   }
 
-  const handleProjectClick = async (project: CRMProject) => {
-    setDetailProject(project)
-    setShowDetail(true)
-    await fetchStageLogs(project.id)
+  const handleProjectClick = (project: CRMProject) => {
+    router.push(`/projects/${project.id}`)
   }
 
   const handleProjectSaved = (saved: CRMProject) => {
