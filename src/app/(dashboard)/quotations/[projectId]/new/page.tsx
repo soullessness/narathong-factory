@@ -110,14 +110,15 @@ export default function NewQuotationPage() {
     const newItem: QuotationItem = {
       id: uuidv4(),
       name: product.name,
-      description: product.price_per_sqm
-        ? `${computed.price_per_sqm?.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.`
-        : '',
+      description: product.description ?? '',
       quantity: 1,
       unit: product.unit,
       unit_price: product.price_per_unit,
       total: product.price_per_unit,
       image_url: product.image_url ?? null,
+      price_per_sqm: computed.price_per_sqm ?? null,
+      price_per_pack: product.price_per_pack ?? null,
+      pieces_per_pack: product.pieces_per_pack ?? null,
     }
     setItems((prev) => [...prev, newItem])
   }
