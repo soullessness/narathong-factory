@@ -11,18 +11,14 @@ import {
 } from '@react-pdf/renderer'
 import { Quotation } from '@/types/quotation'
 import { NARATHONG_LOGO_BASE64 } from '@/lib/logoBase64'
+import { NOTO_SANS_THAI_BASE64 } from '@/lib/fontBase64'
 
-// Register NotoSansThai font for Thai language support
-// Use absolute URL so both server-side (API route) and client-side can load it
-const FONT_URL = typeof window !== 'undefined'
-  ? '/fonts/NotoSansThai-Regular.ttf'
-  : `${process.env.NEXT_PUBLIC_SITE_URL || 'https://factory.narathong.cloud'}/fonts/NotoSansThai-Regular.ttf`
-
+// Register NotoSansThai font using base64 to avoid server-side URL issues
 Font.register({
   family: 'NotoSansThai',
   fonts: [
-    { src: FONT_URL, fontWeight: 'normal' },
-    { src: FONT_URL, fontWeight: 'bold' },
+    { src: NOTO_SANS_THAI_BASE64, fontWeight: 'normal' },
+    { src: NOTO_SANS_THAI_BASE64, fontWeight: 'bold' },
   ],
 })
 
