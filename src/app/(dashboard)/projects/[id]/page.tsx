@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -26,6 +27,8 @@ import {
   Edit,
   ArrowRight,
   Building2,
+  FileText,
+  Plus,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -37,7 +40,16 @@ import {
   STAGE_ORDER,
   CUSTOMER_TYPE_LABELS,
 } from '@/types/crm'
+import type { Quotation } from '@/types/quotation'
 import { ProjectDialog } from '@/components/crm/ProjectDialog'
+
+const QUOTATION_STATUS_LABEL: Record<string, { label: string; className: string }> = {
+  draft: { label: 'Draft', className: 'bg-gray-100 text-gray-600 border-gray-300' },
+  sent: { label: 'ส่งแล้ว', className: 'bg-blue-100 text-blue-700 border-blue-300' },
+  accepted: { label: 'ยืนยัน', className: 'bg-green-100 text-green-700 border-green-300' },
+  rejected: { label: 'ปฏิเสธ', className: 'bg-red-100 text-red-700 border-red-300' },
+  expired: { label: 'หมดอายุ', className: 'bg-orange-100 text-orange-700 border-orange-300' },
+}
 
 function formatCurrency(value: number | null | undefined): string {
   if (value == null) return '—'
@@ -69,6 +81,7 @@ export default function ProjectDetailPage() {
 
   const [project, setProject] = useState<CRMProject | null>(null)
   const [stageLogs, setStageLogs] = useState<CRMStageLog[]>([])
+  const [quotations, setQuotations] = useState<Quotation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -110,14 +123,26 @@ export default function ProjectDetailPage() {
     }
   }, [id])
 
+  const fetchQuotations = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/quotations?projectId=${id}`)
+      if (res.ok) {
+        const json = await res.json()
+        setQuotations(json.data || [])
+      }
+    } catch {
+      setQuotations([])
+    }
+  }, [id])
+
   useEffect(() => {
     const load = async () => {
       setLoading(true)
-      await Promise.all([fetchProject(), fetchStageLogs()])
+      await Promise.all([fetchProject(), fetchStageLogs(), fetchQuotations()])
       setLoading(false)
     }
     load()
-  }, [fetchProject, fetchStageLogs])
+  }, [fetchProject, fetchStageLogs, fetchQuotations])
 
   const handleStageChange = async () => {
     if (!newStage || !project) return
@@ -301,6 +326,83 @@ export default function ProjectDetailPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Quotation Section */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <FileText className="w-4 h-4" /> ใบเสนอราคา
+                </CardTitle>
+                <Link href={`/quotations/${id}/new`}>
+                  <Button size="sm" variant="outline" className="gap-1">
+                    <Plus className="w-3.5 h-3.5" /> สร้างใบเสนอราคา
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {quotations.length === 0 ? (
+                <div className="text-center py-6">
+                  <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm text-gray-400">ยังไม่มีใบเสนอราคา</p>
+                  <Link href={`/quotations/${id}/new`}>
+                    <Button
+                      size="sm"
+                      className="mt-3 gap-1"
+                      style={{ backgroundColor: '#7B4F2E' }}
+                    >
+                      <Plus className="w-3.5 h-3.5 text-white" />
+                      <span className="text-white">สร้างใบแรก</span>
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {quotations.map((q) => {
+                    const statusConf =
+                      QUOTATION_STATUS_LABEL[q.status] || QUOTATION_STATUS_LABEL.draft
+                    return (
+                      <Link
+                        key={q.id}
+                        href={`/quotations/${id}`}
+                        className="flex items-center justify-between p-2.5 rounded-lg border hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-gray-400" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-800">
+                              {q.quotation_number}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {format(new Date(q.created_at), 'd MMM yyyy', { locale: th })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-green-700">
+                            {new Intl.NumberFormat('th-TH', {
+                              minimumFractionDigits: 0,
+                            }).format(q.total)}{' '}
+                            ฿
+                          </p>
+                          <Badge className={`${statusConf.className} border text-xs`}>
+                            {statusConf.label}
+                          </Badge>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                  <Link
+                    href={`/quotations/${id}`}
+                    className="text-xs text-amber-700 hover:underline flex items-center gap-1 mt-1"
+                  >
+                    ดูทั้งหมด ({quotations.length} รายการ)
+                  </Link>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Right: Stage + Timeline */}
