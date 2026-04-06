@@ -139,7 +139,11 @@ export function ProductDialog({ open, onClose, onSaved, product, categories }: P
             <Label>หมวดหมู่สินค้า</Label>
             <Select value={categoryId || 'none'} onValueChange={(v) => handleCategoryChange(v === 'none' ? '' : v)}>
               <SelectTrigger>
-                <SelectValue placeholder="เลือกหมวดหมู่" />
+                <SelectValue placeholder="เลือกหมวดหมู่">
+                  {categoryId
+                    ? (categories.find(c => c.id === categoryId)?.name ?? 'เลือกหมวดหมู่')
+                    : 'เลือกหมวดหมู่'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">— ไม่ระบุหมวดหมู่ —</SelectItem>
