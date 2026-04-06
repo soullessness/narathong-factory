@@ -1,4 +1,3 @@
-
 import React from 'react'
 import {
   Document,
@@ -66,13 +65,19 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 1,
   },
-  docTitle: {
+  // Badge for "ใบเสนอราคา"
+  docTitleBadge: {
+    backgroundColor: '#7B4F2E',
+    borderRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    alignSelf: 'flex-end',
+  },
+  docTitleText: {
     fontSize: 18,
     fontWeight: 'bold',
     fontFamily: 'NotoSansThai',
-    color: '#7B4F2E',
-    textAlign: 'right',
-    alignSelf: 'flex-end',
+    color: '#ffffff',
   },
   // Customer / Meta section
   metaRow: {
@@ -85,7 +90,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 4,
-    padding: 8,
+    padding: 12,
     backgroundColor: '#fafafa',
   },
   metaBox: {
@@ -93,40 +98,40 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 4,
-    padding: 8,
+    padding: 12,
     backgroundColor: '#fafafa',
   },
   sectionLabel: {
     fontSize: 9,
     fontFamily: 'NotoSansThai',
     color: '#888',
-    marginBottom: 2,
+    marginBottom: 4,
     fontWeight: 'bold',
   },
   metaLabel: {
     fontSize: 9,
     fontFamily: 'NotoSansThai',
     color: '#888',
-    marginBottom: 1,
+    marginBottom: 2,
   },
   metaValue: {
     fontSize: 9,
     fontFamily: 'NotoSansThai',
     color: '#333',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   boldText: {
     fontSize: 10,
     fontFamily: 'NotoSansThai',
     fontWeight: 'bold',
     color: '#1a1a1a',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   normalText: {
     fontSize: 9,
     fontFamily: 'NotoSansThai',
     color: '#555',
-    marginBottom: 1,
+    marginBottom: 2,
   },
   // Table
   tableHeader: {
@@ -140,7 +145,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
-    paddingVertical: 5,
+    paddingVertical: 10,
     paddingHorizontal: 4,
     minHeight: 36,
     alignItems: 'center',
@@ -186,7 +191,7 @@ const styles = StyleSheet.create({
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginBottom: 3,
+    marginBottom: 5,
     minWidth: 240,
   },
   summaryLabel: {
@@ -204,17 +209,23 @@ const styles = StyleSheet.create({
     width: 90,
     textAlign: 'right',
   },
+  totalSeparator: {
+    width: 240,
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    marginBottom: 5,
+  },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: 4,
+    marginTop: 0,
     paddingTop: 6,
     borderTopWidth: 2,
     borderTopColor: '#7B4F2E',
     minWidth: 240,
   },
   totalLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: 'NotoSansThai',
     fontWeight: 'bold',
     color: '#7B4F2E',
@@ -223,7 +234,7 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   totalValue: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: 'NotoSansThai',
     fontWeight: 'bold',
     color: '#7B4F2E',
@@ -233,7 +244,7 @@ const styles = StyleSheet.create({
   // Footer
   footerRow: {
     flexDirection: 'row',
-    marginTop: 24,
+    marginTop: 40,
     gap: 16,
   },
   footerBox: {
@@ -252,9 +263,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     padding: 8,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#E5E7EB',
     borderRadius: 4,
-    backgroundColor: '#fafafa',
+    backgroundColor: '#FAFAFA',
   },
   notesLabel: {
     fontSize: 9,
@@ -319,7 +330,10 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
               โทร: 073-511555  แฟกซ์: 073-532378
             </Text>
           </View>
-          <Text style={styles.docTitle}>ใบเสนอราคา</Text>
+          {/* Badge "ใบเสนอราคา" */}
+          <View style={styles.docTitleBadge}>
+            <Text style={styles.docTitleText}>ใบเสนอราคา</Text>
+          </View>
         </View>
 
         {/* Customer & Meta */}
@@ -390,14 +404,14 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
                 </Text>
               ) : null}
               {item.price_per_sqm ? (
-                <Text style={[styles.tdText, { color: '#7B4F2E', fontSize: 8, marginTop: 2 }]}>
-                  📐 {formatCurrency(item.price_per_sqm)} บาท/ตร.ม.
-                </Text>
+                <View style={{ backgroundColor: '#FEF3C7', borderRadius: 3, paddingHorizontal: 4, paddingVertical: 1, marginTop: 3, alignSelf: 'flex-start' }}>
+                  <Text style={{ fontSize: 7, color: '#92400E', fontFamily: 'NotoSansThai' }}>ตร.ม. {formatCurrency(item.price_per_sqm)} บาท</Text>
+                </View>
               ) : null}
               {item.price_per_pack && item.pieces_per_pack ? (
-                <Text style={[styles.tdText, { color: '#555', fontSize: 8, marginTop: 1 }]}>
-                  📦 {formatCurrency(item.price_per_pack)} บาท/แพ็ค ({item.pieces_per_pack} แผ่น/แพ็ค)
-                </Text>
+                <View style={{ backgroundColor: '#F0FDF4', borderRadius: 3, paddingHorizontal: 4, paddingVertical: 1, marginTop: 2, alignSelf: 'flex-start' }}>
+                  <Text style={{ fontSize: 7, color: '#166534', fontFamily: 'NotoSansThai' }}>แพ็ค {formatCurrency(item.price_per_pack)} บาท ({item.pieces_per_pack} แผ่น)</Text>
+                </View>
               ) : null}
             </View>
             <Text style={[styles.tdText, styles.colQty]}>
@@ -433,13 +447,15 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
               <Text style={styles.summaryValue}>{formatCurrency(quotation.vat_amount)} บาท</Text>
             </View>
           )}
+          {/* Thin separator before total */}
+          <View style={styles.totalSeparator} />
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>ยอดรวมสุทธิ</Text>
             <Text style={styles.totalValue}>{formatCurrency(quotation.total)} บาท</Text>
           </View>
         </View>
 
-        {/* Notes */}
+        {/* Notes — only shown when notes exist */}
         {cleanNotes ? (
           <View style={styles.notesSection}>
             <Text style={styles.notesLabel}>หมายเหตุ</Text>
@@ -453,7 +469,7 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
             <Text style={{ fontSize: 9, fontFamily: 'NotoSansThai', color: '#aaa', marginBottom: 20 }}>
               ลายเซ็น
             </Text>
-            <Text style={styles.footerLabel}>________________________</Text>
+            <Text style={styles.footerLabel}>{'_'.repeat(20)}</Text>
             <Text style={[styles.footerLabel, { marginTop: 4 }]}>
               ผู้เสนอราคา / Authorized Signature
             </Text>
@@ -465,7 +481,7 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
             <Text style={{ fontSize: 9, fontFamily: 'NotoSansThai', color: '#aaa', marginBottom: 20 }}>
               ลายเซ็น
             </Text>
-            <Text style={styles.footerLabel}>________________________</Text>
+            <Text style={styles.footerLabel}>{'_'.repeat(20)}</Text>
             <Text style={[styles.footerLabel, { marginTop: 4 }]}>
               ผู้อนุมัติ / Approved By
             </Text>
