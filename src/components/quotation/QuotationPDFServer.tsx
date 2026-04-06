@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   productImage: {
-    width: 36,
-    height: 36,
+    width: 70,
+    height: 70,
     objectFit: 'contain',
     borderRadius: 2,
   },
