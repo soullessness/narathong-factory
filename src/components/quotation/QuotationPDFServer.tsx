@@ -153,13 +153,14 @@ const styles = StyleSheet.create({
   tableRowAlt: {
     backgroundColor: '#fdf6f0',
   },
-  colNo: { width: 24, textAlign: 'center' },
+  colNo: { width: 20, textAlign: 'center' },
   colImg: { width: 76 },
   colName: { flex: 1, paddingLeft: 4 },
-  colQty: { width: 40, textAlign: 'right' },
-  colUnit: { width: 36, textAlign: 'center' },
-  colPrice: { width: 60, textAlign: 'right' },
-  colTotal: { width: 64, textAlign: 'right' },
+  colQty: { width: 36, textAlign: 'right' },
+  colUnit: { width: 30, textAlign: 'center' },
+  colPrice: { width: 54, textAlign: 'right' },
+  colSqm: { width: 54, textAlign: 'right' },
+  colTotal: { width: 58, textAlign: 'right' },
   thText: {
     fontSize: 9,
     fontFamily: 'NotoSansThai',
@@ -375,6 +376,7 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           <Text style={[styles.thText, styles.colQty]}>จำนวน</Text>
           <Text style={[styles.thText, styles.colUnit]}>หน่วย</Text>
           <Text style={[styles.thText, styles.colPrice]}>ราคา/หน่วย</Text>
+          <Text style={[styles.thText, styles.colSqm]}>ราคา/ตร.ม.</Text>
           <Text style={[styles.thText, styles.colTotal]}>รวม (บาท)</Text>
         </View>
 
@@ -403,11 +405,6 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
                   {item.description}
                 </Text>
               ) : null}
-              {item.price_per_sqm ? (
-                <View style={{ backgroundColor: '#FEF3C7', borderRadius: 3, paddingHorizontal: 4, paddingVertical: 1, marginTop: 3, alignSelf: 'flex-start' }}>
-                  <Text style={{ fontSize: 7, color: '#92400E', fontFamily: 'NotoSansThai' }}>ตร.ม. {formatCurrency(item.price_per_sqm)} บาท</Text>
-                </View>
-              ) : null}
               {item.price_per_pack && item.pieces_per_pack ? (
                 <View style={{ backgroundColor: '#F0FDF4', borderRadius: 3, paddingHorizontal: 4, paddingVertical: 1, marginTop: 2, alignSelf: 'flex-start' }}>
                   <Text style={{ fontSize: 7, color: '#166534', fontFamily: 'NotoSansThai' }}>แพ็ค {formatCurrency(item.price_per_pack)} บาท ({item.pieces_per_pack} แผ่น)</Text>
@@ -420,6 +417,9 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
             <Text style={[styles.tdText, styles.colUnit]}>{item.unit}</Text>
             <Text style={[styles.tdText, styles.colPrice]}>
               {formatCurrency(item.unit_price)}
+            </Text>
+            <Text style={[styles.tdText, styles.colSqm]}>
+              {item.price_per_sqm ? formatCurrency(item.price_per_sqm) : '-'}
             </Text>
             <Text style={[styles.tdTextBold, styles.colTotal]}>
               {formatCurrency(item.total)}
