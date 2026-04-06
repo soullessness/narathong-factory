@@ -179,7 +179,9 @@ const styles = StyleSheet.create({
   },
 
   // Column widths (total ≈ 535pt for A4 - 2×30 padding)
-  colNo: { width: 22, textAlign: 'center' },
+  colNo: { width: 20, textAlign: 'center' },
+  colImg: { width: 48 },
+  productImage: { width: 40, height: 40, objectFit: 'contain', borderRadius: 2 },
   colName: { flex: 1, paddingHorizontal: 4 },
   colPcsPerSqm: { width: 42, textAlign: 'right' },
   colPcsPerBox: { width: 42, textAlign: 'right' },
@@ -471,6 +473,7 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
         {/* Header row */}
         <View style={styles.tableHeader}>
           <Text style={[styles.thText, styles.colNo]}>ที่</Text>
+          <Text style={[styles.thText, styles.colImg]}> </Text>
           <Text style={[styles.thText, styles.colName]}>รายการสินค้า</Text>
           <Text style={[styles.thText, styles.colPcsPerSqm]}>แผ่น/ตร.ม.</Text>
           <Text style={[styles.thText, styles.colPcsPerBox]}>แผ่น/กล่อง</Text>
@@ -502,6 +505,13 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
               ]}
             >
               <Text style={[styles.tdText, styles.colNo]}>{idx + 1}</Text>
+              <View style={styles.colImg}>
+                {item.image_url ? (
+                  <Image src={item.image_url} style={styles.productImage} />
+                ) : (
+                  <View style={[styles.productImage, { backgroundColor: '#f5f0eb' }]} />
+                )}
+              </View>
               <View style={styles.colName}>
                 <Text style={styles.tdTextBold}>{item.name}</Text>
                 {item.description ? (
