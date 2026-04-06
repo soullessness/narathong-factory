@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
         `
         *,
         customers (id, name, contact_name, phone, email, customer_type),
-        profiles (id, full_name, role)
+        sales_profile:profiles!projects_assigned_sales_fkey (id, full_name, role)
       `
       )
       .order('created_at', { ascending: false })
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
         `
         *,
         customers (id, name, contact_name, phone, email, customer_type),
-        profiles (id, full_name, role)
+        sales_profile:profiles!projects_assigned_sales_fkey (id, full_name, role)
       `
       )
       .single()

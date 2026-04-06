@@ -53,7 +53,7 @@ export interface CRMProject {
   updated_at: string
   // Joins
   customers?: Customer | null
-  profiles?: Profile | null
+  sales_profile?: Profile | null
 }
 
 export interface CRMStageLog {
@@ -65,7 +65,7 @@ export interface CRMStageLog {
   changed_by?: string | null
   changed_at: string
   // Join
-  profiles?: Profile | null
+  changer_profile?: Profile | null
 }
 
 export interface CreateProjectInput {

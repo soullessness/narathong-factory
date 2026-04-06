@@ -156,7 +156,7 @@ export function ProjectDetailDialog({
               <p className="text-xs text-gray-500 flex items-center gap-1">
                 <User className="w-3 h-3" /> Sales ที่รับผิดชอบ
               </p>
-              <p className="font-medium">{project.profiles?.full_name || '—'}</p>
+              <p className="font-medium">{project.sales_profile?.full_name || '—'}</p>
             </div>
           </div>
 
@@ -314,7 +314,7 @@ export function ProjectDetailDialog({
                         )}
                         <p className="text-xs text-gray-400 mt-1">
                           {formatDate(log.changed_at)}
-                          {log.profiles && ` • ${log.profiles.full_name}`}
+                          {log.changer_profile && ` • ${log.changer_profile.full_name}`}
                         </p>
                       </div>
                     </div>

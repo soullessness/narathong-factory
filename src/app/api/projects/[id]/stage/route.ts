@@ -15,7 +15,7 @@ export async function GET(
       .select(
         `
         *,
-        profiles (id, full_name, role)
+        changer_profile:profiles!crm_stage_logs_changed_by_fkey (id, full_name, role)
       `
       )
       .eq('project_id', id)
@@ -81,7 +81,7 @@ export async function POST(
         `
         *,
         customers (id, name, contact_name, phone, email, address, customer_type, notes),
-        profiles (id, full_name, role, phone)
+        changer_profile:profiles!crm_stage_logs_changed_by_fkey (id, full_name, role)
       `
       )
       .single()

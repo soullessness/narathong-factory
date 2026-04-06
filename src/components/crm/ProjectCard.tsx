@@ -74,11 +74,11 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
           <span />
         )}
 
-        {project.profiles && (
+        {project.sales_profile && (
           <div className="flex items-center gap-1 text-gray-400">
             <User className="w-3 h-3 flex-shrink-0" />
             <span className="text-xs truncate max-w-[80px]">
-              {project.profiles.full_name.split(' ')[0]}
+              {project.sales_profile.full_name.split(' ')[0]}
             </span>
           </div>
         )}

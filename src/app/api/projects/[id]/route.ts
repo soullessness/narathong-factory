@@ -16,7 +16,7 @@ export async function GET(
         `
         *,
         customers (id, name, contact_name, phone, email, address, customer_type, notes),
-        profiles (id, full_name, role, phone)
+        sales_profile:profiles!projects_assigned_sales_fkey (id, full_name, role, phone)
       `
       )
       .eq('id', id)
@@ -63,7 +63,7 @@ export async function PATCH(
         `
         *,
         customers (id, name, contact_name, phone, email, address, customer_type, notes),
-        profiles (id, full_name, role, phone)
+        sales_profile:profiles!projects_assigned_sales_fkey (id, full_name, role, phone)
       `
       )
       .single()
