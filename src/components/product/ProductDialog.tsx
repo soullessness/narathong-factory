@@ -137,13 +137,16 @@ export function ProductDialog({ open, onClose, onSaved, product, categories }: P
           {/* Category */}
           <div className="space-y-1.5">
             <Label>หมวดหมู่สินค้า</Label>
-            <Select value={categoryId} onValueChange={handleCategoryChange}>
+            <Select value={categoryId || 'none'} onValueChange={(v) => handleCategoryChange(v === 'none' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="เลือกหมวดหมู่" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="none">— ไม่ระบุหมวดหมู่ —</SelectItem>
                 {categories.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
