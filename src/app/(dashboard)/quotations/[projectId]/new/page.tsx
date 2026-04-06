@@ -278,139 +278,123 @@ export default function NewQuotationPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="px-3 py-2 text-left text-xs text-gray-500 w-10">#</th>
-                  <th className="px-3 py-2 text-left text-xs text-gray-500 w-16">รูป</th>
-                  <th className="px-3 py-2 text-left text-xs text-gray-500">ชื่อสินค้า / รายละเอียด</th>
-                  <th className="px-3 py-2 text-right text-xs text-gray-500 w-24">จำนวน</th>
-                  <th className="px-3 py-2 text-left text-xs text-gray-500 w-20">หน่วย</th>
-                  <th className="px-3 py-2 text-right text-xs text-gray-500 w-28">ราคา/หน่วย</th>
-                  <th className="px-3 py-2 text-right text-xs text-gray-500 w-28">รวม</th>
-                  <th className="px-1 py-2 w-8" />
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, idx) => (
-                  <tr key={item.id} className="border-b hover:bg-gray-50">
-                    <td className="px-3 py-2 text-center text-gray-400">{idx + 1}</td>
-
-                    {/* Image upload */}
-                    <td className="px-3 py-2">
-                      <div className="relative w-12 h-12">
-                        {item.image_url ? (
-                          <div className="relative">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={item.image_url}
-                              alt=""
-                              className="w-12 h-12 object-cover rounded border"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => updateItem(idx, 'image_url', null)}
-                              className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
-                            >
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ) : (
-                          <label className="w-12 h-12 border-2 border-dashed border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-colors">
-                            {uploadingIdx === idx ? (
-                              <div className="w-3 h-3 border border-amber-500 border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                              <Upload className="w-3.5 h-3.5 text-gray-400" />
-                            )}
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const f = e.target.files?.[0]
-                                if (f) handleImageUpload(idx, f)
-                              }}
-                            />
-                          </label>
-                        )}
+        <CardContent className="p-3">
+          <div className="space-y-3">
+            {items.map((item, idx) => (
+              <div key={item.id} className="border rounded-lg p-3 bg-white shadow-sm">
+                {/* Row 1: รูป + ชื่อสินค้า + ปุ่มลบ */}
+                <div className="flex gap-3 mb-3">
+                  {/* Image upload (60x60) */}
+                  <div className="relative w-16 h-16 flex-shrink-0">
+                    {item.image_url ? (
+                      <div className="relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={item.image_url}
+                          alt=""
+                          className="w-16 h-16 object-cover rounded border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => updateItem(idx, 'image_url', null)}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                        >
+                          <X className="w-2.5 h-2.5" />
+                        </button>
                       </div>
-                    </td>
+                    ) : (
+                      <label className="w-16 h-16 border-2 border-dashed border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-colors">
+                        {uploadingIdx === idx ? (
+                          <div className="w-4 h-4 border border-amber-500 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Upload className="w-4 h-4 text-gray-400" />
+                        )}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0]
+                            if (f) handleImageUpload(idx, f)
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
 
-                    {/* Name + Description */}
-                    <td className="px-3 py-2">
-                      <Input
-                        value={item.name}
-                        onChange={(e) => updateItem(idx, 'name', e.target.value)}
-                        placeholder="ชื่อสินค้า *"
-                        className="text-sm mb-1 h-8"
-                      />
-                      <Input
-                        value={item.description}
-                        onChange={(e) => updateItem(idx, 'description', e.target.value)}
-                        placeholder="รายละเอียด (ไม่จำเป็น)"
-                        className="text-xs text-gray-500 h-7"
-                      />
-                    </td>
+                  {/* Name + Description */}
+                  <div className="flex-1 min-w-0">
+                    <Input
+                      value={item.name}
+                      onChange={(e) => updateItem(idx, 'name', e.target.value)}
+                      placeholder="ชื่อสินค้า *"
+                      className="text-sm mb-1.5 h-9"
+                    />
+                    <Input
+                      value={item.description}
+                      onChange={(e) => updateItem(idx, 'description', e.target.value)}
+                      placeholder="รายละเอียด (ไม่จำเป็น)"
+                      className="text-xs text-gray-500 h-8"
+                    />
+                  </div>
 
-                    {/* Quantity */}
-                    <td className="px-3 py-2">
-                      <Input
-                        type="number"
-                        min="0"
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateItem(idx, 'quantity', parseFloat(e.target.value) || 0)
-                        }
-                        className="text-sm text-right h-8"
-                      />
-                    </td>
+                  {/* ปุ่มลบ */}
+                  <button
+                    type="button"
+                    onClick={() => removeItem(idx)}
+                    disabled={items.length === 1}
+                    className="self-start p-1.5 rounded hover:bg-red-50 disabled:opacity-30"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </button>
+                </div>
 
-                    {/* Unit */}
-                    <td className="px-3 py-2">
-                      <Input
-                        value={item.unit}
-                        onChange={(e) => updateItem(idx, 'unit', e.target.value)}
-                        className="text-sm h-8"
-                        placeholder="หน่วย"
-                      />
-                    </td>
-
-                    {/* Unit price */}
-                    <td className="px-3 py-2">
-                      <Input
-                        type="number"
-                        min="0"
-                        value={item.unit_price}
-                        onChange={(e) =>
-                          updateItem(idx, 'unit_price', parseFloat(e.target.value) || 0)
-                        }
-                        className="text-sm text-right h-8"
-                      />
-                    </td>
-
-                    {/* Total */}
-                    <td className="px-3 py-2 text-right font-semibold text-gray-700">
+                {/* Row 2: จำนวน + หน่วย + ราคา/หน่วย + รวม */}
+                <div className="grid grid-cols-4 gap-2 text-sm">
+                  <div>
+                    <label className="text-xs text-gray-400 mb-0.5 block">จำนวน</label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        updateItem(idx, 'quantity', parseFloat(e.target.value) || 0)
+                      }
+                      className="text-right h-9"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-0.5 block">หน่วย</label>
+                    <Input
+                      value={item.unit}
+                      onChange={(e) => updateItem(idx, 'unit', e.target.value)}
+                      className="h-9"
+                      placeholder="แผ่น"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-0.5 block">ราคา/หน่วย</label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={item.unit_price}
+                      onChange={(e) =>
+                        updateItem(idx, 'unit_price', parseFloat(e.target.value) || 0)
+                      }
+                      className="text-right h-9"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-0.5 block">รวม (บาท)</label>
+                    <div className="h-9 flex items-center justify-end font-semibold text-green-700 bg-gray-50 rounded border px-2">
                       {formatCurrency(item.total)}
-                    </td>
+                    </div>
+                  </div>
+                </div>
 
-                    {/* Delete */}
-                    <td className="px-1 py-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={items.length === 1}
-                        onClick={() => removeItem(idx)}
-                        className="h-7 w-7 p-0 text-red-400 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
