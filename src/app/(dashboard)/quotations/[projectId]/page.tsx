@@ -5,24 +5,10 @@ import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Plus, FileText, Calendar, DollarSign } from 'lucide-react'
+import { ArrowLeft, Plus, FileText, Calendar, DollarSign, Download } from 'lucide-react'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import type { Quotation } from '@/types/quotation'
-import dynamic from 'next/dynamic'
-
-const PDFPreviewModal = dynamic(
-  () => import('@/components/quotation/PDFActions').then((m) => m.PDFPreviewModal),
-  { ssr: false }
-)
-const PDFDownloadLink = dynamic(
-  () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
-  { ssr: false }
-)
-const QuotationPDFComponent = dynamic(
-  () => import('@/components/quotation/QuotationPDF').then((m) => m.QuotationPDF),
-  { ssr: false }
-)
 
 const STATUS_LABEL: Record<string, { label: string; className: string }> = {
   draft: { label: 'Draft', className: 'bg-gray-100 text-gray-700 border-gray-300' },
@@ -76,6 +62,13 @@ export default function QuotationListPage() {
   useEffect(() => {
     fetchQuotations()
   }, [fetchQuotations])
+
+  const handleDownloadPDF = (quotationId: string, quotationNumber: string) => {
+    const link = document.createElement('a')
+    link.href = `/api/quotations/${quotationId}/pdf`
+    link.download = `${quotationNumber}.pdf`
+    link.click()
+  }
 
   const projectName = quotations[0]?.projects?.name || 'โปรเจค'
 
@@ -167,17 +160,22 @@ export default function QuotationListPage() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <PDFPreviewModal quotation={q} />
-                    <PDFDownloadLink
-                      document={<QuotationPDFComponent quotation={q} />}
-                      fileName={`${q.quotation_number}.pdf`}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={() => handleDownloadPDF(q.id, q.quotation_number || q.id)}
                     >
-                      {({ loading: pdfLoading }) => (
-                        <Button variant="outline" size="sm" disabled={pdfLoading} className="gap-1.5">
-                          {pdfLoading ? '...' : 'Download PDF'}
-                        </Button>
-                      )}
-                    </PDFDownloadLink>
+                      <Download className="w-3.5 h-3.5" /> Download PDF
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(`/api/quotations/${q.id}/pdf`, '_blank')}
+                      className="gap-1.5"
+                    >
+                      <FileText className="w-3.5 h-3.5" /> Preview PDF
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
