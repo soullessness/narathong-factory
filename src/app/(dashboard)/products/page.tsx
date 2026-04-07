@@ -264,7 +264,7 @@ export default function ProductsPage() {
         open={categoryDialogOpen}
         onClose={() => setCategoryDialogOpen(false)}
         onSaved={fetchAll}
-        category={editingCategory}
+        categories={categories}
       />
     </div>
   )
