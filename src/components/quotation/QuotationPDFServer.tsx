@@ -454,51 +454,51 @@ const styles = StyleSheet.create({
 
   // ─── SECTION 7: Signature ────────────────────────────────────
   signatureSection: {
-    marginTop: 30,
+    marginTop: 16,
   },
   signatureRow: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 16,
+    gap: 8,
+    marginBottom: 8,
   },
   signatureBox: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingHorizontal: 4,
-    minWidth: 110,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingHorizontal: 8,
     borderWidth: 1,
     borderColor: '#e0d0c0',
     borderRadius: 4,
     backgroundColor: '#fdfaf7',
   },
   signatureTitle: {
-    fontSize: 9,
+    fontSize: 8.5,
     fontFamily: 'NotoSansThai',
     fontWeight: 'bold',
     color: '#444',
-    marginBottom: 24,
+    marginBottom: 16,
     textAlign: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: 2,
+    paddingTop: 2,
   },
   signatureLineView: {
-    width: '80%',
+    width: '75%',
     borderBottomWidth: 1,
-    borderBottomColor: '#888',
-    marginBottom: 6,
+    borderBottomColor: '#999',
+    marginBottom: 4,
   },
   signatureName: {
-    fontSize: 8,
+    fontSize: 7.5,
     fontFamily: 'NotoSansThai',
     color: '#888',
-    marginTop: 4,
+    marginTop: 2,
   },
   signatureDate: {
-    fontSize: 8,
+    fontSize: 7.5,
     fontFamily: 'NotoSansThai',
     color: '#888',
-    marginTop: 3,
+    marginTop: 2,
   },
 })
 
@@ -883,13 +883,13 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           {/* แถวบน: ผู้จัดทำ + ผู้ตรวจสอบ */}
           <View style={styles.signatureRow}>
             <View style={styles.signatureBox}>
-              <Text style={styles.signatureTitle}>ผู้จัดทำ</Text>
+              <Text style={styles.signatureTitle}>{' ผู้จัดทำ '}</Text>
               <View style={styles.signatureLineView} />
               <Text style={styles.signatureName}>{'(................)'}</Text>
               <Text style={styles.signatureDate}>วันที่ ..........</Text>
             </View>
             <View style={styles.signatureBox}>
-              <Text style={styles.signatureTitle}>ผู้ตรวจสอบ</Text>
+              <Text style={styles.signatureTitle}>{' ผู้ตรวจสอบ '}</Text>
               <View style={styles.signatureLineView} />
               <Text style={styles.signatureName}>{'(................)'}</Text>
               <Text style={styles.signatureDate}>วันที่ ..........</Text>
@@ -898,13 +898,13 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           {/* แถวล่าง: ผู้อนุมัติ + ลูกค้าเซ็นรับราคา */}
           <View style={styles.signatureRow}>
             <View style={styles.signatureBox}>
-              <Text style={styles.signatureTitle}>ผู้อนุมัติ</Text>
+              <Text style={styles.signatureTitle}>{' ผู้อนุมัติ '}</Text>
               <View style={styles.signatureLineView} />
               <Text style={styles.signatureName}>{'(................)'}</Text>
               <Text style={styles.signatureDate}>วันที่ ..........</Text>
             </View>
             <View style={styles.signatureBox}>
-              <Text style={styles.signatureTitle}>ลูกค้าเซ็นรับราคา</Text>
+              <Text style={styles.signatureTitle}>{' ลูกค้าเซ็นรับราคา '}</Text>
               <View style={styles.signatureLineView} />
               <Text style={styles.signatureName}>{'(........................)'}</Text>
               <Text style={styles.signatureDate}>วันที่ ..........</Text>
