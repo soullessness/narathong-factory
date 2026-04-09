@@ -464,20 +464,20 @@ const styles = StyleSheet.create({
   signatureBox: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 8,
-    paddingBottom: 8,
-    paddingHorizontal: 8,
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingHorizontal: 4,
     borderWidth: 1,
     borderColor: '#e0d0c0',
     borderRadius: 4,
     backgroundColor: '#fdfaf7',
   },
   signatureTitle: {
-    fontSize: 8.5,
+    fontSize: 8,
     fontFamily: 'NotoSansThai',
     fontWeight: 'bold',
     color: '#444',
-    marginBottom: 16,
+    marginBottom: 12,
     textAlign: 'center',
     paddingHorizontal: 2,
     paddingTop: 2,
@@ -855,36 +855,32 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
 
         {/* ─── SECTION 5b: ผู้ดูแลและติดต่อ — ซ่อนแล้ว (แสดงอยู่เหนือตารางแล้ว) ─── */}
 
-        {/* ─── SECTION 7: Signature (2 แถว × 2 ช่อง) ─── */}
+        {/* ─── SECTION 7: Signature (1 แถว 4 ช่อง) ─── */}
         <View style={styles.signatureSection}>
-          {/* แถวบน: ผู้จัดทำ + ผู้ตรวจสอบ */}
           <View style={styles.signatureRow}>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>{' ผู้จัดทำ '}</Text>
               <View style={styles.signatureLineView} />
-              <Text style={styles.signatureName}>{'(................)'}</Text>
-              <Text style={styles.signatureDate}>วันที่ ..........</Text>
+              <Text style={styles.signatureName}>{'(............)'}</Text>
+              <Text style={styles.signatureDate}>วันที่ ......</Text>
             </View>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>{' ผู้ตรวจสอบ '}</Text>
               <View style={styles.signatureLineView} />
-              <Text style={styles.signatureName}>{'(................)'}</Text>
-              <Text style={styles.signatureDate}>วันที่ ..........</Text>
+              <Text style={styles.signatureName}>{'(............)'}</Text>
+              <Text style={styles.signatureDate}>วันที่ ......</Text>
             </View>
-          </View>
-          {/* แถวล่าง: ผู้อนุมัติ + ลูกค้าเซ็นรับราคา */}
-          <View style={styles.signatureRow}>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>{' ผู้อนุมัติ '}</Text>
               <View style={styles.signatureLineView} />
-              <Text style={styles.signatureName}>{'(................)'}</Text>
-              <Text style={styles.signatureDate}>วันที่ ..........</Text>
+              <Text style={styles.signatureName}>{'(............)'}</Text>
+              <Text style={styles.signatureDate}>วันที่ ......</Text>
             </View>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>{' ลูกค้าเซ็นรับราคา '}</Text>
               <View style={styles.signatureLineView} />
-              <Text style={styles.signatureName}>{'(........................)'}</Text>
-              <Text style={styles.signatureDate}>วันที่ ..........</Text>
+              <Text style={styles.signatureName}>{'(............)'}</Text>
+              <Text style={styles.signatureDate}>วันที่ ......</Text>
             </View>
           </View>
         </View>
