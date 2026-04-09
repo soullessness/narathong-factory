@@ -27,6 +27,11 @@ export async function GET(
         quotation.discount_type = meta.discount_type || 'amount'
         quotation.vat_enabled = meta.vat_enabled ?? true
         quotation.vat_amount = meta.vat_amount || 0
+        // ✅ Fix: ต้อง set sales/agent fields จาก meta ด้วย
+        quotation.sales_name = meta.sales_name ?? null
+        quotation.sales_phone = meta.sales_phone ?? null
+        quotation.agent_name = meta.agent_name ?? null
+        quotation.agent_phone = meta.agent_phone ?? null
         quotation.notes = (quotation.notes || '').replace(/__META__[\s\S]*?__END__/, '').trim()
       } catch { /* ignore */ }
     }

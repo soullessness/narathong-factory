@@ -438,6 +438,20 @@ const styles = StyleSheet.create({
     color: '#555',
   },
 
+  // ─── SECTION 5: Summary (total row highlight) ────────────────
+  totalRowHighlight: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingHorizontal: 10,
+    borderTopWidth: 2,
+    borderTopColor: BROWN,
+    minWidth: 250,
+    backgroundColor: '#fdf6f0',
+    borderRadius: 4,
+  },
+
   // ─── SECTION 7: Signature ────────────────────────────────────
   signatureSection: {
     marginTop: 30,
@@ -445,27 +459,34 @@ const styles = StyleSheet.create({
   signatureRow: {
     flexDirection: 'row',
     gap: 10,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   signatureBox: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 8,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingHorizontal: 4,
     minWidth: 110,
+    borderWidth: 1,
+    borderColor: '#e0d0c0',
+    borderRadius: 4,
+    backgroundColor: '#fdfaf7',
   },
   signatureTitle: {
     fontSize: 9,
     fontFamily: 'NotoSansThai',
     fontWeight: 'bold',
     color: '#444',
-    marginBottom: 20,
+    marginBottom: 24,
     textAlign: 'center',
+    paddingHorizontal: 4,
   },
-  signatureLine: {
-    fontSize: 8.5,
-    fontFamily: 'NotoSansThai',
-    color: '#333',
-    letterSpacing: 0,
+  signatureLineView: {
+    width: '80%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#888',
+    marginBottom: 6,
   },
   signatureName: {
     fontSize: 8,
@@ -816,7 +837,7 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
             </View>
           )}
           <View style={styles.totalSeparator} />
-          <View style={styles.totalRow}>
+          <View style={styles.totalRowHighlight}>
             <Text style={styles.totalLabel}>ราคาสุทธิ:</Text>
             <Text style={styles.totalValue}>
               {formatCurrency(quotation.total)} บาท
@@ -863,13 +884,13 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           <View style={styles.signatureRow}>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>ผู้จัดทำ</Text>
-              <Text style={styles.signatureLine}>{'_'.repeat(20)}</Text>
+              <View style={styles.signatureLineView} />
               <Text style={styles.signatureName}>{'(................)'}</Text>
               <Text style={styles.signatureDate}>วันที่ ..........</Text>
             </View>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>ผู้ตรวจสอบ</Text>
-              <Text style={styles.signatureLine}>{'_'.repeat(20)}</Text>
+              <View style={styles.signatureLineView} />
               <Text style={styles.signatureName}>{'(................)'}</Text>
               <Text style={styles.signatureDate}>วันที่ ..........</Text>
             </View>
@@ -878,13 +899,13 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           <View style={styles.signatureRow}>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>ผู้อนุมัติ</Text>
-              <Text style={styles.signatureLine}>{'_'.repeat(20)}</Text>
+              <View style={styles.signatureLineView} />
               <Text style={styles.signatureName}>{'(................)'}</Text>
               <Text style={styles.signatureDate}>วันที่ ..........</Text>
             </View>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>ลูกค้าเซ็นรับราคา</Text>
-              <Text style={styles.signatureLine}>{'_'.repeat(24)}</Text>
+              <View style={styles.signatureLineView} />
               <Text style={styles.signatureName}>{'(........................)'}</Text>
               <Text style={styles.signatureDate}>วันที่ ..........</Text>
             </View>
