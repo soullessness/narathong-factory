@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-  // ─── SECTION 3b: พนักงานขาย + ตัวแทน ────────────────────────
+  // ─── SECTION 3b: พนักงานขาย + ตัวแทน (ก่อน table) ──────────
   salesAgentBox: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -246,6 +246,46 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   salesAgentPhone: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    color: '#555',
+  },
+
+  // ─── SECTION 5b: ผู้ดูแลและติดต่อ (หลัง summary) ────────────
+  contactBox: {
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#e8d5c4',
+    borderRadius: 4,
+    padding: 10,
+    backgroundColor: LIGHT_BG,
+  },
+  contactBoxTitle: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    fontWeight: 'bold',
+    color: BROWN,
+    marginBottom: 5,
+  },
+  contactRow: {
+    flexDirection: 'row',
+    marginBottom: 3,
+  },
+  contactLabel: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    color: '#888',
+    width: 80,
+    flexShrink: 0,
+  },
+  contactName: {
+    fontSize: 8.5,
+    fontFamily: 'NotoSansThai',
+    color: '#1a1a1a',
+    fontWeight: 'bold',
+    marginRight: 12,
+  },
+  contactPhone: {
     fontSize: 8.5,
     fontFamily: 'NotoSansThai',
     color: '#555',
@@ -400,14 +440,18 @@ const styles = StyleSheet.create({
 
   // ─── SECTION 7: Signature ────────────────────────────────────
   signatureSection: {
+    marginTop: 30,
+  },
+  signatureRow: {
     flexDirection: 'row',
-    marginTop: 40,
     gap: 10,
+    marginBottom: 20,
   },
   signatureBox: {
     flex: 1,
     alignItems: 'center',
     paddingTop: 8,
+    minWidth: 110,
   },
   signatureTitle: {
     fontSize: 9,
@@ -788,35 +832,62 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           </View>
         ) : null}
 
-        {/* ─── SECTION 7: Signature (4 ช่อง) ─── */}
+        {/* ─── SECTION 5b: ผู้ดูแลและติดต่อ (หลัง notes ก่อน signature) ─── */}
+        {hasSalesInfo && (
+          <View style={styles.contactBox}>
+            <Text style={styles.contactBoxTitle}>ผู้ดูแลและติดต่อ</Text>
+            {quotation.sales_name ? (
+              <View style={styles.contactRow}>
+                <Text style={styles.contactLabel}>พนักงานขาย:</Text>
+                <Text style={styles.contactName}>{quotation.sales_name}</Text>
+                {quotation.sales_phone ? (
+                  <Text style={styles.contactPhone}>โทร. {quotation.sales_phone}</Text>
+                ) : null}
+              </View>
+            ) : null}
+            {quotation.agent_name ? (
+              <View style={styles.contactRow}>
+                <Text style={styles.contactLabel}>ตัวแทนจำหน่าย:</Text>
+                <Text style={styles.contactName}>{quotation.agent_name}</Text>
+                {quotation.agent_phone ? (
+                  <Text style={styles.contactPhone}>โทร. {quotation.agent_phone}</Text>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
+        )}
+
+        {/* ─── SECTION 7: Signature (2 แถว × 2 ช่อง) ─── */}
         <View style={styles.signatureSection}>
-          {/* ผู้จัดทำ */}
-          <View style={styles.signatureBox}>
-            <Text style={styles.signatureTitle}>ผู้จัดทำ</Text>
-            <Text style={styles.signatureLine}>{'_'.repeat(18)}</Text>
-            <Text style={styles.signatureName}>{'(................)'}</Text>
-            <Text style={styles.signatureDate}>วันที่ ..........</Text>
+          {/* แถวบน: ผู้จัดทำ + ผู้ตรวจสอบ */}
+          <View style={styles.signatureRow}>
+            <View style={styles.signatureBox}>
+              <Text style={styles.signatureTitle}>ผู้จัดทำ</Text>
+              <Text style={styles.signatureLine}>{'_'.repeat(20)}</Text>
+              <Text style={styles.signatureName}>{'(................)'}</Text>
+              <Text style={styles.signatureDate}>วันที่ ..........</Text>
+            </View>
+            <View style={styles.signatureBox}>
+              <Text style={styles.signatureTitle}>ผู้ตรวจสอบ</Text>
+              <Text style={styles.signatureLine}>{'_'.repeat(20)}</Text>
+              <Text style={styles.signatureName}>{'(................)'}</Text>
+              <Text style={styles.signatureDate}>วันที่ ..........</Text>
+            </View>
           </View>
-          {/* ผู้ตรวจสอบ */}
-          <View style={styles.signatureBox}>
-            <Text style={styles.signatureTitle}>ผู้ตรวจสอบ</Text>
-            <Text style={styles.signatureLine}>{'_'.repeat(18)}</Text>
-            <Text style={styles.signatureName}>{'(................)'}</Text>
-            <Text style={styles.signatureDate}>วันที่ ..........</Text>
-          </View>
-          {/* ผู้อนุมัติ */}
-          <View style={styles.signatureBox}>
-            <Text style={styles.signatureTitle}>ผู้อนุมัติ</Text>
-            <Text style={styles.signatureLine}>{'_'.repeat(18)}</Text>
-            <Text style={styles.signatureName}>{'(................)'}</Text>
-            <Text style={styles.signatureDate}>วันที่ ..........</Text>
-          </View>
-          {/* ลูกค้าเซ็นรับราคา */}
-          <View style={styles.signatureBox}>
-            <Text style={styles.signatureTitle}>ลูกค้าเซ็นรับราคา</Text>
-            <Text style={styles.signatureLine}>{'_'.repeat(22)}</Text>
-            <Text style={styles.signatureName}>{'(........................)'}</Text>
-            <Text style={styles.signatureDate}>วันที่ ..........</Text>
+          {/* แถวล่าง: ผู้อนุมัติ + ลูกค้าเซ็นรับราคา */}
+          <View style={styles.signatureRow}>
+            <View style={styles.signatureBox}>
+              <Text style={styles.signatureTitle}>ผู้อนุมัติ</Text>
+              <Text style={styles.signatureLine}>{'_'.repeat(20)}</Text>
+              <Text style={styles.signatureName}>{'(................)'}</Text>
+              <Text style={styles.signatureDate}>วันที่ ..........</Text>
+            </View>
+            <View style={styles.signatureBox}>
+              <Text style={styles.signatureTitle}>ลูกค้าเซ็นรับราคา</Text>
+              <Text style={styles.signatureLine}>{'_'.repeat(24)}</Text>
+              <Text style={styles.signatureName}>{'(........................)'}</Text>
+              <Text style={styles.signatureDate}>วันที่ ..........</Text>
+            </View>
           </View>
         </View>
 
