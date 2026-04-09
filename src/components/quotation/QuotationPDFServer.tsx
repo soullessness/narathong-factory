@@ -411,7 +411,8 @@ const styles = StyleSheet.create({
   },
   signatureTitle: {
     fontSize: 9,
-    fontFamily: 'KanitBold',
+    fontFamily: 'NotoSansThai',
+    fontWeight: 'bold',
     color: '#444',
     marginBottom: 20,
     textAlign: 'center',
