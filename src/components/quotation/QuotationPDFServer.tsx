@@ -853,30 +853,7 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
           </View>
         ) : null}
 
-        {/* ─── SECTION 5b: ผู้ดูแลและติดต่อ (หลัง notes ก่อน signature) ─── */}
-        {hasSalesInfo && (
-          <View style={styles.contactBox}>
-            <Text style={styles.contactBoxTitle}>ผู้ดูแลและติดต่อ</Text>
-            {quotation.sales_name ? (
-              <View style={styles.contactRow}>
-                <Text style={styles.contactLabel}>พนักงานขาย:</Text>
-                <Text style={styles.contactName}>{quotation.sales_name}</Text>
-                {quotation.sales_phone ? (
-                  <Text style={styles.contactPhone}>โทร. {quotation.sales_phone}</Text>
-                ) : null}
-              </View>
-            ) : null}
-            {quotation.agent_name ? (
-              <View style={styles.contactRow}>
-                <Text style={styles.contactLabel}>ตัวแทนจำหน่าย:</Text>
-                <Text style={styles.contactName}>{quotation.agent_name}</Text>
-                {quotation.agent_phone ? (
-                  <Text style={styles.contactPhone}>โทร. {quotation.agent_phone}</Text>
-                ) : null}
-              </View>
-            ) : null}
-          </View>
-        )}
+        {/* ─── SECTION 5b: ผู้ดูแลและติดต่อ — ซ่อนแล้ว (แสดงอยู่เหนือตารางแล้ว) ─── */}
 
         {/* ─── SECTION 7: Signature (2 แถว × 2 ช่อง) ─── */}
         <View style={styles.signatureSection}>
