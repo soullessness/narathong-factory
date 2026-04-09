@@ -410,10 +410,11 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   signatureTitle: {
-    fontSize: 8.5,
-    fontFamily: 'NotoSansThai',
-    color: '#555',
+    fontSize: 9,
+    fontFamily: 'KanitBold',
+    color: '#444',
     marginBottom: 20,
+    textAlign: 'center',
   },
   signatureLine: {
     fontSize: 8.5,
@@ -810,10 +811,10 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
             <Text style={styles.signatureDate}>วันที่ ..........</Text>
           </View>
           {/* ลูกค้าเซ็นรับราคา */}
-          <View style={[styles.signatureBox, { flex: 1.5 }]}>
+          <View style={styles.signatureBox}>
             <Text style={styles.signatureTitle}>ลูกค้าเซ็นรับราคา</Text>
-            <Text style={styles.signatureLine}>{'_'.repeat(26)}</Text>
-            <Text style={styles.signatureName}>{'(................................)'}</Text>
+            <Text style={styles.signatureLine}>{'_'.repeat(22)}</Text>
+            <Text style={styles.signatureName}>{'(........................)'}</Text>
             <Text style={styles.signatureDate}>วันที่ ..........</Text>
           </View>
         </View>
