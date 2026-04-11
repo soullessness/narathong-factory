@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
-import { Plus, ClipboardList } from 'lucide-react'
+import { ClipboardList } from 'lucide-react'
 import { toast } from 'sonner'
 import { PriceRequestCard } from '@/components/price-request/PriceRequestCard'
-import { PriceRequestDialog } from '@/components/price-request/PriceRequestDialog'
 import { PriceResponseDialog } from '@/components/price-request/PriceResponseDialog'
 import type { PriceRequest } from '@/types/price-request'
 import { createClient } from '@/lib/supabase/client'
@@ -19,7 +17,6 @@ export default function PriceRequestsPage() {
   const [userRole, setUserRole] = useState<string>('sales')
 
   // Dialogs
-  const [createOpen, setCreateOpen] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState<PriceRequest | null>(null)
   const [responseOpen, setResponseOpen] = useState(false)
 
@@ -75,19 +72,14 @@ export default function PriceRequestsPage() {
           <p className="text-sm text-gray-500 mt-0.5">
             {isFactoryOrAdmin
               ? 'จัดการคำขอราคาสินค้าจากทีมขาย'
-              : 'ส่งคำขอราคาสินค้า Custom ให้โรงงาน'}
+              : 'ติดตามสถานะคำขอราคาสินค้า (สร้างคำขอผ่าน Quotation Builder)'}
           </p>
         </div>
-        {!isFactoryOrAdmin && (
-          <Button
-            size="sm"
-            className="text-white gap-1.5"
-            style={{ backgroundColor: '#7B4F2E' }}
-            onClick={() => setCreateOpen(true)}
-          >
-            <Plus className="w-4 h-4" />
-            ขอราคาสินค้า Custom
-          </Button>
+        {/* Sales สร้างคำขอราคาจาก Quotation Builder แทน */}
+        {isFactoryOrAdmin && (
+          <span className="text-xs text-gray-400 bg-gray-100 rounded-lg px-3 py-1.5">
+            📋 Sales ส่งคำขอผ่าน Quotation Builder
+          </span>
         )}
       </div>
 
@@ -136,7 +128,7 @@ export default function PriceRequestsPage() {
               : 'ยังไม่มีคำขอราคา'}
           </p>
           {!isFactoryOrAdmin && (
-            <p className="text-sm mt-1">กดปุ่ม &quot;ขอราคาสินค้า Custom&quot; เพื่อส่งคำขอ</p>
+            <p className="text-sm mt-1">ส่งคำขอราคาสินค้า Custom ผ่าน Quotation Builder</p>
           )}
         </div>
       ) : (
@@ -150,13 +142,6 @@ export default function PriceRequestsPage() {
           ))}
         </div>
       )}
-
-      {/* Create Dialog (sales/cashier) */}
-      <PriceRequestDialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onSaved={fetchRequests}
-      />
 
       {/* Response Dialog (factory_head/admin) */}
       <PriceResponseDialog

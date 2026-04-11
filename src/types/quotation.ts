@@ -13,6 +13,10 @@ export interface QuotationItem {
   pieces_per_pack?: number | null
   // Category for area breakdown
   category_slug?: string | null  // 'floor' | 'wall' | 'ceiling' | etc.
+  // Custom item (price request integration)
+  is_custom?: boolean
+  price_request_id?: string | null
+  price_request_status?: import('./price-request').PriceRequestStatus | null
 }
 
 export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'

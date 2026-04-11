@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 import { Button } from '@/components/ui/button'
@@ -10,15 +10,17 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, Plus, Trash2, Upload, X, Package } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2, Upload, X, Package, RefreshCw, Sparkles } from 'lucide-react'
 import { format, addDays } from 'date-fns'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { ProductPickerModal } from '@/components/product/ProductPickerModal'
+import { CustomItemDialog } from '@/components/quotation/CustomItemDialog'
 import type { QuotationItem } from '@/types/quotation'
 import type { CRMProject } from '@/types/crm'
 import type { Product } from '@/types/product'
 import { computeAreaPricing } from '@/types/product'
+import type { PriceRequestStatus } from '@/types/price-request'
 
 function generateQuotationNumber(): string {
   const now = new Date()
@@ -71,6 +73,11 @@ export default function NewQuotationPage() {
   const [saving, setSaving] = useState(false)
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
   const [productPickerOpen, setProductPickerOpen] = useState(false)
+  const [customItemOpen, setCustomItemOpen] = useState(false)
+  const [refreshingPrices, setRefreshingPrices] = useState(false)
+  // savedQuotationId: set once the quotation is actually saved to DB
+  const [savedQuotationId, setSavedQuotationId] = useState<string | null>(null)
+  const autoRefreshTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchProject = useCallback(async () => {
     try {
@@ -87,6 +94,74 @@ export default function NewQuotationPage() {
   useEffect(() => {
     fetchProject()
   }, [fetchProject])
+
+  // Refresh custom item prices from price_requests
+  const refreshCustomPrices = useCallback(async () => {
+    const customItems = items.filter((i) => i.is_custom && i.price_request_id)
+    if (customItems.length === 0) return
+    setRefreshingPrices(true)
+    try {
+      const res = await fetch('/api/price-requests')
+      const json = await res.json()
+      if (!res.ok) return
+      const priceRequests: Array<{
+        id: string
+        status: PriceRequestStatus
+        response?: { unit_price: number; total_price: number } | null
+      }> = json.data ?? []
+
+      setItems((prev) =>
+        prev.map((item) => {
+          if (!item.is_custom || !item.price_request_id) return item
+          const pr = priceRequests.find((r) => r.id === item.price_request_id)
+          if (!pr) return item
+          const updated = { ...item, price_request_status: pr.status }
+          if (pr.status === 'quoted' && pr.response) {
+            updated.unit_price = pr.response.unit_price
+            updated.total = pr.response.unit_price * item.quantity
+          }
+          return updated
+        })
+      )
+    } catch {
+      // ignore
+    } finally {
+      setRefreshingPrices(false)
+    }
+  }, [items])
+
+  // Auto-refresh every 30s when there are pending custom items
+  useEffect(() => {
+    const hasPending = items.some(
+      (i) =>
+        i.is_custom &&
+        (i.price_request_status === 'pending' || i.price_request_status === 'reviewing')
+    )
+    if (hasPending) {
+      autoRefreshTimer.current = setInterval(() => {
+        refreshCustomPrices()
+      }, 30000)
+    } else {
+      if (autoRefreshTimer.current) clearInterval(autoRefreshTimer.current)
+    }
+    return () => {
+      if (autoRefreshTimer.current) clearInterval(autoRefreshTimer.current)
+    }
+  }, [items, refreshCustomPrices])
+
+  const addCustomItem = (item: QuotationItem) => {
+    setItems((prev) => [...prev, item])
+  }
+
+  const applyQuotedPrice = (idx: number, unitPrice: number) => {
+    setItems((prev) => {
+      const next = [...prev]
+      const item = { ...next[idx], unit_price: unitPrice, total: unitPrice * next[idx].quantity }
+      next[idx] = item
+      return next
+    })
+    toast.success('ใช้ราคาจากโรงงานแล้ว')
+  }
 
   // Calculations
   const subtotal = items.reduce((sum, item) => sum + item.total, 0)
@@ -186,6 +261,12 @@ export default function NewQuotationPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error)
+      const createdQuotationId: string = json.data?.id
+      if (createdQuotationId) {
+        setSavedQuotationId(createdQuotationId)
+        // Update any price_requests that were created with this quotation
+        // (they already have quotation_id set from CustomItemDialog)
+      }
       toast.success('บันทึกใบเสนอราคาสำเร็จ')
       router.push(`/projects/${projectId}`)
     } catch (err) {
@@ -320,7 +401,7 @@ export default function NewQuotationPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">รายการสินค้า</CardTitle>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap justify-end">
               <Button
                 size="sm"
                 variant="outline"
@@ -332,52 +413,117 @@ export default function NewQuotationPage() {
               <Button size="sm" variant="outline" onClick={addItem} className="gap-1">
                 <Plus className="w-3.5 h-3.5" /> เพิ่มรายการ
               </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setCustomItemOpen(true)}
+                className="gap-1 text-purple-700 border-purple-300 hover:bg-purple-50"
+              >
+                <Sparkles className="w-3.5 h-3.5" /> สินค้า Custom (ขอราคา)
+              </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-3">
+          {/* Refresh custom prices bar */}
+          {items.some((i) => i.is_custom) && (
+            <div className="flex items-center justify-between bg-purple-50 border border-purple-200 rounded-lg px-3 py-2 mb-3">
+              <span className="text-xs text-purple-700">
+                {items.filter((i) => i.is_custom && (i.price_request_status === 'pending' || i.price_request_status === 'reviewing')).length > 0
+                  ? '🟡 มี item รอราคาจากโรงงาน (auto-refresh ทุก 30 วิ)'
+                  : '✅ Custom items ทั้งหมดได้รับราคาแล้ว'}
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={refreshCustomPrices}
+                disabled={refreshingPrices}
+                className="h-6 px-2 text-xs text-purple-700 hover:bg-purple-100"
+              >
+                <RefreshCw className={`w-3 h-3 mr-1 ${refreshingPrices ? 'animate-spin' : ''}`} />
+                รีเฟรชราคา
+              </Button>
+            </div>
+          )}
+
           <div className="space-y-3">
             {items.map((item, idx) => (
-              <div key={item.id} className="border rounded-lg p-3 bg-white shadow-sm">
-                {/* Row 1: รูป + ชื่อสินค้า + ปุ่มลบ */}
-                <div className="flex gap-3 mb-3">
-                  {/* Image upload (60x60) */}
-                  <div className="relative w-16 h-16 flex-shrink-0">
-                    {item.image_url ? (
-                      <div className="relative">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={item.image_url}
-                          alt=""
-                          className="w-16 h-16 object-cover rounded border"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => updateItem(idx, 'image_url', null)}
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
-                        >
-                          <X className="w-2.5 h-2.5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="w-16 h-16 border-2 border-dashed border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-colors">
-                        {uploadingIdx === idx ? (
-                          <div className="w-4 h-4 border border-amber-500 border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <Upload className="w-4 h-4 text-gray-400" />
-                        )}
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const f = e.target.files?.[0]
-                            if (f) handleImageUpload(idx, f)
-                          }}
-                        />
-                      </label>
+              <div
+                key={item.id}
+                className={`border rounded-lg p-3 bg-white shadow-sm ${
+                  item.is_custom ? 'border-purple-200 bg-purple-50/30' : ''
+                }`}
+              >
+                {/* Custom item badge */}
+                {item.is_custom && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="text-xs bg-purple-100 text-purple-700 border-purple-300">
+                      Custom
+                    </Badge>
+                    {item.price_request_status === 'pending' && (
+                      <Badge className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
+                        🟡 รอราคา
+                      </Badge>
+                    )}
+                    {item.price_request_status === 'reviewing' && (
+                      <Badge className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                        🔍 กำลังพิจารณา
+                      </Badge>
+                    )}
+                    {item.price_request_status === 'quoted' && (
+                      <Badge className="text-xs bg-green-100 text-green-800 border-green-200">
+                        ✅ ได้ราคาแล้ว
+                      </Badge>
+                    )}
+                    {item.price_request_status === 'rejected' && (
+                      <Badge className="text-xs bg-red-100 text-red-800 border-red-200">
+                        ❌ ปฏิเสธ
+                      </Badge>
                     )}
                   </div>
+                )}
+
+                {/* Row 1: รูป + ชื่อสินค้า + ปุ่มลบ */}
+                <div className="flex gap-3 mb-3">
+                  {/* Image upload (60x60) — skip for custom items */}
+                  {!item.is_custom && (
+                    <div className="relative w-16 h-16 flex-shrink-0">
+                      {item.image_url ? (
+                        <div className="relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={item.image_url}
+                            alt=""
+                            className="w-16 h-16 object-cover rounded border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => updateItem(idx, 'image_url', null)}
+                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="w-16 h-16 border-2 border-dashed border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-colors">
+                          {uploadingIdx === idx ? (
+                            <div className="w-4 h-4 border border-amber-500 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Upload className="w-4 h-4 text-gray-400" />
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0]
+                              if (f) handleImageUpload(idx, f)
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  )}
 
                   {/* Name + Description */}
                   <div className="flex-1 min-w-0">
@@ -386,12 +532,14 @@ export default function NewQuotationPage() {
                       onChange={(e) => updateItem(idx, 'name', e.target.value)}
                       placeholder="ชื่อสินค้า *"
                       className="text-sm mb-1.5 h-9"
+                      readOnly={item.is_custom}
                     />
                     <Input
                       value={item.description}
                       onChange={(e) => updateItem(idx, 'description', e.target.value)}
                       placeholder="รายละเอียด (ไม่จำเป็น)"
                       className="text-xs text-gray-500 h-8"
+                      readOnly={item.is_custom}
                     />
                   </div>
 
@@ -418,6 +566,7 @@ export default function NewQuotationPage() {
                         updateItem(idx, 'quantity', parseFloat(e.target.value) || 0)
                       }
                       className="text-right h-9"
+                      readOnly={item.is_custom}
                     />
                   </div>
                   <div>
@@ -427,19 +576,27 @@ export default function NewQuotationPage() {
                       onChange={(e) => updateItem(idx, 'unit', e.target.value)}
                       className="h-9"
                       placeholder="แผ่น"
+                      readOnly={item.is_custom}
                     />
                   </div>
                   <div>
                     <label className="text-xs text-gray-400 mb-0.5 block">ราคา/หน่วย</label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={item.unit_price}
-                      onChange={(e) =>
-                        updateItem(idx, 'unit_price', parseFloat(e.target.value) || 0)
-                      }
-                      className="text-right h-9"
-                    />
+                    {item.is_custom && item.price_request_status !== 'quoted' ? (
+                      <div className="h-9 flex items-center justify-center bg-yellow-50 rounded border border-yellow-200 text-xs text-yellow-700 px-2">
+                        รอราคา
+                      </div>
+                    ) : (
+                      <Input
+                        type="number"
+                        min="0"
+                        value={item.unit_price}
+                        onChange={(e) =>
+                          updateItem(idx, 'unit_price', parseFloat(e.target.value) || 0)
+                        }
+                        className="text-right h-9"
+                        readOnly={item.is_custom && item.price_request_status === 'quoted'}
+                      />
+                    )}
                   </div>
                   <div>
                     <label className="text-xs text-gray-400 mb-0.5 block">รวม (บาท)</label>
@@ -449,7 +606,21 @@ export default function NewQuotationPage() {
                   </div>
                 </div>
 
-
+                {/* Custom item quoted: ปุ่ม "ใช้ราคานี้" */}
+                {item.is_custom && item.price_request_status === 'quoted' && item.unit_price > 0 && (
+                  <div className="mt-2 flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    <span className="text-xs text-green-700">
+                      💰 ราคาจากโรงงาน: {formatCurrency(item.unit_price)} บาท/{item.unit}
+                    </span>
+                    <Button
+                      size="sm"
+                      className="h-6 px-2 text-xs text-white bg-green-600 hover:bg-green-700"
+                      onClick={() => applyQuotedPrice(idx, item.unit_price)}
+                    >
+                      ใช้ราคานี้
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -572,6 +743,15 @@ export default function NewQuotationPage() {
         open={productPickerOpen}
         onClose={() => setProductPickerOpen(false)}
         onSelect={addItemFromProduct}
+      />
+
+      {/* Custom Item Dialog */}
+      <CustomItemDialog
+        open={customItemOpen}
+        quotationId={savedQuotationId ?? 'pending'}
+        projectId={project?.id ?? projectId}
+        onClose={() => setCustomItemOpen(false)}
+        onAdded={addCustomItem}
       />
 
       {/* Action Buttons */}
