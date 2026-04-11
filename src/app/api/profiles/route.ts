@@ -6,15 +6,20 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)
     const role = searchParams.get('role')
+    const departmentId = searchParams.get('department_id')
 
     let query = supabase
       .from('profiles')
-      .select('id, full_name, role, phone, is_active')
+      .select('id, full_name, role, phone, department_id, team_id, is_active')
       .eq('is_active', true)
       .order('full_name', { ascending: true })
 
     if (role) {
       query = query.eq('role', role)
+    }
+
+    if (departmentId) {
+      query = query.eq('department_id', departmentId)
     }
 
     const { data, error } = await query

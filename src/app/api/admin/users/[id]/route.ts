@@ -59,7 +59,7 @@ export async function PATCH(
 
     const { id } = await params
     const body = await request.json()
-    const { full_name, role, department_id, phone, is_active, password } = body
+    const { full_name, role, department_id, team_id, phone, is_active, password } = body
 
     const supabaseAdmin = createAdminClient()
 
@@ -77,6 +77,7 @@ export async function PATCH(
     if (full_name !== undefined) updateData.full_name = full_name
     if (role !== undefined) updateData.role = role
     if (department_id !== undefined) updateData.department_id = department_id || null
+    if (team_id !== undefined) updateData.team_id = team_id || null
     if (phone !== undefined) updateData.phone = phone || null
     if (is_active !== undefined) updateData.is_active = is_active
 

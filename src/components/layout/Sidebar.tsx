@@ -67,6 +67,7 @@ const navItems = [
     adminOnly: false,
     subItems: [
       { href: '/settings/users', label: 'จัดการผู้ใช้', adminOnly: true },
+      { href: '/settings/teams', label: 'จัดการทีม', adminOnly: false, managerOnly: true },
     ],
   },
 ]
@@ -173,9 +174,11 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
               ? workerLogPendingCount
               : 0
           const showBadge = badgeCount > 0
-          const visibleSubItems = (item.subItems ?? []).filter(
-            (sub) => !sub.adminOnly || userRole === 'admin'
-          )
+          const visibleSubItems = (item.subItems ?? []).filter((sub) => {
+            if (sub.adminOnly && userRole !== 'admin') return false
+            if (sub.managerOnly && !['admin', 'factory_manager'].includes(userRole)) return false
+            return true
+          })
           return (
             <div key={item.href}>
               <Link

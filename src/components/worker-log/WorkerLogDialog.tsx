@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 import type { WorkerLog } from '@/types/worker-log'
 
 interface Project {
@@ -38,6 +39,8 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [projects, setProjects] = useState<Project[]>([])
+  const [userTeamId, setUserTeamId] = useState<string | null>(null)
+  const [userTeamName, setUserTeamName] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -49,6 +52,27 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
     setHoursWorked('')
     setProjectId('')
     setNotes('')
+
+    // Load current user's team
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      supabase
+        .from('profiles')
+        .select('team_id, teams:teams!profiles_team_id_fkey(name)')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data?.team_id) {
+            setUserTeamId(data.team_id)
+            const teamData = data.teams as unknown as { name: string } | null
+            setUserTeamName(teamData?.name ?? null)
+          } else {
+            setUserTeamId(null)
+            setUserTeamName(null)
+          }
+        })
+    })
 
     // Load projects
     fetch('/api/projects')
@@ -78,6 +102,7 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
           hours_worked: hoursWorked ? parseFloat(hoursWorked) : null,
           project_id: projectId || null,
           notes: notes.trim() || null,
+          team_id: userTeamId || null,
         }),
       })
 
@@ -104,6 +129,14 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Team info (read-only auto-fill) */}
+          {userTeamId && userTeamName && (
+            <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2 flex items-center gap-2">
+              <span className="text-xs text-amber-700 font-medium">ทีม:</span>
+              <span className="text-xs text-amber-800 font-semibold">{userTeamName}</span>
+            </div>
+          )}
+
           {/* Date */}
           <div className="space-y-1.5">
             <Label htmlFor="log_date">วันที่</Label>

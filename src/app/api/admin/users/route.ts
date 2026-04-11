@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { email, password, full_name, role, department_id, phone } = body
+    const { email, password, full_name, role, department_id, team_id, phone } = body
 
     if (!email) return NextResponse.json({ error: 'กรุณากรอกอีเมล' }, { status: 400 })
     if (!password || password.length < 8)
@@ -107,6 +107,7 @@ export async function POST(request: NextRequest) {
           full_name,
           role,
           department_id: department_id || null,
+          team_id: team_id || null,
           phone: phone || null,
           is_active: true,
         })
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
           full_name,
           role,
           department_id: department_id || null,
+          team_id: team_id || null,
           phone: phone || null,
           is_active: true,
         })

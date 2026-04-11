@@ -24,12 +24,12 @@ import {
   User,
   Mail,
   Lock,
-  Briefcase,
   Building2,
   Phone,
   Eye,
   EyeOff,
   ShieldCheck,
+  Users,
 } from 'lucide-react'
 
 const ROLE_DEPARTMENT_FILTER: Record<string, string[]> = {
@@ -87,12 +87,19 @@ interface Department {
   name: string
 }
 
+interface Team {
+  id: string
+  name: string
+  department_id: string
+}
+
 interface UserFormData {
   id?: string
   email?: string
   full_name: string
   role: string
   department_id?: string | null
+  team_id?: string | null
   phone?: string | null
   is_active?: boolean
 }
@@ -108,6 +115,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
   const isEdit = !!user?.id
   const [loading, setLoading] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
+  const [teams, setTeams] = useState<Team[]>([])
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -115,9 +123,13 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
   const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState('sales')
   const [departmentId, setDepartmentId] = useState<string>('none')
+  const [teamId, setTeamId] = useState<string>('none')
   const [phone, setPhone] = useState('')
   const [isActive, setIsActive] = useState(true)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Show team field only for worker and team_lead roles
+  const showTeamField = ['worker', 'team_lead'].includes(role)
 
   // Load departments
   useEffect(() => {
@@ -126,6 +138,18 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
       .then((json) => setDepartments(json.data ?? []))
       .catch(() => {})
   }, [])
+
+  // Load teams filtered by department
+  useEffect(() => {
+    if (!departmentId || departmentId === 'none' || !showTeamField) {
+      setTeams([])
+      return
+    }
+    fetch(`/api/teams?department_id=${departmentId}`)
+      .then((r) => r.json())
+      .then((json) => setTeams(json.data ?? []))
+      .catch(() => {})
+  }, [departmentId, showTeamField])
 
   // คำนวณ filtered departments จาก role ที่เลือก
   const filteredDepartments = useMemo(() => {
@@ -151,7 +175,14 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
     setRole(newRole)
     if (!stillValid) {
       setDepartmentId('none')
+      setTeamId('none')
     }
+  }
+
+  // เมื่อเปลี่ยน department → reset team
+  const handleDepartmentChange = (value: string | null) => {
+    setDepartmentId(value ?? 'none')
+    setTeamId('none')
   }
 
   // Fill form when editing
@@ -162,6 +193,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
         setEmail(user.email ?? '')
         setRole(user.role ?? 'sales')
         setDepartmentId(user.department_id ?? 'none')
+        setTeamId(user.team_id ?? 'none')
         setPhone(user.phone ?? '')
         setIsActive(user.is_active ?? true)
       } else {
@@ -169,6 +201,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
         setEmail('')
         setRole('sales')
         setDepartmentId('none')
+        setTeamId('none')
         setPhone('')
         setIsActive(true)
       }
@@ -206,6 +239,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
         full_name: fullName.trim(),
         role,
         department_id: departmentId === 'none' ? null : departmentId || null,
+        team_id: showTeamField ? (teamId === 'none' ? null : teamId || null) : null,
         phone: phone.trim() || null,
       }
       if (!isEdit) {
@@ -390,7 +424,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
                 <Building2 className="h-3.5 w-3.5 text-gray-400" />
                 แผนก
               </Label>
-              <Select value={departmentId} onValueChange={(v) => setDepartmentId(v ?? 'none')}>
+              <Select value={departmentId} onValueChange={handleDepartmentChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="เลือกแผนก">
                     {departmentId === 'none' || !departmentId
@@ -410,6 +444,42 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Team — show for worker and team_lead only */}
+            {showTeamField && (
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Users className="h-3.5 w-3.5 text-gray-400" />
+                  ทีม
+                </Label>
+                <Select
+                  value={teamId}
+                  onValueChange={(v) => setTeamId(v != null ? v : 'none')}
+                  disabled={!departmentId || departmentId === 'none'}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="เลือกทีม">
+                      {teamId === 'none' || !teamId
+                        ? 'ไม่ระบุทีม'
+                        : (teams.find((t) => t.id === teamId)?.name ?? 'เลือกทีม')}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      <span className="text-gray-400">— ไม่ระบุทีม —</span>
+                    </SelectItem>
+                    {teams.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {(!departmentId || departmentId === 'none') && (
+                  <p className="text-xs text-gray-400">เลือกแผนกก่อนเพื่อดูทีม</p>
+                )}
+              </div>
+            )}
 
             {/* Active toggle — edit only */}
             {isEdit && (

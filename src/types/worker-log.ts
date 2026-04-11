@@ -11,6 +11,7 @@ export interface WorkerLog {
   worker_id: string
   project_id?: string
   department_id?: string
+  team_id?: string
   log_date: string
   description: string
   quantity?: number
@@ -26,4 +27,5 @@ export interface WorkerLog {
   department?: { name: string }
   project?: { name: string }
   approver?: { full_name: string }
+  team?: { name: string }
 }

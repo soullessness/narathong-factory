@@ -34,6 +34,7 @@ interface UserRow {
   full_name: string
   role: string
   department_id: string | null
+  team_id?: string | null
   department?: { id: string; name: string } | null
   phone: string | null
   is_active: boolean

@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import type { WorkerLog, WorkerLogStatus } from '@/types/worker-log'
-import { Clock, Package, Calendar, CheckCircle2, XCircle, User } from 'lucide-react'
+import { Clock, Package, Calendar, CheckCircle2, XCircle, User, Users } from 'lucide-react'
 
 interface WorkerLogCardProps {
   log: WorkerLog
@@ -78,6 +78,13 @@ export function WorkerLogCard({ log, showWorkerName = false, onApproveReject, is
               <>
                 <span className="text-gray-300">•</span>
                 <span>{log.department.name}</span>
+              </>
+            )}
+            {log.team && (
+              <>
+                <span className="text-gray-300">•</span>
+                <Users className="w-3 h-3 text-amber-600 flex-shrink-0" />
+                <span className="text-amber-700 font-medium">{log.team.name}</span>
               </>
             )}
           </div>

@@ -14,12 +14,13 @@ export async function GET(req: NextRequest) {
   // Get user profile for role check
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, team_id')
     .eq('id', user.id)
     .single()
 
   const role = profile?.role ?? ''
   const isManager = ['admin', 'factory_manager', 'executive'].includes(role)
+  const isTeamLead = role === 'team_lead'
 
   let query = supabase
     .from('worker_logs')
@@ -28,14 +29,22 @@ export async function GET(req: NextRequest) {
       worker:profiles!worker_logs_worker_id_fkey (full_name),
       department:departments (name),
       project:projects (name),
-      approver:profiles!worker_logs_approved_by_fkey (full_name)
+      approver:profiles!worker_logs_approved_by_fkey (full_name),
+      team:teams (name)
     `)
     .order('log_date', { ascending: false })
     .order('created_at', { ascending: false })
 
-  // worker/team_lead sees only their own logs
-  if (!isManager) {
+  // worker sees only their own logs; team_lead can see their team
+  if (!isManager && !isTeamLead) {
     query = query.eq('worker_id', user.id)
+  } else if (isTeamLead && !isManager) {
+    // team_lead sees own logs + their team's logs
+    if (profile?.team_id) {
+      query = query.eq('team_id', profile.team_id)
+    } else {
+      query = query.eq('worker_id', user.id)
+    }
   }
 
   // Apply filters
@@ -47,6 +56,12 @@ export async function GET(req: NextRequest) {
   }
   if (status) {
     query = query.eq('status', status)
+  }
+
+  // team filter for manager
+  const teamId = searchParams.get('team_id')
+  if (teamId && isManager) {
+    query = query.eq('team_id', teamId)
   }
 
   const { data, error } = await query
@@ -63,10 +78,10 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
 
-  // Get user's department
+  // Get user's department and team
   const { data: profile } = await supabase
     .from('profiles')
-    .select('department_id')
+    .select('department_id, team_id')
     .eq('id', user.id)
     .single()
 
@@ -75,6 +90,7 @@ export async function POST(req: NextRequest) {
     .insert({
       worker_id: user.id,
       department_id: profile?.department_id ?? null,
+      team_id: body.team_id ?? profile?.team_id ?? null,
       project_id: body.project_id ?? null,
       log_date: body.log_date,
       description: body.description,
@@ -89,7 +105,8 @@ export async function POST(req: NextRequest) {
       worker:profiles!worker_logs_worker_id_fkey (full_name),
       department:departments (name),
       project:projects (name),
-      approver:profiles!worker_logs_approved_by_fkey (full_name)
+      approver:profiles!worker_logs_approved_by_fkey (full_name),
+      team:teams (name)
     `)
     .single()
 
