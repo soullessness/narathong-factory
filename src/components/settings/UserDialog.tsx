@@ -20,6 +20,17 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { toast } from 'sonner'
+import {
+  User,
+  Mail,
+  Lock,
+  Briefcase,
+  Building2,
+  Phone,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+} from 'lucide-react'
 
 export const ROLE_LABELS: Record<string, string> = {
   admin: 'ผู้ดูแลระบบ',
@@ -71,6 +82,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState('sales')
   const [departmentId, setDepartmentId] = useState<string>('none')
   const [phone, setPhone] = useState('')
@@ -104,6 +116,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
         setIsActive(true)
       }
       setPassword('')
+      setShowPassword(false)
       setErrors({})
     }
   }, [open, user])
@@ -171,126 +184,204 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้ใหม่'}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Full Name */}
-          <div className="space-y-1">
-            <Label htmlFor="full_name">
-              ชื่อ-นามสกุล <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="full_name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="ชื่อ นามสกุล"
-            />
-            {errors.full_name && <p className="text-xs text-red-500">{errors.full_name}</p>}
+      <DialogContent className="max-w-lg">
+        <DialogHeader className="pb-2">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{ backgroundColor: '#F5EDE6' }}
+            >
+              <User className="h-5 w-5" style={{ color: '#7B4F2E' }} />
+            </div>
+            <DialogTitle className="text-lg font-semibold text-gray-900">
+              {isEdit ? 'แก้ไขข้อมูลผู้ใช้' : 'เพิ่มผู้ใช้ใหม่'}
+            </DialogTitle>
           </div>
+        </DialogHeader>
 
-          {/* Email — create only */}
-          {!isEdit && (
-            <div className="space-y-1">
-              <Label htmlFor="email">
-                อีเมล <span className="text-red-500">*</span>
+        <form onSubmit={handleSubmit} className="space-y-5 pt-1">
+
+          {/* ─── กลุ่ม: ข้อมูลส่วนตัว ─── */}
+          <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+              ข้อมูลส่วนตัว
+            </p>
+
+            {/* Full Name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="full_name" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <User className="h-3.5 w-3.5 text-gray-400" />
+                ชื่อ-นามสกุล <span className="text-red-500">*</span>
               </Label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="user@example.com"
+                id="full_name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="ชื่อ นามสกุล"
+                className={errors.full_name ? 'border-red-300 focus-visible:ring-red-300' : ''}
               />
-              {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+              {errors.full_name && <p className="text-xs text-red-500">{errors.full_name}</p>}
             </div>
-          )}
 
-          {/* Password */}
-          <div className="space-y-1">
-            <Label htmlFor="password">
-              รหัสผ่าน {!isEdit && <span className="text-red-500">*</span>}
-              {isEdit && <span className="text-gray-400 text-xs"> (เว้นว่างถ้าไม่ต้องการเปลี่ยน)</span>}
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={isEdit ? 'รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)' : 'อย่างน้อย 8 ตัวอักษร'}
-            />
-            {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
-          </div>
-
-          {/* Role */}
-          <div className="space-y-1">
-            <Label>
-              Role <span className="text-red-500">*</span>
-            </Label>
-            <Select value={role} onValueChange={(v) => setRole(v ?? 'sales')}>
-              <SelectTrigger>
-                <SelectValue placeholder="เลือก Role" />
-              </SelectTrigger>
-              <SelectContent>
-                {ROLES.map((r) => (
-                  <SelectItem key={r.value} value={r.value}>
-                    {r.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.role && <p className="text-xs text-red-500">{errors.role}</p>}
-          </div>
-
-          {/* Department */}
-          <div className="space-y-1">
-            <Label>แผนก</Label>
-            <Select value={departmentId} onValueChange={(v) => setDepartmentId(v ?? 'none')}>
-              <SelectTrigger>
-                <SelectValue placeholder="เลือกแผนก (ถ้ามี)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">ไม่ระบุแผนก</SelectItem>
-                {departments.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    {d.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Phone */}
-          <div className="space-y-1">
-            <Label htmlFor="phone">เบอร์โทรศัพท์</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="0XX-XXX-XXXX"
-            />
-          </div>
-
-          {/* Active toggle — edit only */}
-          {isEdit && (
-            <div className="flex items-center justify-between">
-              <Label htmlFor="is_active">สถานะ Active</Label>
-              <Switch
-                id="is_active"
-                checked={isActive}
-                onCheckedChange={setIsActive}
+            {/* Phone */}
+            <div className="space-y-1.5">
+              <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <Phone className="h-3.5 w-3.5 text-gray-400" />
+                เบอร์โทรศัพท์
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="0XX-XXX-XXXX"
               />
             </div>
-          )}
+          </div>
 
-          <DialogFooter>
+          {/* ─── กลุ่ม: ข้อมูลระบบ ─── */}
+          <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4 space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+              ข้อมูลระบบ
+            </p>
+
+            {/* Email — create only */}
+            {!isEdit && (
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Mail className="h-3.5 w-3.5 text-gray-400" />
+                  อีเมล <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="user@example.com"
+                  className={errors.email ? 'border-red-300 focus-visible:ring-red-300' : ''}
+                />
+                {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+              </div>
+            )}
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <Lock className="h-3.5 w-3.5 text-gray-400" />
+                รหัสผ่าน{' '}
+                {!isEdit ? (
+                  <span className="text-red-500">*</span>
+                ) : (
+                  <span className="font-normal text-gray-400 text-xs">(เว้นว่างถ้าไม่ต้องการเปลี่ยน)</span>
+                )}
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={isEdit ? 'รหัสผ่านใหม่ (ถ้าต้องการเปลี่ยน)' : 'อย่างน้อย 8 ตัวอักษร'}
+                  className={`pr-10 ${errors.password ? 'border-red-300 focus-visible:ring-red-300' : ''}`}
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {errors.password ? (
+                <p className="text-xs text-red-500">{errors.password}</p>
+              ) : (
+                <p className="text-xs text-gray-400">รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร</p>
+              )}
+            </div>
+
+            {/* Role */}
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <ShieldCheck className="h-3.5 w-3.5 text-gray-400" />
+                สิทธิ์การใช้งาน (Role) <span className="text-red-500">*</span>
+              </Label>
+              <Select value={role} onValueChange={(v) => setRole(v ?? 'sales')}>
+                <SelectTrigger className={errors.role ? 'border-red-300 focus:ring-red-300' : ''}>
+                  <SelectValue>
+                    {role ? (ROLES.find((r) => r.value === role)?.label ?? role) : 'เลือก Role'}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {ROLES.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.role && <p className="text-xs text-red-500">{errors.role}</p>}
+            </div>
+
+            {/* Department */}
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <Building2 className="h-3.5 w-3.5 text-gray-400" />
+                แผนก
+              </Label>
+              <Select value={departmentId} onValueChange={(v) => setDepartmentId(v ?? 'none')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือกแผนก">
+                    {departmentId === 'none' || !departmentId
+                      ? 'ไม่ระบุแผนก'
+                      : (departments.find((d) => d.id === departmentId)?.name ?? 'เลือกแผนก')}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">
+                    <span className="text-gray-400">— ไม่ระบุแผนก —</span>
+                  </SelectItem>
+                  {departments.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Active toggle — edit only */}
+            {isEdit && (
+              <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-300'}`} />
+                  <Label htmlFor="is_active" className="text-sm font-medium text-gray-700 cursor-pointer">
+                    สถานะบัญชี:{' '}
+                    <span className={isActive ? 'text-green-600' : 'text-gray-400'}>
+                      {isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </Label>
+                </div>
+                <Switch
+                  id="is_active"
+                  checked={isActive}
+                  onCheckedChange={setIsActive}
+                />
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2 pt-1">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={loading}
+              className="flex-1 sm:flex-none"
             >
               ยกเลิก
             </Button>
@@ -298,9 +389,21 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
               type="submit"
               disabled={loading}
               style={{ backgroundColor: '#7B4F2E' }}
-              className="text-white"
+              className="text-white flex-1 sm:flex-none hover:opacity-90 transition-opacity"
             >
-              {loading ? 'กำลังบันทึก...' : isEdit ? 'บันทึก' : 'สร้างผู้ใช้'}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  กำลังบันทึก...
+                </span>
+              ) : isEdit ? (
+                'บันทึกการเปลี่ยนแปลง'
+              ) : (
+                'สร้างผู้ใช้'
+              )}
             </Button>
           </DialogFooter>
         </form>
