@@ -1,0 +1,224 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { toast } from 'sonner'
+import type { WorkerLog } from '@/types/worker-log'
+
+interface Project {
+  id: string
+  name: string
+}
+
+interface WorkerLogDialogProps {
+  open: boolean
+  onClose: () => void
+  onSaved: (log: WorkerLog) => void
+}
+
+export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps) {
+  const today = new Date().toISOString().split('T')[0]
+  const [logDate, setLogDate] = useState(today)
+  const [description, setDescription] = useState('')
+  const [quantity, setQuantity] = useState('')
+  const [unit, setUnit] = useState('')
+  const [hoursWorked, setHoursWorked] = useState('')
+  const [projectId, setProjectId] = useState<string>('')
+  const [notes, setNotes] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [projects, setProjects] = useState<Project[]>([])
+
+  useEffect(() => {
+    if (!open) return
+    // Reset form
+    setLogDate(today)
+    setDescription('')
+    setQuantity('')
+    setUnit('')
+    setHoursWorked('')
+    setProjectId('')
+    setNotes('')
+
+    // Load projects
+    fetch('/api/projects')
+      .then((r) => r.json())
+      .then((json) => setProjects(json.data ?? []))
+      .catch(() => {})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!description.trim()) {
+      toast.error('กรุณากรอกรายละเอียดงาน')
+      return
+    }
+
+    setSaving(true)
+    try {
+      const res = await fetch('/api/worker-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          log_date: logDate,
+          description: description.trim(),
+          quantity: quantity ? parseFloat(quantity) : null,
+          unit: unit.trim() || null,
+          hours_worked: hoursWorked ? parseFloat(hoursWorked) : null,
+          project_id: projectId || null,
+          notes: notes.trim() || null,
+        }),
+      })
+
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? 'บันทึกไม่สำเร็จ')
+
+      toast.success('บันทึกงานเรียบร้อย')
+      onSaved(json.data)
+      onClose()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'เกิดข้อผิดพลาด')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2" style={{ color: '#7B4F2E' }}>
+            📋 บันทึกงานประจำวัน
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Date */}
+          <div className="space-y-1.5">
+            <Label htmlFor="log_date">วันที่</Label>
+            <Input
+              id="log_date"
+              type="date"
+              value={logDate}
+              onChange={(e) => setLogDate(e.target.value)}
+              max={today}
+              required
+            />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <Label htmlFor="description">
+              งานที่ทำ <span className="text-red-500">*</span>
+            </Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="อธิบายรายละเอียดงานที่ทำวันนี้..."
+              rows={3}
+              required
+            />
+          </div>
+
+          {/* Quantity + Unit */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="quantity">จำนวน</Label>
+              <Input
+                id="quantity"
+                type="number"
+                min="0"
+                step="0.01"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="เช่น 10"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="unit">หน่วย</Label>
+              <Input
+                id="unit"
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                placeholder="เช่น ชิ้น, แผ่น, เมตร"
+              />
+            </div>
+          </div>
+
+          {/* Hours Worked */}
+          <div className="space-y-1.5">
+            <Label htmlFor="hours_worked">ชั่วโมงทำงาน</Label>
+            <Input
+              id="hours_worked"
+              type="number"
+              min="0"
+              max="24"
+              step="0.5"
+              value={hoursWorked}
+              onChange={(e) => setHoursWorked(e.target.value)}
+              placeholder="เช่น 8"
+            />
+          </div>
+
+          {/* Project */}
+          {projects.length > 0 && (
+            <div className="space-y-1.5">
+              <Label>โปรเจกต์ที่เกี่ยวข้อง (ถ้ามี)</Label>
+              <Select value={projectId} onValueChange={(v) => setProjectId(v ?? '')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือกโปรเจกต์..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">ไม่ระบุ</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Notes */}
+          <div className="space-y-1.5">
+            <Label htmlFor="notes">หมายเหตุ</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"
+              rows={2}
+            />
+          </div>
+
+          <div className="flex gap-2 justify-end pt-2">
+            <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
+              ยกเลิก
+            </Button>
+            <Button
+              type="submit"
+              disabled={saving}
+              className="text-white"
+              style={{ backgroundColor: '#7B4F2E' }}
+            >
+              {saving ? 'กำลังบันทึก...' : 'บันทึกงาน'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}

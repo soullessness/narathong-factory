@@ -1,0 +1,269 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { ClipboardList, Plus, Users, Clock, CheckCircle2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { WorkerLogCard } from '@/components/worker-log/WorkerLogCard'
+import { WorkerLogDialog } from '@/components/worker-log/WorkerLogDialog'
+import { ApproveRejectDialog } from '@/components/worker-log/ApproveRejectDialog'
+import { createClient } from '@/lib/supabase/client'
+import type { WorkerLog } from '@/types/worker-log'
+
+interface Department {
+  id: string
+  name: string
+}
+
+type StatusFilter = '' | 'pending' | 'approved' | 'rejected'
+
+export default function WorkerLogsPage() {
+  const today = new Date().toISOString().split('T')[0]
+
+  const [logs, setLogs] = useState<WorkerLog[]>([])
+  const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<string>('worker')
+  const [departments, setDepartments] = useState<Department[]>([])
+
+  // Filters
+  const [filterDate, setFilterDate] = useState('')
+  const [filterDepartment, setFilterDepartment] = useState('')
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>('')
+
+  // Dialogs
+  const [createOpen, setCreateOpen] = useState(false)
+  const [selectedLog, setSelectedLog] = useState<WorkerLog | null>(null)
+  const [approveOpen, setApproveOpen] = useState(false)
+
+  const isManager = ['admin', 'factory_manager', 'executive'].includes(userRole)
+  const isApprover = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
+
+  // Load user role
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserRole(user.user_metadata?.role ?? 'worker')
+    })
+  }, [])
+
+  // Load departments (manager only)
+  useEffect(() => {
+    if (!isManager) return
+    fetch('/api/departments')
+      .then((r) => r.json())
+      .then((json) => setDepartments(json.data ?? []))
+      .catch(() => {})
+  }, [isManager])
+
+  const fetchLogs = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (filterDate) params.set('date', filterDate)
+      if (filterDepartment) params.set('department_id', filterDepartment)
+      if (filterStatus) params.set('status', filterStatus)
+
+      const res = await fetch(`/api/worker-logs?${params.toString()}`)
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? 'โหลดข้อมูลไม่สำเร็จ')
+      setLogs(json.data ?? [])
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'เกิดข้อผิดพลาด')
+    } finally {
+      setLoading(false)
+    }
+  }, [filterDate, filterDepartment, filterStatus])
+
+  useEffect(() => {
+    fetchLogs()
+  }, [fetchLogs])
+
+  const handleLogCreated = (log: WorkerLog) => {
+    setLogs((prev) => [log, ...prev])
+  }
+
+  const handleLogUpdated = (updated: WorkerLog) => {
+    setLogs((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
+  }
+
+  // Summary stats
+  const pendingCount = logs.filter((l) => l.status === 'pending').length
+  const approvedCount = logs.filter((l) => l.status === 'approved').length
+  const todayLogs = logs.filter((l) => l.log_date === today)
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <ClipboardList className="w-6 h-6" style={{ color: '#7B4F2E' }} />
+            บันทึกงานประจำวัน
+          </h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {isManager
+              ? 'ภาพรวมการทำงานของพนักงานในโรงงาน'
+              : 'บันทึกและติดตามงานของคุณ'}
+          </p>
+        </div>
+        {/* Worker: create button */}
+        {!isManager && (
+          <Button
+            onClick={() => setCreateOpen(true)}
+            className="text-white flex items-center gap-1.5 flex-shrink-0"
+            style={{ backgroundColor: '#7B4F2E' }}
+          >
+            <Plus className="w-4 h-4" />
+            บันทึกงานวันนี้
+          </Button>
+        )}
+      </div>
+
+      {/* Summary Stats (manager only) */}
+      {isApprover && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+            <div className="flex items-center gap-2 text-amber-700 mb-1">
+              <Clock className="w-4 h-4" />
+              <span className="text-xs font-medium">รออนุมัติ</span>
+            </div>
+            <p className="text-2xl font-bold text-amber-700">{pendingCount}</p>
+            <p className="text-xs text-gray-500">รายการ</p>
+          </div>
+          <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+            <div className="flex items-center gap-2 text-green-700 mb-1">
+              <CheckCircle2 className="w-4 h-4" />
+              <span className="text-xs font-medium">อนุมัติแล้ว</span>
+            </div>
+            <p className="text-2xl font-bold text-green-700">{approvedCount}</p>
+            <p className="text-xs text-gray-500">รายการ</p>
+          </div>
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 col-span-2 sm:col-span-1">
+            <div className="flex items-center gap-2 text-blue-700 mb-1">
+              <Users className="w-4 h-4" />
+              <span className="text-xs font-medium">วันนี้</span>
+            </div>
+            <p className="text-2xl font-bold text-blue-700">{todayLogs.length}</p>
+            <p className="text-xs text-gray-500">รายการบันทึก</p>
+          </div>
+        </div>
+      )}
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          type="date"
+          value={filterDate}
+          onChange={(e) => setFilterDate(e.target.value)}
+          className="w-auto text-sm"
+          placeholder="กรองวันที่"
+          max={today}
+        />
+
+        {isManager && departments.length > 0 && (
+          <Select value={filterDepartment} onValueChange={(v) => setFilterDepartment(v ?? '')}>
+            <SelectTrigger className="w-40 text-sm">
+              <SelectValue placeholder="ทุกแผนก" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">ทุกแผนก</SelectItem>
+              {departments.map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        <Select
+          value={filterStatus}
+          onValueChange={(v) => setFilterStatus((v ?? '') as StatusFilter)}
+        >
+          <SelectTrigger className="w-40 text-sm">
+            <SelectValue placeholder="ทุกสถานะ" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">ทุกสถานะ</SelectItem>
+            <SelectItem value="pending">รอการอนุมัติ</SelectItem>
+            <SelectItem value="approved">อนุมัติแล้ว</SelectItem>
+            <SelectItem value="rejected">ปฏิเสธ</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {(filterDate || filterDepartment || filterStatus) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-500"
+            onClick={() => {
+              setFilterDate('')
+              setFilterDepartment('')
+              setFilterStatus('')
+            }}
+          >
+            ล้างตัวกรอง
+          </Button>
+        )}
+      </div>
+
+      {/* Content */}
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : logs.length === 0 ? (
+        <div className="text-center py-16 text-gray-400">
+          <p className="text-4xl mb-3">📋</p>
+          <p className="font-medium">ยังไม่มีบันทึกงาน</p>
+          {!isManager && (
+            <p className="text-sm mt-1">
+              กด &quot;+ บันทึกงานวันนี้&quot; เพื่อเริ่มบันทึกงาน
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {logs.map((log) => (
+            <WorkerLogCard
+              key={log.id}
+              log={log}
+              showWorkerName={isApprover}
+              isApprover={isApprover}
+              onApproveReject={(l) => {
+                setSelectedLog(l)
+                setApproveOpen(true)
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Worker: create dialog */}
+      <WorkerLogDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onSaved={handleLogCreated}
+      />
+
+      {/* Approver: approve/reject dialog */}
+      <ApproveRejectDialog
+        open={approveOpen}
+        log={selectedLog}
+        onClose={() => {
+          setApproveOpen(false)
+          setSelectedLog(null)
+        }}
+        onDone={handleLogUpdated}
+      />
+    </div>
+  )
+}

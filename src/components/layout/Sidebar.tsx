@@ -54,6 +54,13 @@ const navItems = [
     icon: Factory,
   },
   {
+    href: '/worker-logs',
+    label: 'บันทึกงาน',
+    icon: ClipboardList,
+    badgeKey: 'workerLogs',
+    workerMenu: true,
+  },
+  {
     href: '/settings',
     label: 'ตั้งค่า',
     icon: Settings,
@@ -75,6 +82,9 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
   const [pendingCount, setPendingCount] = useState(0)
 
   const canRespondPrice = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
+  const canApproveWorkerLogs = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
+  const showWorkerMenu = ['worker', 'team_lead', 'factory_manager', 'executive', 'admin'].includes(userRole)
+  const [workerLogPendingCount, setWorkerLogPendingCount] = useState(0)
 
   // Load pending price requests count for users who can respond to price requests
   useEffect(() => {
@@ -94,6 +104,21 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
     }
     load()
   }, [canRespondPrice])
+
+  // Load pending worker logs count for approvers
+  useEffect(() => {
+    if (!canApproveWorkerLogs) return
+    const load = async () => {
+      try {
+        const res = await fetch('/api/worker-logs?status=pending')
+        const json = await res.json()
+        setWorkerLogPendingCount((json.data ?? []).length)
+      } catch {
+        // ignore
+      }
+    }
+    load()
+  }, [canApproveWorkerLogs])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -138,8 +163,16 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
+          // Hide worker-logs menu for roles that shouldn't see it
+          if (item.workerMenu && !showWorkerMenu) return null
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-          const showBadge = item.badgeKey === 'priceRequests' && canRespondPrice && pendingCount > 0
+          const badgeCount =
+            item.badgeKey === 'priceRequests' && canRespondPrice
+              ? pendingCount
+              : item.badgeKey === 'workerLogs' && canApproveWorkerLogs
+              ? workerLogPendingCount
+              : 0
+          const showBadge = badgeCount > 0
           const visibleSubItems = (item.subItems ?? []).filter(
             (sub) => !sub.adminOnly || userRole === 'admin'
           )
@@ -169,7 +202,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
                       ? 'bg-white/20 text-white'
                       : 'bg-amber-100 text-amber-700'
                   )}>
-                    {pendingCount}
+                    {badgeCount}
                   </span>
                 )}
                 {isActive && !showBadge && (
