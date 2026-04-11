@@ -11,6 +11,7 @@ import {
   LogOut,
   ChevronRight,
   Package,
+  ClipboardList,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 const navItems = [
   {
@@ -34,6 +36,12 @@ const navItems = [
     href: '/customers',
     label: 'ลูกค้า',
     icon: Users,
+  },
+  {
+    href: '/price-requests',
+    label: 'ขอราคาสินค้า',
+    icon: ClipboardList,
+    badgeKey: 'priceRequests',
   },
   {
     href: '/products',
@@ -60,6 +68,28 @@ interface SidebarProps {
 export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const [pendingCount, setPendingCount] = useState(0)
+
+  const isFactoryOrAdmin = userRole === 'factory_head' || userRole === 'admin'
+
+  // Load pending price requests count for factory_head/admin
+  useEffect(() => {
+    if (!isFactoryOrAdmin) return
+    const load = async () => {
+      try {
+        const res = await fetch('/api/price-requests')
+        const json = await res.json()
+        const data = json.data ?? []
+        const count = data.filter(
+          (r: { status: string }) => r.status === 'pending' || r.status === 'reviewing'
+        ).length
+        setPendingCount(count)
+      } catch {
+        // ignore
+      }
+    }
+    load()
+  }, [isFactoryOrAdmin])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -78,6 +108,9 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
     manager: 'ผู้จัดการ',
     operator: 'พนักงาน',
     viewer: 'ผู้ชม',
+    factory_head: 'หัวหน้าโรงงาน',
+    sales: 'เซล',
+    cashier: 'แคชเชียร์',
   }
 
   return (
@@ -102,6 +135,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          const showBadge = item.badgeKey === 'priceRequests' && isFactoryOrAdmin && pendingCount > 0
           return (
             <Link
               key={item.href}
@@ -121,7 +155,17 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
                 )}
               />
               <span className="flex-1">{item.label}</span>
-              {isActive && (
+              {showBadge && (
+                <span className={cn(
+                  'text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center',
+                  isActive
+                    ? 'bg-white/20 text-white'
+                    : 'bg-amber-100 text-amber-700'
+                )}>
+                  {pendingCount}
+                </span>
+              )}
+              {isActive && !showBadge && (
                 <ChevronRight className="w-3.5 h-3.5 text-white/60" />
               )}
             </Link>
