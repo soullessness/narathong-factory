@@ -30,7 +30,7 @@ export default function PriceRequestsPage() {
     })
   }, [])
 
-  const isFactoryOrAdmin = userRole === 'factory_head' || userRole === 'admin'
+  const isFactoryOrAdmin = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
 
   const fetchRequests = useCallback(async () => {
     setLoading(true)
@@ -143,7 +143,7 @@ export default function PriceRequestsPage() {
         </div>
       )}
 
-      {/* Response Dialog (factory_head/admin) */}
+      {/* Response Dialog (factory_manager/team_lead/admin) */}
       <PriceResponseDialog
         open={responseOpen}
         request={selectedRequest}

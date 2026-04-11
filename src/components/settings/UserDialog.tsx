@@ -23,13 +23,23 @@ import { toast } from 'sonner'
 
 export const ROLE_LABELS: Record<string, string> = {
   admin: 'ผู้ดูแลระบบ',
-  manager: 'ผู้จัดการ',
-  factory_head: 'หัวหน้าโรงงาน',
+  executive: 'ผู้บริหาร',
+  factory_manager: 'ผู้จัดการโรงงาน',
+  team_lead: 'หัวหน้าทีม',
+  worker: 'พนักงานโรงงาน',
   sales: 'พนักงานขาย',
-  cashier: 'แคชเชียร์',
+  accounting: 'บัญชี',
 }
 
-const ROLES = ['admin', 'manager', 'factory_head', 'sales', 'cashier'] as const
+const ROLES = [
+  { value: 'admin', label: 'ผู้ดูแลระบบ' },
+  { value: 'executive', label: 'ผู้บริหาร' },
+  { value: 'factory_manager', label: 'ผู้จัดการโรงงาน' },
+  { value: 'team_lead', label: 'หัวหน้าทีม' },
+  { value: 'worker', label: 'พนักงานโรงงาน' },
+  { value: 'sales', label: 'พนักงานขาย' },
+  { value: 'accounting', label: 'บัญชี' },
+]
 
 interface Department {
   id: string
@@ -224,8 +234,8 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
               </SelectTrigger>
               <SelectContent>
                 {ROLES.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {ROLE_LABELS[r]}
+                  <SelectItem key={r.value} value={r.value}>
+                    {r.label}
                   </SelectItem>
                 ))}
               </SelectContent>

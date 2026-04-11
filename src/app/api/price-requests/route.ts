@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     .eq('id', user.id)
     .single()
 
-  const isFactoryOrAdmin = profile?.role === 'factory_head' || profile?.role === 'admin'
+  const isFactoryOrAdmin = ['admin', 'factory_manager', 'team_lead'].includes(profile?.role ?? '')
 
   let query = supabase
     .from('price_requests')
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     `)
     .order('created_at', { ascending: false })
 
-  // Sales/cashier: only see their own requests
+  // Sales/worker: only see their own requests
   if (!isFactoryOrAdmin || myOnly) {
     query = query.eq('requested_by', user.id)
   }

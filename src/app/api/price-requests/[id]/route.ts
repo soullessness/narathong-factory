@@ -51,7 +51,7 @@ export async function PATCH(
     .eq('id', user.id)
     .single()
 
-  const isAllowed = profile?.role === 'factory_head' || profile?.role === 'admin'
+  const isAllowed = ['admin', 'factory_manager', 'team_lead'].includes(profile?.role ?? '')
   if (!isAllowed) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await req.json()

@@ -74,11 +74,11 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
   const router = useRouter()
   const [pendingCount, setPendingCount] = useState(0)
 
-  const isFactoryOrAdmin = userRole === 'factory_head' || userRole === 'admin'
+  const canRespondPrice = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
 
-  // Load pending price requests count for factory_head/admin
+  // Load pending price requests count for users who can respond to price requests
   useEffect(() => {
-    if (!isFactoryOrAdmin) return
+    if (!canRespondPrice) return
     const load = async () => {
       try {
         const res = await fetch('/api/price-requests')
@@ -93,7 +93,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
       }
     }
     load()
-  }, [isFactoryOrAdmin])
+  }, [canRespondPrice])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -109,12 +109,12 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
 
   const roleLabel: Record<string, string> = {
     admin: 'ผู้ดูแลระบบ',
-    manager: 'ผู้จัดการ',
-    operator: 'พนักงาน',
-    viewer: 'ผู้ชม',
-    factory_head: 'หัวหน้าโรงงาน',
-    sales: 'เซล',
-    cashier: 'แคชเชียร์',
+    executive: 'ผู้บริหาร',
+    factory_manager: 'ผู้จัดการโรงงาน',
+    team_lead: 'หัวหน้าทีม',
+    worker: 'พนักงานโรงงาน',
+    sales: 'พนักงานขาย',
+    accounting: 'บัญชี',
   }
 
   return (
@@ -139,7 +139,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-          const showBadge = item.badgeKey === 'priceRequests' && isFactoryOrAdmin && pendingCount > 0
+          const showBadge = item.badgeKey === 'priceRequests' && canRespondPrice && pendingCount > 0
           const visibleSubItems = (item.subItems ?? []).filter(
             (sub) => !sub.adminOnly || userRole === 'admin'
           )
