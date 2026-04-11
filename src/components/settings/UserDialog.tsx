@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -31,6 +31,46 @@ import {
   EyeOff,
   ShieldCheck,
 } from 'lucide-react'
+
+const ROLE_DEPARTMENT_FILTER: Record<string, string[]> = {
+  admin: [], // ทุกแผนก (ไม่จำกัด)
+  executive: ['ผู้บริหาร'],
+  factory_manager: [
+    'ทีมเตรียมไม้ (พลัส)',
+    'ทีมช่างไม้ (พลัส)',
+    'ทีมช่างพ่นสี (พลัส)',
+    'ทีมประกอบ (พลัส)',
+    'ทีมแพคกิ้ง (พลัส)',
+    'ทีมเตรียมไม้ (ซอว์มิลล์)',
+    'ทีมช่างไม้ (ซอว์มิลล์)',
+    'ทีมแปรรูป (ซอว์มิลล์)',
+    'ทีมแพคกิ้ง (ซอว์มิลล์)',
+  ],
+  team_lead: [
+    'ทีมเตรียมไม้ (พลัส)',
+    'ทีมช่างไม้ (พลัส)',
+    'ทีมช่างพ่นสี (พลัส)',
+    'ทีมประกอบ (พลัส)',
+    'ทีมแพคกิ้ง (พลัส)',
+    'ทีมเตรียมไม้ (ซอว์มิลล์)',
+    'ทีมช่างไม้ (ซอว์มิลล์)',
+    'ทีมแปรรูป (ซอว์มิลล์)',
+    'ทีมแพคกิ้ง (ซอว์มิลล์)',
+  ],
+  worker: [
+    'ทีมเตรียมไม้ (พลัส)',
+    'ทีมช่างไม้ (พลัส)',
+    'ทีมช่างพ่นสี (พลัส)',
+    'ทีมประกอบ (พลัส)',
+    'ทีมแพคกิ้ง (พลัส)',
+    'ทีมเตรียมไม้ (ซอว์มิลล์)',
+    'ทีมช่างไม้ (ซอว์มิลล์)',
+    'ทีมแปรรูป (ซอว์มิลล์)',
+    'ทีมแพคกิ้ง (ซอว์มิลล์)',
+  ],
+  sales: ['ฝ่ายขาย'],
+  accounting: ['ฝ่ายบัญชี'],
+}
 
 export const ROLE_LABELS: Record<string, string> = {
   admin: 'ผู้ดูแลระบบ',
@@ -96,6 +136,33 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
       .then((json) => setDepartments(json.data ?? []))
       .catch(() => {})
   }, [])
+
+  // คำนวณ filtered departments จาก role ที่เลือก
+  const filteredDepartments = useMemo(() => {
+    if (!role || role === 'admin') return departments
+    const allowed = ROLE_DEPARTMENT_FILTER[role] ?? []
+    if (allowed.length === 0) return departments
+    return departments.filter((d) => allowed.includes(d.name))
+  }, [role, departments])
+
+  // auto-select ถ้ามีแค่แผนกเดียว
+  useEffect(() => {
+    if (filteredDepartments.length === 1) {
+      setDepartmentId(filteredDepartments[0].id)
+    }
+  }, [filteredDepartments])
+
+  // เมื่อเปลี่ยน role → reset department ถ้าแผนกเดิมไม่อยู่ใน filter ใหม่
+  const handleRoleChange = (newRole: string) => {
+    const allowed = ROLE_DEPARTMENT_FILTER[newRole] ?? []
+    const currentDeptName = departments.find((d) => d.id === departmentId)?.name
+    const stillValid =
+      allowed.length === 0 || (currentDeptName != null && allowed.includes(currentDeptName))
+    setRole(newRole)
+    if (!stillValid) {
+      setDepartmentId('none')
+    }
+  }
 
   // Fill form when editing
   useEffect(() => {
@@ -310,7 +377,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
                 <ShieldCheck className="h-3.5 w-3.5 text-gray-400" />
                 สิทธิ์การใช้งาน (Role) <span className="text-red-500">*</span>
               </Label>
-              <Select value={role} onValueChange={(v) => setRole(v ?? 'sales')}>
+              <Select value={role} onValueChange={(v) => handleRoleChange(v ?? 'sales')}>
                 <SelectTrigger className={errors.role ? 'border-red-300 focus:ring-red-300' : ''}>
                   <SelectValue>
                     {role ? (ROLES.find((r) => r.value === role)?.label ?? role) : 'เลือก Role'}
@@ -345,7 +412,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
                   <SelectItem value="none">
                     <span className="text-gray-400">— ไม่ระบุแผนก —</span>
                   </SelectItem>
-                  {departments.map((d) => (
+                  {filteredDepartments.map((d) => (
                     <SelectItem key={d.id} value={d.id}>
                       {d.name}
                     </SelectItem>
