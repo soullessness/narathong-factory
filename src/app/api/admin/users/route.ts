@@ -89,22 +89,52 @@ export async function POST(request: NextRequest) {
     })
     if (authError) return NextResponse.json({ error: authError.message }, { status: 500 })
 
-    // Insert profile
-    const { data: profile, error: profileError } = await supabaseAdmin
+    // Check if profile already exists (handle_new_user trigger may have created it)
+    const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
-      .insert({
-        id: authUser.user.id,
-        full_name,
-        role,
-        department_id: department_id || null,
-        phone: phone || null,
-        is_active: true,
-      })
-      .select()
+      .select('id')
+      .eq('id', authUser.user.id)
       .single()
 
+    let profile
+    let profileError
+
+    if (existingProfile) {
+      // trigger สร้าง profile ไปแล้ว → UPDATE แทน
+      const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          full_name,
+          role,
+          department_id: department_id || null,
+          phone: phone || null,
+          is_active: true,
+        })
+        .eq('id', authUser.user.id)
+        .select()
+        .single()
+      profile = data
+      profileError = error
+    } else {
+      // ไม่มี profile → INSERT ปกติ
+      const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: authUser.user.id,
+          full_name,
+          role,
+          department_id: department_id || null,
+          phone: phone || null,
+          is_active: true,
+        })
+        .select()
+        .single()
+      profile = data
+      profileError = error
+    }
+
     if (profileError) {
-      // Rollback auth user on profile insert failure
+      // Rollback auth user on profile insert/update failure
       await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
       return NextResponse.json({ error: profileError.message }, { status: 500 })
     }
