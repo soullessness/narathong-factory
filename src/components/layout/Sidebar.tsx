@@ -57,6 +57,10 @@ const navItems = [
     href: '/settings',
     label: 'ตั้งค่า',
     icon: Settings,
+    adminOnly: false,
+    subItems: [
+      { href: '/settings/users', label: 'จัดการผู้ใช้', adminOnly: true },
+    ],
   },
 ]
 
@@ -136,39 +140,65 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           const showBadge = item.badgeKey === 'priceRequests' && isFactoryOrAdmin && pendingCount > 0
+          const visibleSubItems = (item.subItems ?? []).filter(
+            (sub) => !sub.adminOnly || userRole === 'admin'
+          )
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group',
-                isActive
-                  ? 'text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-amber-50'
-              )}
-              style={isActive ? { backgroundColor: '#7B4F2E' } : {}}
-            >
-              <item.icon
+            <div key={item.href}>
+              <Link
+                href={item.href}
                 className={cn(
-                  'w-4 h-4 flex-shrink-0 transition-colors',
-                  isActive ? 'text-white' : 'text-gray-400 group-hover:text-amber-700'
-                )}
-              />
-              <span className="flex-1">{item.label}</span>
-              {showBadge && (
-                <span className={cn(
-                  'text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group',
                   isActive
-                    ? 'bg-white/20 text-white'
-                    : 'bg-amber-100 text-amber-700'
-                )}>
-                  {pendingCount}
-                </span>
+                    ? 'text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-amber-50'
+                )}
+                style={isActive ? { backgroundColor: '#7B4F2E' } : {}}
+              >
+                <item.icon
+                  className={cn(
+                    'w-4 h-4 flex-shrink-0 transition-colors',
+                    isActive ? 'text-white' : 'text-gray-400 group-hover:text-amber-700'
+                  )}
+                />
+                <span className="flex-1">{item.label}</span>
+                {showBadge && (
+                  <span className={cn(
+                    'text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center',
+                    isActive
+                      ? 'bg-white/20 text-white'
+                      : 'bg-amber-100 text-amber-700'
+                  )}>
+                    {pendingCount}
+                  </span>
+                )}
+                {isActive && !showBadge && (
+                  <ChevronRight className="w-3.5 h-3.5 text-white/60" />
+                )}
+              </Link>
+              {/* Sub-menu items */}
+              {visibleSubItems.length > 0 && isActive && (
+                <div className="mt-1 ml-4 space-y-0.5 border-l-2 border-amber-200 pl-3">
+                  {visibleSubItems.map((sub) => {
+                    const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + '/')
+                    return (
+                      <Link
+                        key={sub.href}
+                        href={sub.href}
+                        className={cn(
+                          'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-150',
+                          isSubActive
+                            ? 'font-medium text-amber-800 bg-amber-100'
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-amber-50'
+                        )}
+                      >
+                        <span>{sub.label}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
               )}
-              {isActive && !showBadge && (
-                <ChevronRight className="w-3.5 h-3.5 text-white/60" />
-              )}
-            </Link>
+            </div>
           )
         })}
       </nav>
