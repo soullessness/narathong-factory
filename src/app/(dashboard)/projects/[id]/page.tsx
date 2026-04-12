@@ -59,6 +59,16 @@ import {
   STAGE_ORDER,
   CUSTOMER_TYPE_LABELS,
 } from '@/types/crm'
+
+const NEXT_STAGE: Partial<Record<CRMStage, CRMStage>> = {
+  lead: 'presentation',
+  presentation: 'quotation',
+  quotation: 'deposit',
+  deposit: 'production',
+  production: 'delivery',
+  delivery: 'installation',
+  installation: 'completed',
+}
 import type { Quotation } from '@/types/quotation'
 import { ProjectDialog } from '@/components/crm/ProjectDialog'
 import { ProductionOrderDialog } from '@/components/production/ProductionOrderDialog'
@@ -113,6 +123,11 @@ export default function ProjectDetailPage() {
   const [stageDeposit, setStageDeposit] = useState('')
   const [stageLoading, setStageLoading] = useState(false)
   const [stageError, setStageError] = useState<string | null>(null)
+
+  // Next stage confirm dialog
+  const [confirmStage, setConfirmStage] = useState<CRMStage | null>(null)
+  const [confirmDeposit, setConfirmDeposit] = useState('')
+  const [confirmValue, setConfirmValue] = useState('')
 
   // Edit dialog
   const [showEdit, setShowEdit] = useState(false)
@@ -192,8 +207,9 @@ export default function ProjectDetailPage() {
     load()
   }, [fetchProject, fetchStageLogs, fetchQuotations])
 
-  const handleStageChange = async () => {
-    if (!newStage || !project) return
+  const handleStageChange = async (targetStage?: CRMStage) => {
+    const stage = targetStage ?? newStage
+    if (!stage || !project) return
     setStageLoading(true)
     setStageError(null)
     try {
@@ -201,7 +217,7 @@ export default function ProjectDetailPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          stage: newStage,
+          stage,
           note: stageNote,
           value: stageValue ? parseFloat(stageValue) : undefined,
           deposit_amount: stageDeposit ? parseFloat(stageDeposit) : undefined,
@@ -217,6 +233,42 @@ export default function ProjectDetailPage() {
       setChangingStage(false)
       setNewStage('')
       setStageNote('')
+      setStageValue('')
+      setStageDeposit('')
+    } catch {
+      setStageError('เกิดข้อผิดพลาด กรุณาลองใหม่')
+    } finally {
+      setStageLoading(false)
+    }
+  }
+
+  const handleConfirmNextStage = async () => {
+    if (!confirmStage || !project) return
+    setStageLoading(true)
+    setStageError(null)
+    try {
+      const body: Record<string, unknown> = { stage: confirmStage }
+      if (confirmStage === 'deposit' && confirmDeposit) {
+        body.deposit_amount = parseFloat(confirmDeposit)
+      }
+      if (confirmStage === 'completed' && confirmValue) {
+        body.value = parseFloat(confirmValue)
+      }
+      const res = await fetch(`/api/projects/${id}/stage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setStageError(json.error || 'เกิดข้อผิดพลาด')
+        return
+      }
+      setProject(json.data)
+      await fetchStageLogs()
+      setConfirmStage(null)
+      setConfirmDeposit('')
+      setConfirmValue('')
     } catch {
       setStageError('เกิดข้อผิดพลาด กรุณาลองใหม่')
     } finally {
@@ -658,7 +710,7 @@ export default function ProjectDetailPage() {
           {/* Change Stage */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">เปลี่ยน Stage</CardTitle>
+              <CardTitle className="text-base">สถานะโปรเจค</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2">
@@ -670,94 +722,120 @@ export default function ProjectDetailPage() {
                 </Badge>
               </div>
 
-              {!changingStage ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setChangingStage(true)}
-                  className="w-full gap-1"
-                >
-                  <ArrowRight className="w-3.5 h-3.5" /> เปลี่ยน Stage
-                </Button>
-              ) : (
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Stage ใหม่</Label>
-                    <Select value={newStage} onValueChange={(v) => setNewStage(v as CRMStage)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="เลือก Stage" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STAGE_ORDER.filter((s) => s !== project.stage).map((s) => (
-                          <SelectItem key={s} value={s}>
-                            {STAGE_CONFIG[s].label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {(newStage === 'quotation' || newStage === 'deposit') && (
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">มูลค่าโปรเจค (บาท)</Label>
-                      <input
-                        type="number"
-                        value={stageValue}
-                        onChange={(e) => setStageValue(e.target.value)}
-                        placeholder="0.00"
-                        className="w-full border rounded-md px-3 py-1.5 text-sm"
-                      />
-                    </div>
-                  )}
-                  {newStage === 'deposit' && (
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">ยอดมัดจำ (บาท)</Label>
-                      <input
-                        type="number"
-                        value={stageDeposit}
-                        onChange={(e) => setStageDeposit(e.target.value)}
-                        placeholder="0.00"
-                        className="w-full border rounded-md px-3 py-1.5 text-sm"
-                      />
-                    </div>
-                  )}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">หมายเหตุ</Label>
-                    <Textarea
-                      value={stageNote}
-                      onChange={(e) => setStageNote(e.target.value)}
-                      placeholder="เหตุผลหรือหมายเหตุ"
-                      rows={2}
-                      className="text-sm"
-                    />
-                  </div>
-                  {stageError && <p className="text-xs text-red-600">{stageError}</p>}
-                  <div className="flex gap-2">
+              {/* ปุ่มหลัก: ดำเนินการต่อ */}
+              {(() => {
+                const nextSt = NEXT_STAGE[project.stage]
+                const nextConf = nextSt ? STAGE_CONFIG[nextSt] : null
+                if (!nextSt || !nextConf) return null
+                return (
+                  <Button
+                    onClick={() => {
+                      setConfirmStage(nextSt)
+                      setConfirmDeposit('')
+                      setConfirmValue('')
+                    }}
+                    className="bg-[#2BA8D4] hover:bg-[#1E8AB0] text-white w-full"
+                    size="lg"
+                  >
+                    <ArrowRight className="w-4 h-4 mr-2" />
+                    ดำเนินการต่อ: {nextConf.label}
+                  </Button>
+                )
+              })()}
+
+              {/* ปุ่มรอง: เปลี่ยน stage อื่น */}
+              {project.stage !== 'completed' && project.stage !== 'cancelled' && (
+                <>
+                  {!changingStage ? (
                     <Button
-                      size="sm"
                       variant="outline"
-                      onClick={() => {
-                        setChangingStage(false)
-                        setNewStage('')
-                        setStageNote('')
-                        setStageValue('')
-                        setStageDeposit('')
-                        setStageError(null)
-                      }}
-                      className="flex-1"
-                    >
-                      ยกเลิก
-                    </Button>
-                    <Button
                       size="sm"
-                      disabled={!newStage || stageLoading}
-                      onClick={handleStageChange}
-                      style={{ backgroundColor: '#2BA8D4' }}
-                      className="text-white flex-1"
+                      onClick={() => setChangingStage(true)}
+                      className="w-full gap-1 text-gray-500"
                     >
-                      {stageLoading ? '...' : 'ยืนยัน'}
+                      ⚙️ เปลี่ยน Stage อื่น
                     </Button>
-                  </div>
-                </div>
+                  ) : (
+                    <div className="space-y-3 border rounded-lg p-3 bg-gray-50">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Stage ใหม่</Label>
+                        <Select value={newStage} onValueChange={(v) => setNewStage(v as CRMStage)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="เลือก Stage" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {STAGE_ORDER.filter((s) => s !== project.stage).map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {STAGE_CONFIG[s].label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {(newStage === 'quotation' || newStage === 'deposit') && (
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">มูลค่าโปรเจค (บาท)</Label>
+                          <input
+                            type="number"
+                            value={stageValue}
+                            onChange={(e) => setStageValue(e.target.value)}
+                            placeholder="0.00"
+                            className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
+                          />
+                        </div>
+                      )}
+                      {newStage === 'deposit' && (
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">ยอดมัดจำ (บาท)</Label>
+                          <input
+                            type="number"
+                            value={stageDeposit}
+                            onChange={(e) => setStageDeposit(e.target.value)}
+                            placeholder="0.00"
+                            className="w-full border rounded-md px-3 py-1.5 text-sm bg-white"
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">หมายเหตุ</Label>
+                        <Textarea
+                          value={stageNote}
+                          onChange={(e) => setStageNote(e.target.value)}
+                          placeholder="เหตุผลหรือหมายเหตุ"
+                          rows={2}
+                          className="text-sm bg-white"
+                        />
+                      </div>
+                      {stageError && <p className="text-xs text-red-600">{stageError}</p>}
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setChangingStage(false)
+                            setNewStage('')
+                            setStageNote('')
+                            setStageValue('')
+                            setStageDeposit('')
+                            setStageError(null)
+                          }}
+                          className="flex-1"
+                        >
+                          ยกเลิก
+                        </Button>
+                        <Button
+                          size="sm"
+                          disabled={!newStage || stageLoading}
+                          onClick={() => handleStageChange()}
+                          style={{ backgroundColor: '#2BA8D4' }}
+                          className="text-white flex-1"
+                        >
+                          {stageLoading ? '...' : 'ยืนยัน'}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
@@ -828,6 +906,63 @@ export default function ProjectDetailPage() {
         initialStage={project.stage}
         editProject={project}
       />
+
+      {/* Next Stage Confirm Dialog */}
+      <AlertDialog open={!!confirmStage} onOpenChange={(open) => { if (!open) { setConfirmStage(null); setConfirmDeposit(''); setConfirmValue('') } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              ยืนยันการเลื่อนสถานะเป็น &ldquo;{confirmStage ? STAGE_CONFIG[confirmStage].label : ''}&rdquo;?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="sr-only">
+              ยืนยันการเลื่อนสถานะโปรเจค
+            </AlertDialogDescription>
+            <div className="space-y-3 mt-1">
+              <p className="text-sm text-gray-500">
+                สถานะจะเปลี่ยนจาก &ldquo;{currentConfig.label}&rdquo; เป็น &ldquo;{confirmStage ? STAGE_CONFIG[confirmStage].label : ''}&rdquo;
+              </p>
+              {confirmStage === 'deposit' && (
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium text-gray-700">ยอดมัดจำ (บาท)</Label>
+                  <input
+                    type="number"
+                    value={confirmDeposit}
+                    onChange={(e) => setConfirmDeposit(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  />
+                </div>
+              )}
+              {confirmStage === 'completed' && (
+                <div className="space-y-1.5">
+                  <Label className="text-sm font-medium text-gray-700">ยอดรวมทั้งหมด (บาท)</Label>
+                  <input
+                    type="number"
+                    value={confirmValue}
+                    onChange={(e) => setConfirmValue(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full border rounded-md px-3 py-2 text-sm"
+                  />
+                </div>
+              )}
+              {stageError && <p className="text-xs text-red-600">{stageError}</p>}
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={stageLoading} onClick={() => { setConfirmStage(null); setConfirmDeposit(''); setConfirmValue(''); setStageError(null) }}>
+              ยกเลิก
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={stageLoading}
+              onClick={handleConfirmNextStage}
+              style={{ backgroundColor: '#2BA8D4' }}
+              className="text-white hover:bg-[#1E8AB0]"
+            >
+              {stageLoading ? 'กำลังบันทึก...' : 'ยืนยัน'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete Confirm Dialog */}
       <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
