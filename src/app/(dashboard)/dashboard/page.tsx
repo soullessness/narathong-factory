@@ -15,6 +15,8 @@ import {
   FileText,
   TrendingUp,
 } from 'lucide-react'
+import { AdminDashboardSection } from '@/components/dashboard/AdminDashboardSection'
+import type { AdminDashboardData } from '@/types/sales'
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline'; icon: React.ElementType }> = {
   in_progress: { label: 'กำลังดำเนินการ', variant: 'default', icon: Clock },
@@ -62,6 +64,8 @@ export default async function DashboardPage() {
   }
 
   const isSales = role === 'sales'
+  const isAdminOrExec = ['admin', 'executive'].includes(role)
+
   // =========================================================
   // ดึงข้อมูลจริงจาก Supabase
   // =========================================================
@@ -208,7 +212,153 @@ export default async function DashboardPage() {
     )
   }
 
-  // --- Admin / Executive / Factory Manager View ---
+  // --- Admin / Executive View: Full Dashboard ---
+
+  if (isAdminOrExec) {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth() + 1
+    const monthStart = new Date(year, now.getMonth(), 1).toISOString()
+    const monthEnd = new Date(year, now.getMonth() + 1, 0, 23, 59, 59).toISOString()
+
+    const [
+      { count: totalProjects },
+      { count: activeProjects },
+      { count: completedProjects },
+      { count: pendingWorkerLogs },
+      { count: inProgressProductionOrders },
+      { data: salesProfiles },
+      { data: allProjects },
+      { data: salesTargets },
+      { data: departments },
+      { data: workerLogs },
+      { data: productionOrders },
+    ] = await Promise.all([
+      admin.from('projects').select('*', { count: 'exact', head: true }),
+      admin
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .not('stage', 'in', '("completed","cancelled")'),
+      admin
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('stage', 'completed'),
+      admin
+        .from('worker_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      admin
+        .from('production_orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'in_progress'),
+      admin.from('profiles').select('id, full_name').eq('role', 'sales'),
+      admin
+        .from('projects')
+        .select('id, assigned_sales, stage, total_amount, created_at'),
+      admin
+        .from('sales_targets')
+        .select('*')
+        .eq('year', year)
+        .eq('month', month),
+      admin.from('departments').select('id, name, type'),
+      admin
+        .from('worker_logs')
+        .select('department_id, status, hours_worked')
+        .gte('log_date', monthStart.split('T')[0])
+        .lte('log_date', monthEnd.split('T')[0]),
+      admin
+        .from('production_orders')
+        .select('status, created_at')
+        .gte('created_at', monthStart)
+        .lte('created_at', monthEnd),
+    ])
+
+    // Build salesPerformance
+    const salesPerformance = (salesProfiles ?? []).map((sp) => {
+      const myProjects = (allProjects ?? []).filter((p) => p.assigned_sales === sp.id)
+      const completedThisMonth = myProjects.filter((p) => {
+        if (p.stage !== 'completed') return false
+        const createdAt = new Date(p.created_at)
+        return createdAt >= new Date(monthStart) && createdAt <= new Date(monthEnd)
+      })
+      const activeOnes = myProjects.filter(
+        (p) => !['completed', 'cancelled'].includes(p.stage ?? '')
+      )
+      const totalAmount = completedThisMonth.reduce(
+        (sum: number, p: { total_amount: number | null }) => sum + (p.total_amount ?? 0),
+        0
+      )
+      const target = (salesTargets ?? []).find((t) => t.sales_id === sp.id)
+      const commissionRate = target?.commission_rate ?? 0
+      const commissionEarned = (totalAmount * commissionRate) / 100
+
+      return {
+        sales_id: sp.id,
+        full_name: sp.full_name,
+        total_projects: myProjects.length,
+        active_projects: activeOnes.length,
+        completed_projects: completedThisMonth.length,
+        total_amount: totalAmount,
+        target: target ?? undefined,
+        commission_earned: commissionEarned,
+      }
+    })
+
+    // Build departmentPerformance
+    const departmentPerformance = (departments ?? []).map((dept) => {
+      const deptLogs = (workerLogs ?? []).filter((l) => l.department_id === dept.id)
+      const approved = deptLogs.filter((l) => l.status === 'approved')
+      const pending = deptLogs.filter((l) => l.status === 'pending')
+      const rejected = deptLogs.filter((l) => l.status === 'rejected')
+      const totalHours = approved.reduce(
+        (sum: number, l: { hours_worked: number | null }) => sum + (l.hours_worked ?? 0),
+        0
+      )
+      return {
+        department_id: dept.id,
+        department_name: dept.name,
+        approved_logs: approved.length,
+        pending_logs: pending.length,
+        rejected_logs: rejected.length,
+        total_hours: totalHours,
+      }
+    })
+
+    const prodStats = {
+      pending: (productionOrders ?? []).filter((o) => o.status === 'pending').length,
+      in_progress: (productionOrders ?? []).filter((o) => o.status === 'in_progress').length,
+      completed: (productionOrders ?? []).filter((o) => o.status === 'completed').length,
+      cancelled: (productionOrders ?? []).filter((o) => o.status === 'cancelled').length,
+    }
+
+    const adminData: AdminDashboardData = {
+      kpi: {
+        totalProjects: totalProjects ?? 0,
+        activeProjects: activeProjects ?? 0,
+        completedProjects: completedProjects ?? 0,
+        pendingWorkerLogs: pendingWorkerLogs ?? 0,
+        inProgressProductionOrders: inProgressProductionOrders ?? 0,
+      },
+      salesPerformance,
+      factoryPerformance: {
+        departments: departmentPerformance,
+        productionOrders: prodStats,
+      },
+    }
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1">ภาพรวมการดำเนินงานโรงงานนราทองพลัส</p>
+        </div>
+
+        <AdminDashboardSection data={adminData} />
+      </div>
+    )
+  }
+
+  // --- Factory Manager View ---
 
   const [
     { count: totalProjects },
