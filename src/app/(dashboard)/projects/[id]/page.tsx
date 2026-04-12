@@ -40,6 +40,14 @@ import {
   FileText,
   Plus,
   Trash2,
+  Zap,
+  ClipboardList,
+  CheckCircle2,
+  XCircle,
+  Truck,
+  Wrench,
+  MessageSquare,
+  ExternalLink,
 } from 'lucide-react'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -117,6 +125,11 @@ export default function ProjectDetailPage() {
   const [showProductionDialog, setShowProductionDialog] = useState(false)
 
   const PRODUCTION_ELIGIBLE_STAGES = ['deposit', 'production', 'delivery', 'installation', 'completed']
+
+  // Stage-gated action flags
+  const canCreateQuotation = (['quotation', 'presentation'] as CRMStage[]).includes(project?.stage as CRMStage)
+  const canCreateProductionOrder = (['deposit'] as CRMStage[]).includes(project?.stage as CRMStage)
+  const canViewProductionOrders = (['production', 'delivery', 'installation', 'completed'] as CRMStage[]).includes(project?.stage as CRMStage)
 
   const handleDelete = async () => {
     setDeleting(true)
@@ -370,6 +383,158 @@ export default function ProjectDetailPage() {
             </Card>
           )}
 
+          {/* Stage Actions Card */}
+          <Card className="border-2" style={{ borderColor: '#2BA8D4' }}>
+            <CardHeader className="pb-3" style={{ backgroundColor: 'rgba(43,168,212,0.06)' }}>
+              <CardTitle className="text-base flex items-center gap-2" style={{ color: '#2BA8D4' }}>
+                <Zap className="w-4 h-4" /> Actions — {currentConfig.label}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {/* lead */}
+              {project.stage === 'lead' && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                  <MessageSquare className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">ติดต่อลูกค้า</p>
+                    <p className="text-xs text-gray-500 mt-0.5">เพิ่มข้อมูลลูกค้าและติดต่อเพื่อนัดหมาย</p>
+                  </div>
+                </div>
+              )}
+
+              {/* presentation */}
+              {project.stage === 'presentation' && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
+                  <MessageSquare className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-700">นัดนำเสนอ</p>
+                    <p className="text-xs text-blue-500 mt-0.5">บันทึกการติดต่อและนัด site visit</p>
+                  </div>
+                </div>
+              )}
+
+              {/* quotation — แสดงปุ่ม "สร้างใบเสนอราคา" */}
+              {canCreateQuotation && (
+                <div className="space-y-2">
+                  <Link href={`/quotations/${id}/new`}>
+                    <Button
+                      className="w-full gap-2 text-white"
+                      style={{ backgroundColor: '#2BA8D4' }}
+                    >
+                      <FileText className="w-4 h-4" /> สร้างใบเสนอราคา
+                    </Button>
+                  </Link>
+                  {project.stage === 'quotation' && (
+                    <p className="text-xs text-gray-400 text-center">รอการตอบรับใบเสนอราคา</p>
+                  )}
+                </div>
+              )}
+
+              {/* deposit — ปุ่ม "สร้าง Production Order" + แสดงยอดมัดจำ */}
+              {canCreateProductionOrder && (
+                <div className="space-y-3">
+                  {project.deposit_amount != null && (
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-200">
+                      <span className="text-sm text-green-700 font-medium">ยอดมัดจำที่รับ</span>
+                      <span className="text-sm font-bold text-green-800">
+                        {formatCurrency(project.deposit_amount)}
+                      </span>
+                    </div>
+                  )}
+                  <Button
+                    className="w-full gap-2 text-white"
+                    style={{ backgroundColor: '#2BA8D4' }}
+                    onClick={() => setShowProductionDialog(true)}
+                  >
+                    <ClipboardList className="w-4 h-4" /> สร้าง Production Order
+                  </Button>
+                </div>
+              )}
+
+              {/* production — ปุ่ม "ดู Production Orders" */}
+              {canViewProductionOrders && project.stage === 'production' && (
+                <div className="space-y-2">
+                  <Link href={`/production-orders?projectId=${id}`}>
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2 border-2"
+                      style={{ borderColor: '#2BA8D4', color: '#2BA8D4' }}
+                    >
+                      <ExternalLink className="w-4 h-4" /> ดู Production Orders
+                    </Button>
+                  </Link>
+                  <p className="text-xs text-orange-500 text-center flex items-center justify-center gap-1">
+                    <Wrench className="w-3 h-3" /> อยู่ระหว่างการผลิต
+                  </p>
+                </div>
+              )}
+
+              {/* delivery */}
+              {project.stage === 'delivery' && (
+                <div className="space-y-2">
+                  <Link href={`/production-orders?projectId=${id}`}>
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2 border-2"
+                      style={{ borderColor: '#2BA8D4', color: '#2BA8D4' }}
+                    >
+                      <ExternalLink className="w-4 h-4" /> ดู Production Orders
+                    </Button>
+                  </Link>
+                  <div className="flex items-center justify-center gap-1 p-2 rounded-lg bg-purple-50 border border-purple-200">
+                    <Truck className="w-4 h-4 text-purple-500" />
+                    <p className="text-xs text-purple-600 font-medium">อยู่ระหว่างจัดส่ง</p>
+                  </div>
+                </div>
+              )}
+
+              {/* installation */}
+              {project.stage === 'installation' && (
+                <div className="space-y-2">
+                  <Link href={`/production-orders?projectId=${id}`}>
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2 border-2"
+                      style={{ borderColor: '#2BA8D4', color: '#2BA8D4' }}
+                    >
+                      <ExternalLink className="w-4 h-4" /> ดู Production Orders
+                    </Button>
+                  </Link>
+                  <div className="flex items-center justify-center gap-1 p-2 rounded-lg bg-indigo-50 border border-indigo-200">
+                    <Wrench className="w-4 h-4 text-indigo-500" />
+                    <p className="text-xs text-indigo-600 font-medium">อยู่ระหว่างติดตั้ง</p>
+                  </div>
+                </div>
+              )}
+
+              {/* completed */}
+              {project.stage === 'completed' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-emerald-50 border border-emerald-300">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    <p className="text-sm font-medium text-emerald-700">โปรเจกต์สำเร็จ 🎉</p>
+                  </div>
+                  {project.value != null && (
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                      <span className="text-sm text-emerald-700">มูลค่าทั้งหมด</span>
+                      <span className="text-sm font-bold text-emerald-800">
+                        {formatCurrency(project.value)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* cancelled */}
+              {project.stage === 'cancelled' && (
+                <div className="flex items-center justify-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
+                  <XCircle className="w-5 h-5 text-red-500" />
+                  <p className="text-sm font-medium text-red-600">โปรเจกต์ถูกยกเลิก</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Quotation Section */}
           <Card>
             <CardHeader>
@@ -377,11 +542,13 @@ export default function ProjectDetailPage() {
                 <CardTitle className="text-base flex items-center gap-2">
                   <FileText className="w-4 h-4" /> ใบเสนอราคา
                 </CardTitle>
-                <Link href={`/quotations/${id}/new`}>
-                  <Button size="sm" variant="outline" className="gap-1">
-                    <Plus className="w-3.5 h-3.5" /> สร้างใบเสนอราคา
-                  </Button>
-                </Link>
+                {canCreateQuotation && (
+                  <Link href={`/quotations/${id}/new`}>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      <Plus className="w-3.5 h-3.5" /> สร้างใบเสนอราคา
+                    </Button>
+                  </Link>
+                )}
               </div>
             </CardHeader>
             <CardContent>
@@ -389,16 +556,18 @@ export default function ProjectDetailPage() {
                 <div className="text-center py-6">
                   <FileText className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                   <p className="text-sm text-gray-400">ยังไม่มีใบเสนอราคา</p>
-                  <Link href={`/quotations/${id}/new`}>
-                    <Button
-                      size="sm"
-                      className="mt-3 gap-1"
-                      style={{ backgroundColor: '#2BA8D4' }}
-                    >
-                      <Plus className="w-3.5 h-3.5 text-white" />
-                      <span className="text-white">สร้างใบแรก</span>
-                    </Button>
-                  </Link>
+                  {canCreateQuotation && (
+                    <Link href={`/quotations/${id}/new`}>
+                      <Button
+                        size="sm"
+                        className="mt-3 gap-1"
+                        style={{ backgroundColor: '#2BA8D4' }}
+                      >
+                        <Plus className="w-3.5 h-3.5 text-white" />
+                        <span className="text-white">สร้างใบแรก</span>
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -455,20 +624,30 @@ export default function ProjectDetailPage() {
                   <CardTitle className="text-base flex items-center gap-2">
                     🏭 การผลิต
                   </CardTitle>
-                  <Button
-                    size="sm"
-                    onClick={() => setShowProductionDialog(true)}
-                    style={{ backgroundColor: '#2BA8D4' }}
-                    className="text-white gap-1 h-7 text-xs"
-                  >
-                    <Plus className="w-3 h-3" /> สร้าง Production Order
-                  </Button>
+                  {canCreateProductionOrder && (
+                    <Button
+                      size="sm"
+                      onClick={() => setShowProductionDialog(true)}
+                      style={{ backgroundColor: '#2BA8D4' }}
+                      className="text-white gap-1 h-7 text-xs"
+                    >
+                      <Plus className="w-3 h-3" /> สร้าง Production Order
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500">
-                  โปรเจคนี้พร้อมเริ่มการผลิตแล้ว กดปุ่มเพื่อสร้าง Production Order
-                </p>
+                {canCreateProductionOrder ? (
+                  <p className="text-sm text-gray-500">
+                    โปรเจคนี้พร้อมเริ่มการผลิตแล้ว กดปุ่มเพื่อสร้าง Production Order
+                  </p>
+                ) : (
+                  <Link href={`/production-orders?projectId=${id}`}>
+                    <Button variant="outline" size="sm" className="gap-1 w-full">
+                      <ExternalLink className="w-3.5 h-3.5" /> ดู Production Orders ทั้งหมด
+                    </Button>
+                  </Link>
+                )}
               </CardContent>
             </Card>
           )}
