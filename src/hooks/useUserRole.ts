@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 
 export function useUserRole() {
   const [role, setRole] = useState<string | null>(null)
@@ -9,21 +8,17 @@ export function useUserRole() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) {
-        setLoading(false)
-        return
-      }
-      setUserId(user.id)
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-      setRole(profile?.role ?? 'worker')
-      setLoading(false)
-    })
+    // ดึงจาก API route แทน client-side query (bypass RLS ด้วย service role)
+    fetch('/api/profiles/me')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.id) {
+          setUserId(data.id)
+          setRole(data.role ?? 'worker')
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
   return { role, userId, loading }
