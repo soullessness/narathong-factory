@@ -8,7 +8,6 @@ interface WorkerLogCardProps {
   log: WorkerLog
   showWorkerName?: boolean
   onApproveReject?: (log: WorkerLog) => void
-  isApprover?: boolean
   onEdit?: (log: WorkerLog) => void
   onDelete?: (log: WorkerLog) => void
   canEdit?: boolean
@@ -56,7 +55,6 @@ export function WorkerLogCard({
   log,
   showWorkerName = false,
   onApproveReject,
-  isApprover = false,
   onEdit,
   onDelete,
   canEdit = false,

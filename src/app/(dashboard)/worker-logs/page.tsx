@@ -255,7 +255,6 @@ export default function WorkerLogsPage() {
               key={log.id}
               log={log}
               showWorkerName={isApprover}
-              isApprover={isApprover}
               onApproveReject={(l) => {
                 setSelectedLog(l)
                 setApproveOpen(true)
