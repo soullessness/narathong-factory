@@ -5,6 +5,7 @@ export const ROLE_PERMISSIONS = {
   quotations: ['admin', 'executive', 'factory_manager'],
   priceRequests: ['admin', 'executive', 'factory_manager', 'accounting'],
   workerLogs: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker', 'sales', 'accounting'],
+  settings: ['admin'],
   settingsUsers: ['admin'],
   settingsTeams: ['admin', 'factory_manager'],
 }

@@ -73,6 +73,7 @@ const navItems = [
     label: 'ตั้งค่า',
     icon: Settings,
     adminOnly: false,
+    permissionKey: 'settings' as const,
     subItems: [
       { href: '/settings/users', label: 'จัดการผู้ใช้', adminOnly: true },
       { href: '/settings/teams', label: 'จัดการทีม', adminOnly: false, managerOnly: true },
