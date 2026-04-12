@@ -40,10 +40,10 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-150 group"
+      className="w-full text-left bg-white rounded-lg border border-gray-200 p-3 shadow-sm hover:shadow-md hover:border-sky-300 transition-all duration-150 group"
     >
       {/* Project Name */}
-      <p className="text-sm font-semibold text-gray-800 group-hover:text-amber-800 line-clamp-2 leading-tight">
+      <p className="text-sm font-semibold text-gray-800 group-hover:text-sky-800 line-clamp-2 leading-tight">
         {project.name}
       </p>
 

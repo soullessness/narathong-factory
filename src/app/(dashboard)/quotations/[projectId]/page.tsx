@@ -134,7 +134,7 @@ export default function QuotationListPage() {
         </div>
         <Button
           onClick={() => router.push(`/quotations/${projectId}/new`)}
-          style={{ backgroundColor: '#7B4F2E' }}
+          style={{ backgroundColor: '#2BA8D4' }}
           className="text-white gap-2"
         >
           <Plus className="w-4 h-4" /> สร้างใบเสนอราคา
@@ -143,7 +143,7 @@ export default function QuotationListPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : quotations.length === 0 ? (
         <Card>
@@ -152,7 +152,7 @@ export default function QuotationListPage() {
             <p className="text-gray-500">ยังไม่มีใบเสนอราคา</p>
             <Button
               onClick={() => router.push(`/quotations/${projectId}/new`)}
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: '#2BA8D4' }}
               className="text-white gap-2"
             >
               <Plus className="w-4 h-4" /> สร้างใบแรก
@@ -228,7 +228,7 @@ export default function QuotationListPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => router.push(`/quotations/${projectId}/edit/${q.id}`)}
-                      className="gap-1.5 text-amber-700 border-amber-300 hover:bg-amber-50"
+                      className="gap-1.5 text-sky-700 border-sky-300 hover:bg-sky-50"
                     >
                       <Pencil className="w-3.5 h-3.5" /> แก้ไข
                     </Button>

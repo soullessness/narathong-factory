@@ -31,7 +31,7 @@ export default function SettingsPage() {
             <Input defaultValue="+66 XX XXX XXXX" type="tel" />
           </div>
           <Button
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             className="text-white"
           >
             บันทึกการเปลี่ยนแปลง

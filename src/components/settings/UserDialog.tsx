@@ -282,7 +282,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
               className="flex h-10 w-10 items-center justify-center rounded-full"
               style={{ backgroundColor: '#F5EDE6' }}
             >
-              <User className="h-5 w-5" style={{ color: '#7B4F2E' }} />
+              <User className="h-5 w-5" style={{ color: '#2BA8D4' }} />
             </div>
             <DialogTitle className="text-lg font-semibold text-gray-900">
               {isEdit ? 'แก้ไขข้อมูลผู้ใช้' : 'เพิ่มผู้ใช้ใหม่'}
@@ -515,7 +515,7 @@ export function UserDialog({ open, onOpenChange, user, onSuccess }: UserDialogPr
             <Button
               type="submit"
               disabled={loading}
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: '#2BA8D4' }}
               className="text-white flex-1 sm:flex-none hover:opacity-90 transition-opacity"
             >
               {loading ? (

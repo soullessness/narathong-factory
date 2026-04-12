@@ -21,6 +21,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { canAccess } from '@/lib/permissions'
+import Image from 'next/image'
 
 const navItems = [
   {
@@ -151,18 +152,26 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
     accounting: 'บัญชี',
   }
 
+  /* Narathong Plus brand color */
+  const PRIMARY = '#2BA8D4'
+  const PRIMARY_DARK = '#1E8AB0'
+
   return (
     <aside className="flex flex-col w-64 h-full bg-white border-r border-gray-100 shadow-sm">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-        <div
-          className="flex items-center justify-center w-9 h-9 rounded-lg"
-          style={{ backgroundColor: '#7B4F2E' }}
-        >
-          <Factory className="w-5 h-5 text-white" />
+      <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
+        <div className="relative w-10 h-10 flex-shrink-0">
+          <Image
+            src="/narathong-plus-logo-new.jpg"
+            alt="Narathong Plus Logo"
+            fill
+            className="object-contain rounded-lg"
+            sizes="40px"
+            priority
+          />
         </div>
         <div>
-          <p className="font-bold text-sm" style={{ color: '#7B4F2E' }}>
+          <p className="font-bold text-sm" style={{ color: PRIMARY }}>
             นราทองพลัส
           </p>
           <p className="text-xs text-gray-400">Factory Dashboard</p>
@@ -199,14 +208,14 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group',
                   isActive
                     ? 'text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-amber-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-sky-50'
                 )}
-                style={isActive ? { backgroundColor: '#7B4F2E' } : {}}
+                style={isActive ? { backgroundColor: PRIMARY } : {}}
               >
                 <item.icon
                   className={cn(
                     'w-4 h-4 flex-shrink-0 transition-colors',
-                    isActive ? 'text-white' : 'text-gray-400 group-hover:text-amber-700'
+                    isActive ? 'text-white' : 'text-gray-400 group-hover:text-sky-600'
                   )}
                 />
                 <span className="flex-1">{item.label}</span>
@@ -215,7 +224,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
                     'text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center',
                     isActive
                       ? 'bg-white/20 text-white'
-                      : 'bg-amber-100 text-amber-700'
+                      : 'bg-sky-100 text-sky-700'
                   )}>
                     {badgeCount}
                   </span>
@@ -226,7 +235,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
               </Link>
               {/* Sub-menu items */}
               {visibleSubItems.length > 0 && isActive && (
-                <div className="mt-1 ml-4 space-y-0.5 border-l-2 border-amber-200 pl-3">
+                <div className="mt-1 ml-4 space-y-0.5 border-l-2 pl-3" style={{ borderColor: '#99E0F7' }}>
                   {visibleSubItems.map((sub) => {
                     const isSubActive = pathname === sub.href || pathname.startsWith(sub.href + '/')
                     return (
@@ -236,9 +245,10 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
                         className={cn(
                           'flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-150',
                           isSubActive
-                            ? 'font-medium text-amber-800 bg-amber-100'
-                            : 'text-gray-500 hover:text-gray-900 hover:bg-amber-50'
+                            ? 'font-medium bg-sky-100'
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-sky-50'
                         )}
+                        style={isSubActive ? { color: PRIMARY_DARK } : {}}
                       >
                         <span>{sub.label}</span>
                       </Link>
@@ -253,11 +263,11 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
 
       {/* User Profile */}
       <div className="px-3 py-4 border-t border-gray-100">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-amber-50">
+        <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-sky-50">
           <Avatar className="w-8 h-8">
             <AvatarFallback
               className="text-xs text-white font-semibold"
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: PRIMARY }}
             >
               {initials}
             </AvatarFallback>
@@ -268,7 +278,8 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
             </p>
             <Badge
               variant="secondary"
-              className="text-xs mt-0.5 px-1.5 py-0 h-4 text-amber-800 bg-amber-100 border-0"
+              className="text-xs mt-0.5 px-1.5 py-0 h-4 border-0"
+              style={{ color: PRIMARY_DARK, backgroundColor: '#CCF0FB' }}
             >
               {roleLabel[userRole] ?? userRole}
             </Badge>

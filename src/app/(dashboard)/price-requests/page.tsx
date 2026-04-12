@@ -69,7 +69,7 @@ export default function PriceRequestsPage() {
   if (userRole === null) {
     return (
       <div className="flex justify-center py-16">
-        <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -91,7 +91,7 @@ export default function PriceRequestsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <ClipboardList className="w-6 h-6" style={{ color: '#7B4F2E' }} />
+            <ClipboardList className="w-6 h-6" style={{ color: '#2BA8D4' }} />
             ขอราคาสินค้า
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -114,14 +114,14 @@ export default function PriceRequestsPage() {
           <button
             className={`pb-2.5 px-1 text-sm font-medium border-b-2 transition-colors ${
               tab === 'pending'
-                ? 'border-amber-700 text-amber-700'
+                ? 'border-[#2BA8D4] text-sky-700'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setTab('pending')}
           >
             รอดำเนินการ
             {pendingRequests.length > 0 && (
-              <span className="ml-1.5 bg-amber-100 text-amber-700 text-xs font-bold px-1.5 py-0.5 rounded-full">
+              <span className="ml-1.5 bg-sky-100 text-sky-700 text-xs font-bold px-1.5 py-0.5 rounded-full">
                 {pendingRequests.length}
               </span>
             )}
@@ -129,7 +129,7 @@ export default function PriceRequestsPage() {
           <button
             className={`pb-2.5 px-1 text-sm font-medium border-b-2 transition-colors ${
               tab === 'all'
-                ? 'border-amber-700 text-amber-700'
+                ? 'border-[#2BA8D4] text-sky-700'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setTab('all')}
@@ -142,7 +142,7 @@ export default function PriceRequestsPage() {
       {/* Content */}
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : displayRequests.length === 0 ? (
         <div className="text-center py-16 text-gray-400">

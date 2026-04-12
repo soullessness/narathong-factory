@@ -111,7 +111,7 @@ export default function TeamsPage() {
             className="flex h-12 w-12 items-center justify-center rounded-xl shadow-sm"
             style={{ backgroundColor: '#F5EDE6' }}
           >
-            <Users className="h-6 w-6" style={{ color: '#7B4F2E' }} />
+            <Users className="h-6 w-6" style={{ color: '#2BA8D4' }} />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">จัดการทีม</h1>
@@ -121,7 +121,7 @@ export default function TeamsPage() {
         {canManage && (
           <Button
             onClick={handleAddNew}
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             className="text-white gap-2 shadow-sm hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4" />
@@ -135,8 +135,8 @@ export default function TeamsPage() {
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50">
-                <Users className="h-4 w-4 text-amber-700" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-50">
+                <Users className="h-4 w-4 text-sky-700" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">ทีมทั้งหมด</p>
@@ -206,7 +206,7 @@ export default function TeamsPage() {
             <Button
               onClick={handleAddNew}
               size="sm"
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: '#2BA8D4' }}
               className="text-white gap-2 mt-1"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -220,7 +220,7 @@ export default function TeamsPage() {
             <div key={deptName} className="space-y-3">
               {/* Department Header */}
               <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4" style={{ color: '#7B4F2E' }} />
+                <Building2 className="h-4 w-4" style={{ color: '#2BA8D4' }} />
                 <h2 className="text-sm font-semibold text-gray-700">{deptName}</h2>
                 <span className="text-xs text-gray-400">({deptTeams.length} ทีม)</span>
               </div>
@@ -237,7 +237,7 @@ export default function TeamsPage() {
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div
                             className="flex h-9 w-9 items-center justify-center rounded-lg shrink-0 text-white text-sm font-bold"
-                            style={{ backgroundColor: '#7B4F2E' }}
+                            style={{ backgroundColor: '#2BA8D4' }}
                           >
                             {team.name.charAt(0).toUpperCase()}
                           </div>
@@ -263,7 +263,7 @@ export default function TeamsPage() {
                       <div className="space-y-1.5 mb-3">
                         {team.lead?.full_name && (
                           <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                            <UserCheck className="h-3 w-3 text-amber-600 shrink-0" />
+                            <UserCheck className="h-3 w-3 text-sky-600 shrink-0" />
                             <span className="truncate">{team.lead.full_name}</span>
                           </div>
                         )}
@@ -283,7 +283,7 @@ export default function TeamsPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 text-gray-400 hover:text-amber-700 hover:bg-amber-50"
+                            className="h-7 w-7 text-gray-400 hover:text-sky-700 hover:bg-sky-50"
                             onClick={() => handleEdit(team)}
                           >
                             <Pencil className="h-3.5 w-3.5" />

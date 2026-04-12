@@ -34,7 +34,7 @@ export function PriceRequestCard({ request, onClick }: PriceRequestCardProps) {
 
   return (
     <div
-      className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-150 cursor-pointer hover:border-amber-300"
+      className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-150 cursor-pointer hover:border-sky-300"
       onClick={onClick}
     >
       {/* Header */}
@@ -81,12 +81,12 @@ export function PriceRequestCard({ request, onClick }: PriceRequestCardProps) {
       {(request.project?.name || request.quotation?.quotation_number) && (
         <div className="flex flex-wrap gap-2 mb-3">
           {request.project?.name && (
-            <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full">
               📁 {request.project.name}
             </span>
           )}
           {request.quotation?.quotation_number && (
-            <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full">
               📄 {request.quotation.quotation_number}
             </span>
           )}

@@ -66,16 +66,16 @@ export function ApproveRejectDialog({ open, log, onClose, onDone }: ApproveRejec
     <Dialog open={open} onOpenChange={(o) => { if (!o) { setNotes(''); onClose() } }}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2" style={{ color: '#7B4F2E' }}>
+          <DialogTitle className="flex items-center gap-2" style={{ color: '#2BA8D4' }}>
             📋 อนุมัติ / ปฏิเสธบันทึกงาน
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Log detail */}
-          <div className="bg-amber-50 rounded-xl p-4 space-y-2 border border-amber-100">
+          <div className="bg-sky-50 rounded-xl p-4 space-y-2 border border-sky-100">
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <User className="w-4 h-4 text-amber-700" />
+              <User className="w-4 h-4 text-sky-700" />
               <span className="font-semibold">{log.worker?.full_name ?? '—'}</span>
               {log.department && (
                 <span className="text-gray-400">· {log.department.name}</span>
@@ -101,7 +101,7 @@ export function ApproveRejectDialog({ open, log, onClose, onDone }: ApproveRejec
               )}
             </div>
             {log.project && (
-              <span className="inline-block bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs">
+              <span className="inline-block bg-sky-100 text-sky-700 px-2 py-0.5 rounded-full text-xs">
                 {log.project.name}
               </span>
             )}

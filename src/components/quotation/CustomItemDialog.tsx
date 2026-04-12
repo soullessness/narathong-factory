@@ -124,7 +124,7 @@ export function CustomItemDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold" style={{ color: '#7B4F2E' }}>
+          <DialogTitle className="text-lg font-bold" style={{ color: '#2BA8D4' }}>
             + สินค้า Custom (ขอราคา)
           </DialogTitle>
         </DialogHeader>
@@ -214,7 +214,7 @@ export function CustomItemDialog({
           </div>
         </div>
 
-        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2">
+        <p className="text-xs text-sky-700 bg-sky-50 border border-sky-200 rounded-lg p-2">
           💡 item นี้จะถูกเพิ่มในใบเสนอราคาด้วยราคา ฿0 และแสดง badge &quot;รอราคา&quot; จนกว่าโรงงานจะตอบกลับ
         </p>
 
@@ -229,7 +229,7 @@ export function CustomItemDialog({
           </Button>
           <Button
             className="flex-1 text-white"
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             onClick={handleSubmit}
             disabled={loading}
           >

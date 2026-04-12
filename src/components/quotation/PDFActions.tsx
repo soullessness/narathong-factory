@@ -51,7 +51,7 @@ export function PDFActions({ quotation }: PDFActionsProps) {
         {({ loading }) => (
           <Button
             disabled={loading}
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             className="text-white gap-2 w-full"
           >
             <Download className="w-4 h-4" />

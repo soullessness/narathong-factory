@@ -57,7 +57,7 @@ export function KanbanColumn({ stage, projects, onAddProject, onProjectClick }: 
         <Button
           variant="ghost"
           size="sm"
-          className="w-full text-gray-400 hover:text-amber-700 hover:bg-amber-50 border border-dashed border-gray-300 hover:border-amber-300 gap-1 mt-1"
+          className="w-full text-gray-400 hover:text-sky-700 hover:bg-sky-50 border border-dashed border-gray-300 hover:border-sky-300 gap-1 mt-1"
           onClick={() => onAddProject(stage)}
         >
           <Plus className="w-3.5 h-3.5" />

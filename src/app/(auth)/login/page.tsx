@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Factory, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -36,20 +37,30 @@ export default function LoginPage() {
     }
   }
 
+  /* Narathong Plus brand colors */
+  const PRIMARY = '#2BA8D4'
+  const PRIMARY_DARK = '#1E8AB0'
+
   return (
     <div className="w-full max-w-md px-4">
       {/* Logo & Brand */}
       <div className="text-center mb-8">
-        <div
-          className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4 shadow-lg"
-          style={{ backgroundColor: '#7B4F2E' }}
-        >
-          <Factory className="w-10 h-10 text-white" />
+        <div className="inline-flex items-center justify-center w-24 h-24 mb-4">
+          <Image
+            src="/narathong-plus-logo-new.jpg"
+            alt="Narathong Plus Logo"
+            width={96}
+            height={96}
+            className="object-contain rounded-2xl shadow-lg"
+            priority
+          />
         </div>
-        <h1 className="text-3xl font-bold" style={{ color: '#7B4F2E' }}>
+        <h1 className="text-3xl font-bold" style={{ color: PRIMARY }}>
           นราทองพลัส
         </h1>
-        <p className="text-sm text-amber-700 mt-1">Factory Management Dashboard</p>
+        <p className="text-sm mt-1" style={{ color: PRIMARY_DARK }}>
+          Factory Management Dashboard
+        </p>
       </div>
 
       {/* Login Card */}
@@ -75,7 +86,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-gray-200 focus:border-amber-500 focus:ring-amber-500"
+                className="border-gray-200 focus:border-sky-400 focus:ring-sky-400"
               />
             </div>
             <div className="space-y-2">
@@ -89,7 +100,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="border-gray-200 focus:border-amber-500 focus:ring-amber-500"
+                className="border-gray-200 focus:border-sky-400 focus:ring-sky-400"
               />
             </div>
 
@@ -102,7 +113,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full text-white font-semibold py-2.5 rounded-lg transition-all duration-200 hover:opacity-90"
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: PRIMARY }}
               disabled={loading}
             >
               {loading ? (
@@ -124,7 +135,7 @@ export default function LoginPage() {
         </CardContent>
       </Card>
 
-      <p className="text-center text-xs text-amber-700/60 mt-6">
+      <p className="text-center text-xs mt-6" style={{ color: `${PRIMARY}99` }}>
         © 2025 นราทองพลัส. สงวนลิขสิทธิ์.
       </p>
     </div>

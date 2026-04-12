@@ -197,9 +197,9 @@ export function ProductDialog({ open, onClose, onSaved, product, categories }: P
                 </Button>
               </div>
             ) : (
-              <label className="flex items-center gap-2 px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-colors w-fit">
+              <label className="flex items-center gap-2 px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-sky-400 hover:bg-sky-50 transition-colors w-fit">
                 {uploading ? (
-                  <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <Upload className="w-4 h-4 text-gray-400" />
                 )}
@@ -244,8 +244,8 @@ export function ProductDialog({ open, onClose, onSaved, product, categories }: P
 
           {/* Area pricing fields */}
           {hasAreaPricing && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-3">
-              <p className="text-sm font-semibold text-amber-800">📐 ข้อมูลขนาด (สำหรับคำนวณราคา/ตร.ม.)</p>
+            <div className="bg-sky-50 border border-sky-200 rounded-lg p-4 space-y-3">
+              <p className="text-sm font-semibold text-[#1E8AB0]">📐 ข้อมูลขนาด (สำหรับคำนวณราคา/ตร.ม.)</p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs">ความกว้าง (นิ้ว)</Label>
@@ -276,13 +276,13 @@ export function ProductDialog({ open, onClose, onSaved, product, categories }: P
 
               {/* Preview calculation */}
               {computed?.area_per_piece && computed.pieces_per_sqm && computed.price_per_sqm && (
-                <div className="bg-white border border-amber-300 rounded-md p-3">
-                  <p className="text-xs font-medium text-amber-700 mb-1">📊 ผลคำนวณอัตโนมัติ</p>
+                <div className="bg-white border border-sky-300 rounded-md p-3">
+                  <p className="text-xs font-medium text-sky-700 mb-1">📊 ผลคำนวณอัตโนมัติ</p>
                   <p className="text-sm text-gray-700">
                     1 แผ่น ={' '}
                     <strong>{computed.area_per_piece.toFixed(4)}</strong> ตร.ม.
                     {' | '}ต้องใช้ <strong>{computed.pieces_per_sqm.toFixed(2)}</strong> แผ่น/ตร.ม.
-                    {' | '}ราคา <strong style={{ color: '#7B4F2E' }}>
+                    {' | '}ราคา <strong style={{ color: '#2BA8D4' }}>
                       {computed.price_per_sqm.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </strong>{' '}บาท/ตร.ม.
                   </p>
@@ -319,7 +319,7 @@ export function ProductDialog({ open, onClose, onSaved, product, categories }: P
             <Button
               onClick={handleSave}
               disabled={saving}
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: '#2BA8D4' }}
               className="text-white"
             >
               {saving ? 'กำลังบันทึก...' : 'บันทึก'}

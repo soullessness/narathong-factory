@@ -191,7 +191,7 @@ export default function ProjectsPage() {
                   ? 'text-white'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
-              style={viewMode === 'kanban' ? { backgroundColor: '#7B4F2E' } : {}}
+              style={viewMode === 'kanban' ? { backgroundColor: '#2BA8D4' } : {}}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               Kanban
@@ -203,7 +203,7 @@ export default function ProjectsPage() {
                   ? 'text-white'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
-              style={viewMode === 'list' ? { backgroundColor: '#7B4F2E' } : {}}
+              style={viewMode === 'list' ? { backgroundColor: '#2BA8D4' } : {}}
             >
               <List className="w-3.5 h-3.5" />
               รายการ
@@ -222,7 +222,7 @@ export default function ProjectsPage() {
           </Button>
           <Button
             onClick={() => handleAddProject('lead')}
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             className="text-white gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -242,7 +242,7 @@ export default function ProjectsPage() {
       {loading && (
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
-            <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-gray-500">กำลังโหลด...</p>
           </div>
         </div>
@@ -293,7 +293,7 @@ export default function ProjectsPage() {
                       return (
                         <tr
                           key={project.id}
-                          className={`border-b border-gray-50 hover:bg-amber-50 transition-colors cursor-pointer ${
+                          className={`border-b border-gray-50 hover:bg-sky-50 transition-colors cursor-pointer ${
                             idx % 2 === 0 ? '' : 'bg-gray-50/30'
                           }`}
                           onClick={() => handleProjectClick(project)}
@@ -327,7 +327,7 @@ export default function ProjectsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="text-amber-700 hover:text-amber-900 hover:bg-amber-100 h-7 px-2 text-xs"
+                              className="text-sky-700 hover:text-[#166780] hover:bg-sky-100 h-7 px-2 text-xs"
                               onClick={(e) => {
                                 e.stopPropagation()
                                 handleProjectClick(project)

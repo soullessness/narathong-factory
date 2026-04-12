@@ -10,7 +10,7 @@ export default function ProductionPage() {
           <h1 className="text-2xl font-bold text-gray-900">การผลิต</h1>
           <p className="text-sm text-gray-500 mt-1">ติดตามและจัดการออเดอร์การผลิต</p>
         </div>
-        <Button style={{ backgroundColor: '#7B4F2E' }} className="text-white gap-2">
+        <Button style={{ backgroundColor: '#2BA8D4' }} className="text-white gap-2">
           <Plus className="w-4 h-4" />
           สร้างออเดอร์
         </Button>

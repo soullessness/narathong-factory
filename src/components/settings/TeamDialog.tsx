@@ -173,7 +173,7 @@ export function TeamDialog({ open, onOpenChange, team, onSuccess }: TeamDialogPr
               className="flex h-10 w-10 items-center justify-center rounded-full"
               style={{ backgroundColor: '#F5EDE6' }}
             >
-              <Users className="h-5 w-5" style={{ color: '#7B4F2E' }} />
+              <Users className="h-5 w-5" style={{ color: '#2BA8D4' }} />
             </div>
             <DialogTitle className="text-lg font-semibold text-gray-900">
               {isEdit ? 'แก้ไขทีม' : 'สร้างทีมใหม่'}
@@ -313,7 +313,7 @@ export function TeamDialog({ open, onOpenChange, team, onSuccess }: TeamDialogPr
             <Button
               type="submit"
               disabled={loading}
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: '#2BA8D4' }}
               className="text-white flex-1 sm:flex-none hover:opacity-90 transition-opacity"
             >
               {loading ? (

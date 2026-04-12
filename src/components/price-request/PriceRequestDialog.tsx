@@ -124,7 +124,7 @@ export function PriceRequestDialog({ open, onClose, onSaved }: PriceRequestDialo
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold" style={{ color: '#7B4F2E' }}>
+          <DialogTitle className="text-lg font-bold" style={{ color: '#2BA8D4' }}>
             ขอราคาสินค้า Custom
           </DialogTitle>
         </DialogHeader>
@@ -249,7 +249,7 @@ export function PriceRequestDialog({ open, onClose, onSaved }: PriceRequestDialo
           </Button>
           <Button
             className="flex-1 text-white"
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             onClick={handleSubmit}
             disabled={loading}
           >

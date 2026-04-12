@@ -209,7 +209,7 @@ export default function ProjectDetailPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-sm text-gray-500">กำลังโหลด...</p>
         </div>
       </div>
@@ -387,7 +387,7 @@ export default function ProjectDetailPage() {
                     <Button
                       size="sm"
                       className="mt-3 gap-1"
-                      style={{ backgroundColor: '#7B4F2E' }}
+                      style={{ backgroundColor: '#2BA8D4' }}
                     >
                       <Plus className="w-3.5 h-3.5 text-white" />
                       <span className="text-white">สร้างใบแรก</span>
@@ -432,7 +432,7 @@ export default function ProjectDetailPage() {
                   })}
                   <Link
                     href={`/quotations/${id}`}
-                    className="text-xs text-amber-700 hover:underline flex items-center gap-1 mt-1"
+                    className="text-xs text-sky-700 hover:underline flex items-center gap-1 mt-1"
                   >
                     ดูทั้งหมด ({quotations.length} รายการ)
                   </Link>
@@ -540,7 +540,7 @@ export default function ProjectDetailPage() {
                       size="sm"
                       disabled={!newStage || stageLoading}
                       onClick={handleStageChange}
-                      style={{ backgroundColor: '#7B4F2E' }}
+                      style={{ backgroundColor: '#2BA8D4' }}
                       className="text-white flex-1"
                     >
                       {stageLoading ? '...' : 'ยืนยัน'}
@@ -565,7 +565,7 @@ export default function ProjectDetailPage() {
                     <div key={log.id} className="flex gap-3">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0 ${idx === 0 ? 'bg-amber-500' : 'bg-gray-300'}`}
+                          className={`w-2.5 h-2.5 rounded-full mt-1 flex-shrink-0 ${idx === 0 ? 'bg-sky-500' : 'bg-gray-300'}`}
                         />
                         {idx < stageLogs.length - 1 && (
                           <div className="w-0.5 bg-gray-200 flex-1 mt-1" />

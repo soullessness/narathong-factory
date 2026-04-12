@@ -21,7 +21,7 @@ Font.register({
   ],
 })
 
-const BROWN = '#7B4F2E'
+const BROWN = '#2BA8D4'
 const LIGHT_BG = '#fdf6f0'
 
 const styles = StyleSheet.create({

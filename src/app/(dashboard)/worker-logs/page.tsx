@@ -105,7 +105,7 @@ export default function WorkerLogsPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <ClipboardList className="w-6 h-6" style={{ color: '#7B4F2E' }} />
+            <ClipboardList className="w-6 h-6" style={{ color: '#2BA8D4' }} />
             บันทึกงานประจำวัน
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -119,7 +119,7 @@ export default function WorkerLogsPage() {
           <Button
             onClick={() => setCreateOpen(true)}
             className="text-white flex items-center gap-1.5 flex-shrink-0"
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
           >
             <Plus className="w-4 h-4" />
             บันทึกงานวันนี้
@@ -130,12 +130,12 @@ export default function WorkerLogsPage() {
       {/* Summary Stats (manager only) */}
       {isApprover && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-            <div className="flex items-center gap-2 text-amber-700 mb-1">
+          <div className="bg-sky-50 border border-sky-100 rounded-xl p-4">
+            <div className="flex items-center gap-2 text-sky-700 mb-1">
               <Clock className="w-4 h-4" />
               <span className="text-xs font-medium">รออนุมัติ</span>
             </div>
-            <p className="text-2xl font-bold text-amber-700">{pendingCount}</p>
+            <p className="text-2xl font-bold text-sky-700">{pendingCount}</p>
             <p className="text-xs text-gray-500">รายการ</p>
           </div>
           <div className="bg-green-50 border border-green-100 rounded-xl p-4">
@@ -218,7 +218,7 @@ export default function WorkerLogsPage() {
       {/* Content */}
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : logs.length === 0 ? (
         <div className="text-center py-16 text-gray-400">

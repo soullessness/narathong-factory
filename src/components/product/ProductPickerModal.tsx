@@ -75,9 +75,9 @@ export function ProductPickerModal({ open, onClose, onSelect }: ProductPickerMod
               className={`px-3 py-1 rounded-full text-xs whitespace-nowrap border transition-colors ${
                 selectedCategory === 'all'
                   ? 'text-white border-transparent'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-amber-300'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-sky-300'
               }`}
-              style={selectedCategory === 'all' ? { backgroundColor: '#7B4F2E' } : {}}
+              style={selectedCategory === 'all' ? { backgroundColor: '#2BA8D4' } : {}}
             >
               ทั้งหมด
             </button>
@@ -88,9 +88,9 @@ export function ProductPickerModal({ open, onClose, onSelect }: ProductPickerMod
                 className={`px-3 py-1 rounded-full text-xs whitespace-nowrap border transition-colors ${
                   selectedCategory === c.id
                     ? 'text-white border-transparent'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-amber-300'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-sky-300'
                 }`}
-                style={selectedCategory === c.id ? { backgroundColor: '#7B4F2E' } : {}}
+                style={selectedCategory === c.id ? { backgroundColor: '#2BA8D4' } : {}}
               >
                 {c.name}
               </button>
@@ -102,7 +102,7 @@ export function ProductPickerModal({ open, onClose, onSelect }: ProductPickerMod
         <div className="flex-1 overflow-y-auto px-4 py-3">
           {loading ? (
             <div className="flex justify-center py-10">
-              <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
             <p className="text-center text-sm text-gray-400 py-10">ไม่พบสินค้า</p>
@@ -112,7 +112,7 @@ export function ProductPickerModal({ open, onClose, onSelect }: ProductPickerMod
                 <button
                   key={product.id}
                   onClick={() => { onSelect(product); onClose() }}
-                  className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-amber-400 hover:bg-amber-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:border-sky-400 hover:bg-sky-50 transition-colors text-left"
                 >
                   {/* Image */}
                   <div className="w-14 h-14 flex-shrink-0">
@@ -120,7 +120,7 @@ export function ProductPickerModal({ open, onClose, onSelect }: ProductPickerMod
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={product.image_url} alt="" className="w-14 h-14 object-cover rounded-md border" />
                     ) : (
-                      <div className="w-14 h-14 bg-amber-100 rounded-md flex items-center justify-center text-xl">🪵</div>
+                      <div className="w-14 h-14 bg-sky-100 rounded-md flex items-center justify-center text-xl">🪵</div>
                     )}
                   </div>
 
@@ -132,13 +132,13 @@ export function ProductPickerModal({ open, onClose, onSelect }: ProductPickerMod
                         <span className="text-xs text-gray-400">{product.sku}</span>
                       )}
                       {product.category && (
-                        <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700 border-0">
+                        <Badge variant="secondary" className="text-xs bg-sky-100 text-sky-700 border-0">
                           {product.category.name}
                         </Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-3 mt-1 flex-wrap">
-                      <p className="text-sm font-semibold" style={{ color: '#7B4F2E' }}>
+                      <p className="text-sm font-semibold" style={{ color: '#2BA8D4' }}>
                         {product.price_per_unit.toLocaleString('th-TH')} บาท/{product.unit}
                       </p>
                       {product.price_per_sqm && (

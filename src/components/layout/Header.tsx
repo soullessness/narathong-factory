@@ -66,7 +66,7 @@ export function Header({
             <Avatar className="w-8 h-8 cursor-pointer">
               <AvatarFallback
                 className="text-xs text-white font-semibold"
-                style={{ backgroundColor: '#7B4F2E' }}
+                style={{ backgroundColor: '#2BA8D4' }}
               >
                 {initials}
               </AvatarFallback>

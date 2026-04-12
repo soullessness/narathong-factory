@@ -126,7 +126,7 @@ export function CategoryDialog({ open, onClose, onSaved, categories }: CategoryD
                       <button
                         type="button"
                         onClick={() => setEditHasArea((v) => !v)}
-                        className={`relative w-9 h-5 rounded-full transition-colors ${editHasArea ? 'bg-amber-500' : 'bg-gray-300'}`}
+                        className={`relative w-9 h-5 rounded-full transition-colors ${editHasArea ? 'bg-sky-500' : 'bg-gray-300'}`}
                       >
                         <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${editHasArea ? 'translate-x-4' : 'translate-x-0.5'}`} />
                       </button>
@@ -147,11 +147,11 @@ export function CategoryDialog({ open, onClose, onSaved, categories }: CategoryD
                   <div>
                     <span className="text-sm font-medium">{cat.name}</span>
                     {cat.has_area_pricing && (
-                      <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">ตร.ม.</span>
+                      <span className="ml-2 text-xs bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded">ตร.ม.</span>
                     )}
                   </div>
                   <div className="flex gap-1">
-                    <button onClick={() => startEdit(cat)} className="p-1.5 rounded hover:bg-amber-50 text-amber-600">
+                    <button onClick={() => startEdit(cat)} className="p-1.5 rounded hover:bg-sky-50 text-sky-600">
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={() => deleteCategory(cat)} className="p-1.5 rounded hover:bg-red-50 text-red-500">
@@ -179,7 +179,7 @@ export function CategoryDialog({ open, onClose, onSaved, categories }: CategoryD
               <button
                 type="button"
                 onClick={() => setNewHasArea((v) => !v)}
-                className={`relative w-9 h-5 rounded-full transition-colors ${newHasArea ? 'bg-amber-500' : 'bg-gray-300'}`}
+                className={`relative w-9 h-5 rounded-full transition-colors ${newHasArea ? 'bg-sky-500' : 'bg-gray-300'}`}
               >
                 <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${newHasArea ? 'translate-x-4' : 'translate-x-0.5'}`} />
               </button>
@@ -188,7 +188,7 @@ export function CategoryDialog({ open, onClose, onSaved, categories }: CategoryD
             <Button
               onClick={addCategory}
               disabled={saving || !newName.trim()}
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: '#2BA8D4' }}
               className="text-white gap-1.5 h-8"
               size="sm"
             >

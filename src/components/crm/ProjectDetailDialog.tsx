@@ -224,7 +224,7 @@ export function ProjectDetailDialog({
             </div>
 
             {changingStage && (
-              <div className="space-y-3 bg-amber-50 rounded-lg p-4">
+              <div className="space-y-3 bg-sky-50 rounded-lg p-4">
                 <div className="space-y-2">
                   <Label>Stage ใหม่</Label>
                   <Select
@@ -270,7 +270,7 @@ export function ProjectDetailDialog({
                     size="sm"
                     disabled={!newStage || stageLoading}
                     onClick={handleStageChange}
-                    style={{ backgroundColor: '#7B4F2E' }}
+                    style={{ backgroundColor: '#2BA8D4' }}
                     className="text-white"
                   >
                     {stageLoading ? 'กำลังบันทึก...' : 'ยืนยัน'}
@@ -290,7 +290,7 @@ export function ProjectDetailDialog({
                   {stageLogs.map((log) => (
                     <div key={log.id} className="flex gap-3">
                       <div className="flex flex-col items-center">
-                        <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5" />
+                        <div className="w-2 h-2 rounded-full bg-sky-500 mt-1.5" />
                         <div className="w-0.5 bg-gray-200 flex-1 mt-1" />
                       </div>
                       <div className="pb-3 flex-1">

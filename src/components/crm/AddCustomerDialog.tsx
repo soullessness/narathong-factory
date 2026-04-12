@@ -178,7 +178,7 @@ export function AddCustomerDialog({ open, onClose, onCreated }: AddCustomerDialo
             <Button
               type="submit"
               disabled={loading}
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: '#2BA8D4' }}
               className="text-white"
             >
               {loading ? 'กำลังบันทึก...' : 'เพิ่มลูกค้า'}

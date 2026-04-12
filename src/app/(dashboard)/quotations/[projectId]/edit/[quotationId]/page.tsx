@@ -298,7 +298,7 @@ export default function EditQuotationPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -341,7 +341,7 @@ export default function EditQuotationPage() {
           <CardTitle className="text-base flex items-center gap-2">
             <span>ข้อมูลใบเสนอราคา</span>
             {quotation?.quotation_number && (
-              <Badge className="bg-amber-100 text-amber-700 border-amber-300 text-xs">
+              <Badge className="bg-sky-100 text-sky-700 border-sky-300 text-xs">
                 {quotation.quotation_number}
               </Badge>
             )}
@@ -353,7 +353,7 @@ export default function EditQuotationPage() {
             <div className="md:col-span-2 space-y-2">
               <p className="text-sm font-medium text-gray-700">ลูกค้า</p>
               {quotation?.projects?.customers ? (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <div className="bg-sky-50 border border-sky-200 rounded-lg p-3">
                   <p className="font-semibold text-gray-800">{quotation.projects.customers.name}</p>
                   {quotation.projects.customers.address && (
                     <p className="text-sm text-gray-500 mt-0.5">{quotation.projects.customers.address}</p>
@@ -397,7 +397,7 @@ export default function EditQuotationPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => setProductPickerOpen(true)}
-                className="gap-1 text-amber-700 border-amber-300 hover:bg-amber-50"
+                className="gap-1 text-sky-700 border-sky-300 hover:bg-sky-50"
               >
                 <Package className="w-3.5 h-3.5" /> เลือกจากสินค้า
               </Button>
@@ -498,9 +498,9 @@ export default function EditQuotationPage() {
                           </button>
                         </div>
                       ) : (
-                        <label className="w-16 h-16 border-2 border-dashed border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-50 transition-colors">
+                        <label className="w-16 h-16 border-2 border-dashed border-gray-300 rounded flex items-center justify-center cursor-pointer hover:border-sky-400 hover:bg-sky-50 transition-colors">
                           {uploadingIdx === idx ? (
-                            <div className="w-4 h-4 border border-amber-500 border-t-transparent rounded-full animate-spin" />
+                            <div className="w-4 h-4 border border-sky-500 border-t-transparent rounded-full animate-spin" />
                           ) : (
                             <Upload className="w-4 h-4 text-gray-400" />
                           )}
@@ -660,7 +660,7 @@ export default function EditQuotationPage() {
                     onClick={() => setDiscountType('amount')}
                     className={`px-3 py-1.5 text-xs ${
                       discountType === 'amount'
-                        ? 'bg-amber-600 text-white'
+                        ? 'bg-sky-600 text-white'
                         : 'bg-white text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -671,7 +671,7 @@ export default function EditQuotationPage() {
                     onClick={() => setDiscountType('percent')}
                     className={`px-3 py-1.5 text-xs border-l ${
                       discountType === 'percent'
-                        ? 'bg-amber-600 text-white'
+                        ? 'bg-sky-600 text-white'
                         : 'bg-white text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -706,7 +706,7 @@ export default function EditQuotationPage() {
                 type="button"
                 onClick={() => setVatEnabled((v) => !v)}
                 className={`relative w-10 h-5 rounded-full transition-colors ${
-                  vatEnabled ? 'bg-amber-500' : 'bg-gray-300'
+                  vatEnabled ? 'bg-sky-500' : 'bg-gray-300'
                 }`}
               >
                 <span
@@ -722,7 +722,7 @@ export default function EditQuotationPage() {
             {/* Total */}
             <div className="flex justify-between items-center">
               <span className="font-bold text-gray-800">ยอดรวมสุทธิ</span>
-              <span className="text-2xl font-bold" style={{ color: '#7B4F2E' }}>
+              <span className="text-2xl font-bold" style={{ color: '#2BA8D4' }}>
                 {formatCurrency(total)}
                 <span className="text-sm ml-1 font-normal text-gray-500">บาท</span>
               </span>
@@ -756,7 +756,7 @@ export default function EditQuotationPage() {
         <Button
           onClick={handleSave}
           disabled={saving}
-          style={{ backgroundColor: '#7B4F2E' }}
+          style={{ backgroundColor: '#2BA8D4' }}
           className="text-white gap-2"
         >
           {saving ? (

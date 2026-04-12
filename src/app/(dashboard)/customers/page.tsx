@@ -103,7 +103,7 @@ export default function CustomersPage() {
           </Button>
           <Button
             onClick={() => setShowAdd(true)}
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             className="text-white gap-2"
           >
             <Plus className="w-4 h-4" />
@@ -123,7 +123,7 @@ export default function CustomersPage() {
       {loading && (
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
-            <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-gray-500">กำลังโหลด...</p>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function CustomersPage() {
                   {customers.map((customer, idx) => (
                     <tr
                       key={customer.id}
-                      className={`border-b border-gray-50 hover:bg-amber-50 transition-colors cursor-pointer ${
+                      className={`border-b border-gray-50 hover:bg-sky-50 transition-colors cursor-pointer ${
                         idx % 2 === 0 ? '' : 'bg-gray-50/30'
                       }`}
                       onClick={() => handleRowClick(customer.id)}
@@ -184,7 +184,7 @@ export default function CustomersPage() {
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-center text-gray-500 whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-sky-100 text-[#1E8AB0] text-xs font-semibold">
                           {/* จำนวนโปรเจคโหลดจาก client ไม่ได้เพราะ API ไม่มี join — แสดง - */}
                           -
                         </span>

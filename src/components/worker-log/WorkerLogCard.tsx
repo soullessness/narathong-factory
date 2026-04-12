@@ -14,7 +14,7 @@ interface WorkerLogCardProps {
 const STATUS_CONFIG: Record<WorkerLogStatus, { label: string; className: string; icon: React.ReactNode }> = {
   pending: {
     label: 'รอการอนุมัติ',
-    className: 'bg-amber-100 text-amber-700 border-amber-200',
+    className: 'bg-sky-100 text-sky-700 border-sky-200',
     icon: <Clock className="w-3 h-3" />,
   },
   approved: {
@@ -54,7 +54,7 @@ export function WorkerLogCard({ log, showWorkerName = false, onApproveReject, is
   return (
     <div className={cn(
       'bg-white rounded-xl border shadow-sm p-4 space-y-3 transition-all hover:shadow-md',
-      log.status === 'pending' && isApprover ? 'border-amber-200 hover:border-amber-400 cursor-pointer' : 'border-gray-100'
+      log.status === 'pending' && isApprover ? 'border-sky-200 hover:border-sky-400 cursor-pointer' : 'border-gray-100'
     )}
     onClick={() => {
       if (isApprover && log.status === 'pending' && onApproveReject) {
@@ -83,8 +83,8 @@ export function WorkerLogCard({ log, showWorkerName = false, onApproveReject, is
             {log.team && (
               <>
                 <span className="text-gray-300">•</span>
-                <Users className="w-3 h-3 text-amber-600 flex-shrink-0" />
-                <span className="text-amber-700 font-medium">{log.team.name}</span>
+                <Users className="w-3 h-3 text-sky-600 flex-shrink-0" />
+                <span className="text-sky-700 font-medium">{log.team.name}</span>
               </>
             )}
           </div>
@@ -118,7 +118,7 @@ export function WorkerLogCard({ log, showWorkerName = false, onApproveReject, is
           </div>
         )}
         {log.project && (
-          <span className="ml-auto bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full text-xs">
+          <span className="ml-auto bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full text-xs">
             {log.project.name}
           </span>
         )}
@@ -149,7 +149,7 @@ export function WorkerLogCard({ log, showWorkerName = false, onApproveReject, is
       {isApprover && log.status === 'pending' && onApproveReject && (
         <div className="pt-1 border-t border-gray-100">
           <button
-            className="text-xs text-amber-700 hover:text-amber-900 font-medium"
+            className="text-xs text-sky-700 hover:text-[#166780] font-medium"
             onClick={(e) => {
               e.stopPropagation()
               onApproveReject(log)

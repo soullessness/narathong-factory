@@ -67,7 +67,7 @@ function UserAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' })
   return (
     <div
       className={`${sizeClass} flex items-center justify-center rounded-full font-semibold shrink-0`}
-      style={{ backgroundColor: '#F5EDE6', color: '#7B4F2E' }}
+      style={{ backgroundColor: '#F5EDE6', color: '#2BA8D4' }}
     >
       {initial}
     </div>
@@ -188,7 +188,7 @@ export default function UsersPage() {
             className="flex h-12 w-12 items-center justify-center rounded-xl shadow-sm"
             style={{ backgroundColor: '#F5EDE6' }}
           >
-            <Users className="h-6 w-6" style={{ color: '#7B4F2E' }} />
+            <Users className="h-6 w-6" style={{ color: '#2BA8D4' }} />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">จัดการผู้ใช้</h1>
@@ -198,7 +198,7 @@ export default function UsersPage() {
         {isAdmin && (
           <Button
             onClick={handleAddNew}
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             className="text-white gap-2 shadow-sm hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4" />
@@ -326,7 +326,7 @@ export default function UsersPage() {
                         <Button
                           onClick={handleAddNew}
                           size="sm"
-                          style={{ backgroundColor: '#7B4F2E' }}
+                          style={{ backgroundColor: '#2BA8D4' }}
                           className="text-white gap-2 mt-1"
                         >
                           <Plus className="h-3.5 w-3.5" />
@@ -338,7 +338,7 @@ export default function UsersPage() {
                 </TableRow>
               ) : (
                 filteredUsers.map((u) => (
-                  <TableRow key={u.id} className="hover:bg-amber-50/30 transition-colors">
+                  <TableRow key={u.id} className="hover:bg-sky-50/30 transition-colors">
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <UserAvatar name={u.full_name} />
@@ -347,7 +347,7 @@ export default function UsersPage() {
                             {u.full_name || '-'}
                           </p>
                           {u.id === currentUserId && (
-                            <span className="text-[10px] text-amber-600 font-medium">คุณ</span>
+                            <span className="text-[10px] text-sky-600 font-medium">คุณ</span>
                           )}
                         </div>
                       </div>
@@ -380,7 +380,7 @@ export default function UsersPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-gray-400 hover:text-amber-700 hover:bg-amber-50"
+                            className="h-8 w-8 text-gray-400 hover:text-sky-700 hover:bg-sky-50"
                             onClick={() => handleEdit(u)}
                           >
                             <Pencil className="h-3.5 w-3.5" />
@@ -451,7 +451,7 @@ export default function UsersPage() {
                       <p className="font-medium text-gray-900 truncate">
                         {u.full_name || '-'}
                         {u.id === currentUserId && (
-                          <span className="ml-1 text-[10px] text-amber-600 font-medium">(คุณ)</span>
+                          <span className="ml-1 text-[10px] text-sky-600 font-medium">(คุณ)</span>
                         )}
                       </p>
                       <p className="text-xs text-gray-500 truncate">{u.email}</p>
@@ -482,7 +482,7 @@ export default function UsersPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-gray-400 hover:text-amber-700 hover:bg-amber-50"
+                        className="h-8 w-8 text-gray-400 hover:text-sky-700 hover:bg-sky-50"
                         onClick={() => handleEdit(u)}
                       >
                         <Pencil className="h-3.5 w-3.5" />

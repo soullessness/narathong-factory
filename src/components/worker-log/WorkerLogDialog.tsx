@@ -123,7 +123,7 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2" style={{ color: '#7B4F2E' }}>
+          <DialogTitle className="flex items-center gap-2" style={{ color: '#2BA8D4' }}>
             📋 บันทึกงานประจำวัน
           </DialogTitle>
         </DialogHeader>
@@ -131,9 +131,9 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Team info (read-only auto-fill) */}
           {userTeamId && userTeamName && (
-            <div className="rounded-lg bg-amber-50 border border-amber-100 px-3 py-2 flex items-center gap-2">
-              <span className="text-xs text-amber-700 font-medium">ทีม:</span>
-              <span className="text-xs text-amber-800 font-semibold">{userTeamName}</span>
+            <div className="rounded-lg bg-sky-50 border border-sky-100 px-3 py-2 flex items-center gap-2">
+              <span className="text-xs text-sky-700 font-medium">ทีม:</span>
+              <span className="text-xs text-[#1E8AB0] font-semibold">{userTeamName}</span>
             </div>
           )}
 
@@ -245,7 +245,7 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
               type="submit"
               disabled={saving}
               className="text-white"
-              style={{ backgroundColor: '#7B4F2E' }}
+              style={{ backgroundColor: '#2BA8D4' }}
             >
               {saving ? 'กำลังบันทึก...' : 'บันทึกงาน'}
             </Button>

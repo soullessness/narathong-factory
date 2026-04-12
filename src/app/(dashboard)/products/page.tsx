@@ -95,7 +95,7 @@ export default function ProductsPage() {
           <Button
             size="sm"
             onClick={() => { setEditingProduct(null); setProductDialogOpen(true) }}
-            style={{ backgroundColor: '#7B4F2E' }}
+            style={{ backgroundColor: '#2BA8D4' }}
             className="text-white gap-1.5"
           >
             <Plus className="w-4 h-4" />
@@ -122,9 +122,9 @@ export default function ProductsPage() {
           className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
             activeCategory === 'all'
               ? 'text-white border-transparent'
-              : 'bg-white text-gray-600 border-gray-200 hover:border-amber-300'
+              : 'bg-white text-gray-600 border-gray-200 hover:border-sky-300'
           }`}
-          style={activeCategory === 'all' ? { backgroundColor: '#7B4F2E' } : {}}
+          style={activeCategory === 'all' ? { backgroundColor: '#2BA8D4' } : {}}
         >
           ทั้งหมด ({products.length})
         </button>
@@ -137,9 +137,9 @@ export default function ProductsPage() {
                 className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                   activeCategory === c.id
                     ? 'text-white border-transparent'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-amber-300'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-sky-300'
                 }`}
-                style={activeCategory === c.id ? { backgroundColor: '#7B4F2E' } : {}}
+                style={activeCategory === c.id ? { backgroundColor: '#2BA8D4' } : {}}
               >
                 {c.name} ({count})
                 {c.has_area_pricing && (
@@ -169,7 +169,7 @@ export default function ProductsPage() {
       {/* Product grid */}
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-gray-400">
@@ -185,7 +185,7 @@ export default function ProductsPage() {
               className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               {/* Image */}
-              <div className="relative h-40 bg-amber-50">
+              <div className="relative h-40 bg-sky-50">
                 {product.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -203,7 +203,7 @@ export default function ProductsPage() {
               {/* Content */}
               <div className="p-3 space-y-1.5">
                 {product.category && (
-                  <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700 border-0">
+                  <Badge variant="secondary" className="text-xs bg-sky-100 text-sky-700 border-0">
                     {product.category.name}
                   </Badge>
                 )}
@@ -212,7 +212,7 @@ export default function ProductsPage() {
 
                 {/* Pricing */}
                 <div className="space-y-0.5 pt-1">
-                  <p className="text-sm font-bold" style={{ color: '#7B4F2E' }}>
+                  <p className="text-sm font-bold" style={{ color: '#2BA8D4' }}>
                     {product.price_per_unit.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท/{product.unit}
                   </p>
                   {product.price_per_sqm && (

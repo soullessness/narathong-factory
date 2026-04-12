@@ -22,7 +22,7 @@ const kpiData = [
     change: 12,
     changeLabel: 'เดือนที่แล้ว',
     icon: FolderKanban,
-    iconBg: 'bg-amber-700',
+    iconBg: 'bg-[#2BA8D4]',
   },
   {
     title: 'งานค้าง',
@@ -46,7 +46,7 @@ const kpiData = [
     change: 3,
     changeLabel: 'เดือนที่แล้ว',
     icon: Gauge,
-    iconBg: 'bg-blue-600',
+    iconBg: 'bg-[#1E8AB0]',
     suffix: '%',
   },
 ]
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
               return (
                 <div
                   key={project.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-amber-50 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-sky-50 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">

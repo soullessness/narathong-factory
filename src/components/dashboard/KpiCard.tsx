@@ -21,7 +21,7 @@ export function KpiCard({
   changeLabel,
   icon: Icon,
   iconColor = 'text-white',
-  iconBg = 'bg-amber-700',
+  iconBg = 'bg-[#2BA8D4]',
   suffix,
 }: KpiCardProps) {
   const isPositive = change !== undefined && change >= 0

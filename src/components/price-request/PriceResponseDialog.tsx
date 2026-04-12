@@ -129,13 +129,13 @@ export function PriceResponseDialog({ open, request, onClose, onSaved }: PriceRe
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold" style={{ color: '#7B4F2E' }}>
+          <DialogTitle className="text-lg font-bold" style={{ color: '#2BA8D4' }}>
             คำขอราคาสินค้า
           </DialogTitle>
         </DialogHeader>
 
         {/* Request info */}
-        <div className="bg-amber-50 rounded-xl p-4 space-y-3">
+        <div className="bg-sky-50 rounded-xl p-4 space-y-3">
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="font-semibold text-gray-800">{request.product_name}</p>
@@ -246,11 +246,11 @@ export function PriceResponseDialog({ open, request, onClose, onSaved }: PriceRe
 
             {/* Auto-calculated total */}
             {unitPrice && (
-              <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-sky-50 rounded-lg">
                 <span className="text-sm text-gray-600">
                   {Number(unitPrice).toLocaleString('th-TH')} × {quantity} {request.unit}
                 </span>
-                <span className="text-base font-bold" style={{ color: '#7B4F2E' }}>
+                <span className="text-base font-bold" style={{ color: '#2BA8D4' }}>
                   = {totalPrice.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท
                 </span>
               </div>
@@ -296,7 +296,7 @@ export function PriceResponseDialog({ open, request, onClose, onSaved }: PriceRe
               </Button>
               <Button
                 className="flex-1 text-white"
-                style={{ backgroundColor: '#7B4F2E' }}
+                style={{ backgroundColor: '#2BA8D4' }}
                 onClick={handleSubmit}
                 disabled={loading}
               >
