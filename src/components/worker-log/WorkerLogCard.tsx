@@ -12,6 +12,7 @@ interface WorkerLogCardProps {
   onEdit?: (log: WorkerLog) => void
   onDelete?: (log: WorkerLog) => void
   canEdit?: boolean
+  userRole?: string
 }
 
 const STATUS_CONFIG: Record<WorkerLogStatus, { label: string; className: string; icon: React.ReactNode }> = {
@@ -59,19 +60,30 @@ export function WorkerLogCard({
   onEdit,
   onDelete,
   canEdit = false,
+  userRole,
 }: WorkerLogCardProps) {
   const statusCfg = STATUS_CONFIG[log.status]
 
+  // แสดงปุ่ม approve เฉพาะ role ที่มีสิทธิ์เท่านั้น (ไม่แสดงให้ worker)
+  const canApprove =
+    ['team_lead', 'factory_manager', 'admin', 'executive'].includes(userRole ?? '') &&
+    log.status === 'pending' &&
+    !!onApproveReject
+
+  // ใช้ canApprove เป็นหลักในการ clickable card และ border
+  const cardIsClickable = canApprove
+
   return (
-    <div className={cn(
-      'bg-white rounded-xl border shadow-sm p-4 space-y-3 transition-all hover:shadow-md',
-      log.status === 'pending' && isApprover ? 'border-sky-200 hover:border-sky-400 cursor-pointer' : 'border-gray-100'
-    )}
-    onClick={() => {
-      if (isApprover && log.status === 'pending' && onApproveReject) {
-        onApproveReject(log)
-      }
-    }}
+    <div
+      className={cn(
+        'bg-white rounded-xl border shadow-sm p-4 space-y-3 transition-all hover:shadow-md',
+        cardIsClickable ? 'border-sky-200 hover:border-sky-400 cursor-pointer' : 'border-gray-100'
+      )}
+      onClick={() => {
+        if (canApprove && onApproveReject) {
+          onApproveReject(log)
+        }
+      }}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
@@ -156,14 +168,14 @@ export function WorkerLogCard({
         </div>
       )}
 
-      {/* Approve/Reject button hint */}
-      {isApprover && log.status === 'pending' && onApproveReject && (
+      {/* Approve/Reject button hint — แสดงเฉพาะ role ที่มีสิทธิ์อนุมัติ (ไม่แสดงให้ worker) */}
+      {canApprove && (
         <div className="pt-1 border-t border-gray-100">
           <button
             className="text-xs text-sky-700 hover:text-[#166780] font-medium"
             onClick={(e) => {
               e.stopPropagation()
-              onApproveReject(log)
+              onApproveReject!(log)
             }}
           >
             👆 คลิกเพื่ออนุมัติ/ปฏิเสธ

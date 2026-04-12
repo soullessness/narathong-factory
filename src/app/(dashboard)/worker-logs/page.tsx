@@ -263,6 +263,7 @@ export default function WorkerLogsPage() {
               canEdit={!userLoading && canEditLog(log, userRole, userId)}
               onEdit={(l) => setEditingLog(l)}
               onDelete={(l) => setDeletingLog(l)}
+              userRole={userRole}
             />
           ))}
         </div>
