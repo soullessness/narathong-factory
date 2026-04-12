@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input'
 import { WorkerLogCard } from '@/components/worker-log/WorkerLogCard'
 import { WorkerLogDialog } from '@/components/worker-log/WorkerLogDialog'
 import { ApproveRejectDialog } from '@/components/worker-log/ApproveRejectDialog'
-import { createClient } from '@/lib/supabase/client'
+import { useUserRole } from '@/hooks/useUserRole'
 import type { WorkerLog } from '@/types/worker-log'
 
 interface Department {
@@ -33,11 +33,11 @@ function canEditLog(log: WorkerLog, userRole: string, userId: string): boolean {
 export default function WorkerLogsPage() {
   const today = new Date().toISOString().split('T')[0]
 
+  const { role, userId, loading: userLoading } = useUserRole()
+  const userRole = role ?? 'worker'
+
   const [logs, setLogs] = useState<WorkerLog[]>([])
   const [loading, setLoading] = useState(true)
-  const [userLoading, setUserLoading] = useState(true)
-  const [userRole, setUserRole] = useState<string>('worker')
-  const [userId, setUserId] = useState<string>('')
   const [departments, setDepartments] = useState<Department[]>([])
 
   // Filters
@@ -55,18 +55,6 @@ export default function WorkerLogsPage() {
 
   const isManager = ['admin', 'factory_manager', 'executive'].includes(userRole)
   const isApprover = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
-
-  // Load user role
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        setUserRole(user.user_metadata?.role ?? 'worker')
-        setUserId(user.id)
-      }
-      setUserLoading(false)
-    })
-  }, [])
 
   // Load departments (manager only)
   useEffect(() => {
