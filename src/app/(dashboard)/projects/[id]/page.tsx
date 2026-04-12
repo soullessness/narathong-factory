@@ -53,6 +53,7 @@ import {
 } from '@/types/crm'
 import type { Quotation } from '@/types/quotation'
 import { ProjectDialog } from '@/components/crm/ProjectDialog'
+import { ProductionOrderDialog } from '@/components/production/ProductionOrderDialog'
 
 const QUOTATION_STATUS_LABEL: Record<string, { label: string; className: string }> = {
   draft: { label: 'Draft', className: 'bg-gray-100 text-gray-600 border-gray-300' },
@@ -111,6 +112,11 @@ export default function ProjectDetailPage() {
   // Delete dialog
   const [showDelete, setShowDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  // Production order dialog
+  const [showProductionDialog, setShowProductionDialog] = useState(false)
+
+  const PRODUCTION_ELIGIBLE_STAGES = ['deposit', 'production', 'delivery', 'installation', 'completed']
 
   const handleDelete = async () => {
     setDeleting(true)
@@ -440,6 +446,32 @@ export default function ProjectDetailPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Production Order Section */}
+          {PRODUCTION_ELIGIBLE_STAGES.includes(project.stage) && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    🏭 การผลิต
+                  </CardTitle>
+                  <Button
+                    size="sm"
+                    onClick={() => setShowProductionDialog(true)}
+                    style={{ backgroundColor: '#2BA8D4' }}
+                    className="text-white gap-1 h-7 text-xs"
+                  >
+                    <Plus className="w-3 h-3" /> สร้าง Production Order
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-500">
+                  โปรเจคนี้พร้อมเริ่มการผลิตแล้ว กดปุ่มเพื่อสร้าง Production Order
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right: Stage + Timeline */}
@@ -639,6 +671,13 @@ export default function ProjectDetailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Production Order Dialog */}
+      <ProductionOrderDialog
+        open={showProductionDialog}
+        onClose={() => setShowProductionDialog(false)}
+        preselectedProjectId={project.id}
+      />
     </div>
   )
 }

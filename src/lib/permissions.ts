@@ -6,6 +6,7 @@ export const ROLE_PERMISSIONS = {
   products: ['admin', 'executive', 'factory_manager'],
   priceRequests: ['admin', 'executive', 'factory_manager', 'accounting'],
   workerLogs: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker', 'sales', 'accounting'],
+  productionOrders: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker'],
   settings: ['admin'],
   settingsUsers: ['admin'],
   settingsTeams: ['admin', 'factory_manager'],

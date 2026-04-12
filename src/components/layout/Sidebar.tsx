@@ -57,9 +57,11 @@ const navItems = [
     permissionKey: 'products' as const,
   },
   {
-    href: '/production',
+    href: '/production-orders',
     label: 'การผลิต',
     icon: Factory,
+    badgeKey: 'productionOrders',
+    permissionKey: 'productionOrders' as const,
   },
   {
     href: '/worker-logs',
@@ -97,6 +99,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
   const showWorkerMenu = ['worker', 'team_lead', 'factory_manager', 'executive', 'admin'].includes(userRole)
   const showPriceRequestMenu = ['admin', 'executive', 'factory_manager', 'accounting'].includes(userRole)
   const [workerLogPendingCount, setWorkerLogPendingCount] = useState(0)
+  const [productionInProgressCount, setProductionInProgressCount] = useState(0)
 
   // Load pending price requests count for users who can respond to price requests
   useEffect(() => {
@@ -131,6 +134,23 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
     }
     load()
   }, [canApproveWorkerLogs])
+
+  // Load in_progress production orders count
+  const canSeeProduction = ['admin', 'executive', 'factory_manager', 'team_lead', 'worker'].includes(userRole)
+  useEffect(() => {
+    if (!canSeeProduction) return
+    const load = async () => {
+      try {
+        const res = await fetch('/api/production-orders?status=in_progress')
+        const json = await res.json()
+        setProductionInProgressCount((json.data ?? []).length)
+      } catch {
+        // ignore
+      }
+    }
+    load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userRole])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -195,6 +215,8 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
               ? pendingCount
               : item.badgeKey === 'workerLogs' && canApproveWorkerLogs
               ? workerLogPendingCount
+              : item.badgeKey === 'productionOrders' && canSeeProduction
+              ? productionInProgressCount
               : 0
           const showBadge = badgeCount > 0
           const visibleSubItems = (item.subItems ?? []).filter((sub) => {
