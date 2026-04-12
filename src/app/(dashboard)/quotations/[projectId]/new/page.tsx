@@ -79,14 +79,23 @@ export default function NewQuotationPage() {
   // savedQuotationId: set once the quotation is actually saved to DB
   const [savedQuotationId, setSavedQuotationId] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string>('')
+  const [isSalesUser, setIsSalesUser] = useState(false)
   const autoRefreshTimer = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Load current user role
+  // Load current user role + auto-fill sales fields if role=sales
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserRole(user.user_metadata?.role ?? '')
-    })
+    fetch('/api/profiles/me')
+      .then((r) => r.json())
+      .then((data: { role?: string; full_name?: string; phone?: string }) => {
+        const role = data.role ?? ''
+        setUserRole(role)
+        if (role === 'sales') {
+          setIsSalesUser(true)
+          setSalesName(data.full_name ?? '')
+          setSalesPhone(data.phone ?? '')
+        }
+      })
+      .catch(() => {})
   }, [])
 
   const canSendPriceRequest = ['admin', 'executive', 'factory_manager', 'accounting'].includes(userRole)
@@ -382,12 +391,18 @@ export default function NewQuotationPage() {
         <CardContent>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs text-gray-500 mb-1 block">พนักงานขาย</Label>
+              <Label className="text-xs text-gray-500 mb-1 block">
+                พนักงานขาย
+                {isSalesUser && (
+                  <span className="ml-1 text-sky-500">(บัญชีของคุณ)</span>
+                )}
+              </Label>
               <Input
                 value={salesName}
                 onChange={(e) => setSalesName(e.target.value)}
                 placeholder="ชื่อพนักงานขาย"
-                className="text-sm"
+                className={`text-sm ${isSalesUser ? 'bg-gray-50 text-gray-600' : ''}`}
+                readOnly={isSalesUser}
               />
             </div>
             <div>
@@ -396,7 +411,8 @@ export default function NewQuotationPage() {
                 value={salesPhone}
                 onChange={(e) => setSalesPhone(e.target.value)}
                 placeholder="063-xxx-xxxx"
-                className="text-sm"
+                className={`text-sm ${isSalesUser ? 'bg-gray-50 text-gray-600' : ''}`}
+                readOnly={isSalesUser}
               />
             </div>
             <div>
