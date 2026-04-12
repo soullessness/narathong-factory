@@ -162,8 +162,8 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
       <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
         <div className="relative w-10 h-10 flex-shrink-0">
           <Image
-            src="/narathong-plus-logo-new.jpg"
-            alt="Narathong Plus Logo"
+            src="/narathong-icon.jpg"
+            alt="Narathong Plus Icon"
             fill
             className="object-contain rounded-lg"
             sizes="40px"

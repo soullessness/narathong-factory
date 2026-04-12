@@ -45,21 +45,21 @@ export default function LoginPage() {
     <div className="w-full max-w-md px-4">
       {/* Logo & Brand */}
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-24 h-24 mb-4">
+        <div className="inline-flex items-center justify-center w-28 h-28 mb-4">
           <Image
-            src="/narathong-plus-logo-new.jpg"
-            alt="Narathong Plus Logo"
-            width={96}
-            height={96}
+            src="/narathong-icon.jpg"
+            alt="Narathong Plus Icon"
+            width={112}
+            height={112}
             className="object-contain rounded-2xl shadow-lg"
             priority
           />
         </div>
         <h1 className="text-3xl font-bold" style={{ color: PRIMARY }}>
-          นราทองพลัส
+          โรงงานนราทองพลัส
         </h1>
-        <p className="text-sm mt-1" style={{ color: PRIMARY_DARK }}>
-          Factory Management Dashboard
+        <p className="text-sm mt-1 text-gray-500">
+          ระบบบริหารจัดการโรงงาน
         </p>
       </div>
 
