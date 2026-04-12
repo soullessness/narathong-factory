@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function PATCH(
   req: NextRequest,
@@ -12,8 +13,11 @@ export async function PATCH(
   const { id } = await params
   const body = await req.json()
 
+  // ใช้ admin client สำหรับ DB queries (bypass RLS)
+  const admin = createAdminClient()
+
   // Get user profile for role check
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from('profiles')
     .select('role')
     .eq('id', user.id)
@@ -23,7 +27,7 @@ export async function PATCH(
   const isApprover = ['admin', 'factory_manager', 'team_lead'].includes(role)
 
   // Get the existing log
-  const { data: log, error: fetchError } = await supabase
+  const { data: log, error: fetchError } = await admin
     .from('worker_logs')
     .select('*')
     .eq('id', id)
@@ -58,7 +62,7 @@ export async function PATCH(
       updateData.notes = body.notes
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('worker_logs')
       .update(updateData)
       .eq('id', id)
@@ -84,7 +88,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'แก้ไขได้เฉพาะบันทึกที่ยังรออนุมัติ' }, { status: 400 })
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await admin
     .from('worker_logs')
     .update({
       log_date: body.log_date ?? log.log_date,
@@ -119,8 +123,11 @@ export async function DELETE(
 
   const { id } = await params
 
+  // ใช้ admin client สำหรับ DB queries (bypass RLS)
+  const admin = createAdminClient()
+
   // Get user profile for role check
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from('profiles')
     .select('role')
     .eq('id', user.id)
@@ -130,7 +137,7 @@ export async function DELETE(
   const isAdminOrManager = ['admin', 'factory_manager'].includes(role)
 
   // Get the existing log
-  const { data: log, error: fetchError } = await supabase
+  const { data: log, error: fetchError } = await admin
     .from('worker_logs')
     .select('*')
     .eq('id', id)
@@ -152,7 +159,7 @@ export async function DELETE(
     }
   }
 
-  const { error } = await supabase
+  const { error } = await admin
     .from('worker_logs')
     .delete()
     .eq('id', id)
