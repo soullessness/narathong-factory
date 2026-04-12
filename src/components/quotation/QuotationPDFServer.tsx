@@ -861,26 +861,26 @@ export function QuotationPDF({ quotation }: QuotationPDFProps) {
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>{' ผู้จัดทำ '}</Text>
               <View style={styles.signatureLineView} />
-              <Text style={styles.signatureName}>{'(............)'}</Text>
-              <Text style={styles.signatureDate}>วันที่ ......</Text>
+              <Text style={styles.signatureName}>{'(................................)'}</Text>
+              <Text style={styles.signatureDate}>{'วันที่ ...................'}</Text>
             </View>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>{' ผู้ตรวจสอบ '}</Text>
               <View style={styles.signatureLineView} />
-              <Text style={styles.signatureName}>{'(............)'}</Text>
-              <Text style={styles.signatureDate}>วันที่ ......</Text>
+              <Text style={styles.signatureName}>{'(................................)'}</Text>
+              <Text style={styles.signatureDate}>{'วันที่ ...................'}</Text>
             </View>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>{' ผู้อนุมัติ '}</Text>
               <View style={styles.signatureLineView} />
-              <Text style={styles.signatureName}>{'(............)'}</Text>
-              <Text style={styles.signatureDate}>วันที่ ......</Text>
+              <Text style={styles.signatureName}>{'(................................)'}</Text>
+              <Text style={styles.signatureDate}>{'วันที่ ...................'}</Text>
             </View>
             <View style={styles.signatureBox}>
               <Text style={styles.signatureTitle}>{' ลูกค้าเซ็นรับราคา '}</Text>
               <View style={styles.signatureLineView} />
-              <Text style={styles.signatureName}>{'(............)'}</Text>
-              <Text style={styles.signatureDate}>วันที่ ......</Text>
+              <Text style={styles.signatureName}>{'(................................)'}</Text>
+              <Text style={styles.signatureDate}>{'วันที่ ...................'}</Text>
             </View>
           </View>
         </View>
