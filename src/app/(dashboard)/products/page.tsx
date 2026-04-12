@@ -1,17 +1,22 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Search, Pencil, Trash2, Settings2 } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, Settings2, ShieldOff } from 'lucide-react'
 import { toast } from 'sonner'
 import { ProductDialog } from '@/components/product/ProductDialog'
 import { CategoryDialog } from '@/components/product/CategoryDialog'
 import type { Product, ProductCategory } from '@/types/product'
 import { computeAreaPricing } from '@/types/product'
+import { useUserRole } from '@/hooks/useUserRole'
+import { canAccess } from '@/lib/permissions'
 
 export default function ProductsPage() {
+  const router = useRouter()
+  const { role, loading: roleLoading } = useUserRole()
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<ProductCategory[]>([])
   const [loading, setLoading] = useState(true)
@@ -72,6 +77,19 @@ export default function ProductsPage() {
     } catch {
       toast.error('เกิดข้อผิดพลาดในการลบ')
     }
+  }
+
+  if (!roleLoading && role !== null && !canAccess(role, 'products')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+        <ShieldOff className="w-12 h-12 text-gray-300 mb-4" />
+        <h2 className="text-lg font-semibold text-gray-600">ไม่มีสิทธิ์เข้าถึง</h2>
+        <p className="text-sm text-gray-400 mt-1">คุณไม่มีสิทธิ์ดูหน้านี้</p>
+        <Button variant="outline" className="mt-4" onClick={() => router.push('/worker-logs')}>
+          ไปหน้าบันทึกงาน
+        </Button>
+      </div>
+    )
   }
 
   return (

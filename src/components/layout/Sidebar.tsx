@@ -54,6 +54,7 @@ const navItems = [
     href: '/products',
     label: 'สินค้า',
     icon: Package,
+    permissionKey: 'products' as const,
   },
   {
     href: '/production',
