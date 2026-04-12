@@ -25,12 +25,18 @@ interface Department {
 
 type StatusFilter = '' | 'pending' | 'approved' | 'rejected'
 
+function canEditLog(log: WorkerLog, userRole: string, userId: string): boolean {
+  if (userRole === 'admin' || userRole === 'factory_manager') return true
+  return log.worker_id === userId && log.status === 'pending'
+}
+
 export default function WorkerLogsPage() {
   const today = new Date().toISOString().split('T')[0]
 
   const [logs, setLogs] = useState<WorkerLog[]>([])
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<string>('worker')
+  const [userId, setUserId] = useState<string>('')
   const [departments, setDepartments] = useState<Department[]>([])
 
   // Filters
@@ -40,8 +46,11 @@ export default function WorkerLogsPage() {
 
   // Dialogs
   const [createOpen, setCreateOpen] = useState(false)
+  const [editingLog, setEditingLog] = useState<WorkerLog | null>(null)
   const [selectedLog, setSelectedLog] = useState<WorkerLog | null>(null)
   const [approveOpen, setApproveOpen] = useState(false)
+  const [deletingLog, setDeletingLog] = useState<WorkerLog | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const isManager = ['admin', 'factory_manager', 'executive'].includes(userRole)
   const isApprover = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
@@ -50,7 +59,10 @@ export default function WorkerLogsPage() {
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setUserRole(user.user_metadata?.role ?? 'worker')
+      if (user) {
+        setUserRole(user.user_metadata?.role ?? 'worker')
+        setUserId(user.id)
+      }
     })
   }, [])
 
@@ -92,6 +104,22 @@ export default function WorkerLogsPage() {
 
   const handleLogUpdated = (updated: WorkerLog) => {
     setLogs((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
+  }
+
+  const handleDelete = async (log: WorkerLog) => {
+    setDeleteLoading(true)
+    try {
+      const res = await fetch(`/api/worker-logs/${log.id}`, { method: 'DELETE' })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? 'ลบไม่สำเร็จ')
+      toast.success('ลบบันทึกงานเรียบร้อย')
+      setLogs((prev) => prev.filter((l) => l.id !== log.id))
+      setDeletingLog(null)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'เกิดข้อผิดพลาด')
+    } finally {
+      setDeleteLoading(false)
+    }
   }
 
   // Summary stats
@@ -242,6 +270,9 @@ export default function WorkerLogsPage() {
                 setSelectedLog(l)
                 setApproveOpen(true)
               }}
+              canEdit={canEditLog(log, userRole, userId)}
+              onEdit={(l) => setEditingLog(l)}
+              onDelete={(l) => setDeletingLog(l)}
             />
           ))}
         </div>
@@ -254,6 +285,17 @@ export default function WorkerLogsPage() {
         onSaved={handleLogCreated}
       />
 
+      {/* Edit dialog */}
+      <WorkerLogDialog
+        open={!!editingLog}
+        log={editingLog}
+        onClose={() => setEditingLog(null)}
+        onSaved={(updated) => {
+          handleLogUpdated(updated)
+          setEditingLog(null)
+        }}
+      />
+
       {/* Approver: approve/reject dialog */}
       <ApproveRejectDialog
         open={approveOpen}
@@ -264,6 +306,46 @@ export default function WorkerLogsPage() {
         }}
         onDone={handleLogUpdated}
       />
+
+      {/* Delete confirmation dialog */}
+      {deletingLog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-red-600 text-lg">🗑️</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">ยืนยันการลบ</h3>
+                <p className="text-sm text-gray-500 mt-0.5">การลบไม่สามารถย้อนกลับได้</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-700">
+              คุณต้องการลบบันทึกงานวันที่{' '}
+              <strong>{new Date(deletingLog.log_date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' })}</strong>{' '}
+              ใช่ไหม?
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeletingLog(null)}
+                disabled={deleteLoading}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                size="sm"
+                className="bg-red-500 hover:bg-red-600 text-white"
+                onClick={() => handleDelete(deletingLog)}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? 'กำลังลบ...' : 'ลบบันทึก'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

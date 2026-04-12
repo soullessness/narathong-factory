@@ -2,13 +2,16 @@
 
 import { cn } from '@/lib/utils'
 import type { WorkerLog, WorkerLogStatus } from '@/types/worker-log'
-import { Clock, Package, Calendar, CheckCircle2, XCircle, User, Users } from 'lucide-react'
+import { Clock, Package, Calendar, CheckCircle2, XCircle, User, Users, Pencil, Trash2 } from 'lucide-react'
 
 interface WorkerLogCardProps {
   log: WorkerLog
   showWorkerName?: boolean
   onApproveReject?: (log: WorkerLog) => void
   isApprover?: boolean
+  onEdit?: (log: WorkerLog) => void
+  onDelete?: (log: WorkerLog) => void
+  canEdit?: boolean
 }
 
 const STATUS_CONFIG: Record<WorkerLogStatus, { label: string; className: string; icon: React.ReactNode }> = {
@@ -48,7 +51,15 @@ function formatDateTime(dateStr: string) {
   })
 }
 
-export function WorkerLogCard({ log, showWorkerName = false, onApproveReject, isApprover = false }: WorkerLogCardProps) {
+export function WorkerLogCard({
+  log,
+  showWorkerName = false,
+  onApproveReject,
+  isApprover = false,
+  onEdit,
+  onDelete,
+  canEdit = false,
+}: WorkerLogCardProps) {
   const statusCfg = STATUS_CONFIG[log.status]
 
   return (
@@ -157,6 +168,36 @@ export function WorkerLogCard({ log, showWorkerName = false, onApproveReject, is
           >
             👆 คลิกเพื่ออนุมัติ/ปฏิเสธ
           </button>
+        </div>
+      )}
+
+      {/* Edit / Delete buttons */}
+      {canEdit && (
+        <div className="pt-1 border-t border-gray-100 flex items-center gap-2">
+          {onEdit && (
+            <button
+              className="flex items-center gap-1 text-xs text-sky-700 hover:text-sky-900 font-medium transition-colors"
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit(log)
+              }}
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              แก้ไข
+            </button>
+          )}
+          {onDelete && (
+            <button
+              className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-medium transition-colors ml-auto"
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(log)
+              }}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              ลบ
+            </button>
+          )}
         </div>
       )}
     </div>

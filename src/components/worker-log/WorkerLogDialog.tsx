@@ -26,10 +26,14 @@ interface WorkerLogDialogProps {
   open: boolean
   onClose: () => void
   onSaved: (log: WorkerLog) => void
+  /** ถ้ามี log → edit mode */
+  log?: WorkerLog | null
 }
 
-export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps) {
+export function WorkerLogDialog({ open, onClose, onSaved, log }: WorkerLogDialogProps) {
   const today = new Date().toISOString().split('T')[0]
+  const isEditMode = !!log
+
   const [logDate, setLogDate] = useState(today)
   const [description, setDescription] = useState('')
   const [quantity, setQuantity] = useState('')
@@ -44,35 +48,52 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
 
   useEffect(() => {
     if (!open) return
-    // Reset form
-    setLogDate(today)
-    setDescription('')
-    setQuantity('')
-    setUnit('')
-    setHoursWorked('')
-    setProjectId('')
-    setNotes('')
 
-    // Load current user's team
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return
-      supabase
-        .from('profiles')
-        .select('team_id, teams:teams!profiles_team_id_fkey(name)')
-        .eq('id', user.id)
-        .single()
-        .then(({ data }) => {
-          if (data?.team_id) {
-            setUserTeamId(data.team_id)
-            const teamData = data.teams as unknown as { name: string } | null
-            setUserTeamName(teamData?.name ?? null)
-          } else {
-            setUserTeamId(null)
-            setUserTeamName(null)
-          }
-        })
-    })
+    if (isEditMode && log) {
+      // Edit mode: prefill from existing log
+      setLogDate(log.log_date ?? today)
+      setDescription(log.description ?? '')
+      setQuantity(log.quantity != null ? String(log.quantity) : '')
+      setUnit(log.unit ?? '')
+      setHoursWorked(log.hours_worked != null ? String(log.hours_worked) : '')
+      setProjectId(log.project_id ?? '')
+      setNotes(log.notes ?? '')
+      // team from log (read-only)
+      if (log.team) {
+        setUserTeamId(log.team_id ?? null)
+        setUserTeamName(log.team.name ?? null)
+      }
+    } else {
+      // Create mode: reset form
+      setLogDate(today)
+      setDescription('')
+      setQuantity('')
+      setUnit('')
+      setHoursWorked('')
+      setProjectId('')
+      setNotes('')
+
+      // Load current user's team
+      const supabase = createClient()
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (!user) return
+        supabase
+          .from('profiles')
+          .select('team_id, teams:teams!profiles_team_id_fkey(name)')
+          .eq('id', user.id)
+          .single()
+          .then(({ data }) => {
+            if (data?.team_id) {
+              setUserTeamId(data.team_id)
+              const teamData = data.teams as unknown as { name: string } | null
+              setUserTeamName(teamData?.name ?? null)
+            } else {
+              setUserTeamId(null)
+              setUserTeamName(null)
+            }
+          })
+      })
+    }
 
     // Load projects
     fetch('/api/projects')
@@ -91,25 +112,45 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
 
     setSaving(true)
     try {
-      const res = await fetch('/api/worker-logs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          log_date: logDate,
-          description: description.trim(),
-          quantity: quantity ? parseFloat(quantity) : null,
-          unit: unit.trim() || null,
-          hours_worked: hoursWorked ? parseFloat(hoursWorked) : null,
-          project_id: projectId || null,
-          notes: notes.trim() || null,
-          team_id: userTeamId || null,
-        }),
-      })
+      let res: Response
+      if (isEditMode && log) {
+        // Edit mode: PATCH /api/worker-logs/[id]
+        res = await fetch(`/api/worker-logs/${log.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'edit',
+            log_date: logDate,
+            description: description.trim(),
+            quantity: quantity ? parseFloat(quantity) : null,
+            unit: unit.trim() || null,
+            hours_worked: hoursWorked ? parseFloat(hoursWorked) : null,
+            project_id: projectId || null,
+            notes: notes.trim() || null,
+          }),
+        })
+      } else {
+        // Create mode: POST /api/worker-logs
+        res = await fetch('/api/worker-logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            log_date: logDate,
+            description: description.trim(),
+            quantity: quantity ? parseFloat(quantity) : null,
+            unit: unit.trim() || null,
+            hours_worked: hoursWorked ? parseFloat(hoursWorked) : null,
+            project_id: projectId || null,
+            notes: notes.trim() || null,
+            team_id: userTeamId || null,
+          }),
+        })
+      }
 
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? 'บันทึกไม่สำเร็จ')
 
-      toast.success('บันทึกงานเรียบร้อย')
+      toast.success(isEditMode ? 'แก้ไขบันทึกงานเรียบร้อย' : 'บันทึกงานเรียบร้อย')
       onSaved(json.data)
       onClose()
     } catch (e) {
@@ -124,7 +165,7 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2" style={{ color: '#2BA8D4' }}>
-            📋 บันทึกงานประจำวัน
+            {isEditMode ? '✏️ แก้ไขบันทึกงาน' : '📋 บันทึกงานประจำวัน'}
           </DialogTitle>
         </DialogHeader>
 
@@ -247,7 +288,7 @@ export function WorkerLogDialog({ open, onClose, onSaved }: WorkerLogDialogProps
               className="text-white"
               style={{ backgroundColor: '#2BA8D4' }}
             >
-              {saving ? 'กำลังบันทึก...' : 'บันทึกงาน'}
+              {saving ? 'กำลังบันทึก...' : isEditMode ? 'บันทึกการแก้ไข' : 'บันทึกงาน'}
             </Button>
           </div>
         </form>

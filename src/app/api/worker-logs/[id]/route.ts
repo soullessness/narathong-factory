@@ -108,3 +108,55 @@ export async function PATCH(
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ data })
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { id } = await params
+
+  // Get user profile for role check
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const role = profile?.role ?? ''
+  const isAdminOrManager = ['admin', 'factory_manager'].includes(role)
+
+  // Get the existing log
+  const { data: log, error: fetchError } = await supabase
+    .from('worker_logs')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (fetchError || !log) {
+    return NextResponse.json({ error: 'ไม่พบบันทึกงาน' }, { status: 404 })
+  }
+
+  // Permission check:
+  // - admin/factory_manager ลบได้ทุก status
+  // - เจ้าของลบได้เฉพาะ status = 'pending'
+  if (!isAdminOrManager) {
+    if (log.worker_id !== user.id) {
+      return NextResponse.json({ error: 'ไม่มีสิทธิ์ลบบันทึกนี้' }, { status: 403 })
+    }
+    if (log.status !== 'pending') {
+      return NextResponse.json({ error: 'ลบได้เฉพาะบันทึกที่ยังรออนุมัติ' }, { status: 400 })
+    }
+  }
+
+  const { error } = await supabase
+    .from('worker_logs')
+    .delete()
+    .eq('id', id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
