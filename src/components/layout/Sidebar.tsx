@@ -89,7 +89,7 @@ interface SidebarProps {
   userRole?: string
 }
 
-export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: SidebarProps) {
+export function Sidebar({ userEmail = 'user@example.com', userRole = 'worker' }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [pendingCount, setPendingCount] = useState(0)

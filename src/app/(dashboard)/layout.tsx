@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   return (
     <AppLayout
       userEmail={user.email}
-      userRole={user.user_metadata?.role ?? 'viewer'}
+      userRole={user.user_metadata?.role ?? 'worker'}
       pageTitle="Dashboard"
     >
       {children}

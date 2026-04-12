@@ -35,6 +35,7 @@ export default function WorkerLogsPage() {
 
   const [logs, setLogs] = useState<WorkerLog[]>([])
   const [loading, setLoading] = useState(true)
+  const [userLoading, setUserLoading] = useState(true)
   const [userRole, setUserRole] = useState<string>('worker')
   const [userId, setUserId] = useState<string>('')
   const [departments, setDepartments] = useState<Department[]>([])
@@ -63,6 +64,7 @@ export default function WorkerLogsPage() {
         setUserRole(user.user_metadata?.role ?? 'worker')
         setUserId(user.id)
       }
+      setUserLoading(false)
     })
   }, [])
 
@@ -270,7 +272,7 @@ export default function WorkerLogsPage() {
                 setSelectedLog(l)
                 setApproveOpen(true)
               }}
-              canEdit={canEditLog(log, userRole, userId)}
+              canEdit={!userLoading && canEditLog(log, userRole, userId)}
               onEdit={(l) => setEditingLog(l)}
               onDelete={(l) => setDeletingLog(l)}
             />
