@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+const ALLOWED_ROLES = ['admin', 'executive', 'factory_manager', 'accounting']
+
 export async function GET(req: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,7 +18,14 @@ export async function GET(req: NextRequest) {
     .eq('id', user.id)
     .single()
 
-  const isFactoryOrAdmin = ['admin', 'factory_manager', 'team_lead'].includes(profile?.role ?? '')
+  const userRole = profile?.role ?? ''
+
+  // Only allowed roles can access price requests
+  if (!ALLOWED_ROLES.includes(userRole)) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const isFactoryOrAdmin = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
 
   let query = supabase
     .from('price_requests')
@@ -54,6 +63,17 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Check role — only allowed roles can create price requests
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!ALLOWED_ROLES.includes(profile?.role ?? '')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   const body = await req.json()
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { ClipboardList } from 'lucide-react'
+import { ClipboardList, ShieldOff } from 'lucide-react'
 import { toast } from 'sonner'
 import { PriceRequestCard } from '@/components/price-request/PriceRequestCard'
 import { PriceResponseDialog } from '@/components/price-request/PriceResponseDialog'
@@ -10,11 +10,13 @@ import { createClient } from '@/lib/supabase/client'
 
 type TabValue = 'pending' | 'all'
 
+const ALLOWED_ROLES = ['admin', 'executive', 'factory_manager', 'accounting']
+
 export default function PriceRequestsPage() {
   const [requests, setRequests] = useState<PriceRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<TabValue>('pending')
-  const [userRole, setUserRole] = useState<string>('sales')
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   // Dialogs
   const [selectedRequest, setSelectedRequest] = useState<PriceRequest | null>(null)
@@ -26,11 +28,14 @@ export default function PriceRequestsPage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setUserRole(user.user_metadata?.role ?? 'sales')
+      } else {
+        setUserRole('sales')
       }
     })
   }, [])
 
-  const isFactoryOrAdmin = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
+  const isAllowed = userRole !== null && ALLOWED_ROLES.includes(userRole)
+  const isFactoryOrAdmin = ['admin', 'factory_manager', 'team_lead'].includes(userRole ?? '')
 
   const fetchRequests = useCallback(async () => {
     setLoading(true)
@@ -58,6 +63,26 @@ export default function PriceRequestsPage() {
     if (isFactoryOrAdmin) {
       setResponseOpen(true)
     }
+  }
+
+  // Still loading role
+  if (userRole === null) {
+    return (
+      <div className="flex justify-center py-16">
+        <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  // Access denied
+  if (!isAllowed) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-gray-400">
+        <ShieldOff className="w-12 h-12 mb-4 text-gray-300" />
+        <p className="text-lg font-semibold text-gray-600">ไม่มีสิทธิ์เข้าถึง</p>
+        <p className="text-sm mt-1">เฉพาะ Admin, ผู้บริหาร, ผู้จัดการโรงงาน และบัญชีเท่านั้น</p>
+      </div>
+    )
   }
 
   return (

@@ -42,6 +42,7 @@ const navItems = [
     label: 'ขอราคาสินค้า',
     icon: ClipboardList,
     badgeKey: 'priceRequests',
+    priceRequestMenu: true,
   },
   {
     href: '/products',
@@ -85,6 +86,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
   const canRespondPrice = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
   const canApproveWorkerLogs = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
   const showWorkerMenu = ['worker', 'team_lead', 'factory_manager', 'executive', 'admin'].includes(userRole)
+  const showPriceRequestMenu = ['admin', 'executive', 'factory_manager', 'accounting'].includes(userRole)
   const [workerLogPendingCount, setWorkerLogPendingCount] = useState(0)
 
   // Load pending price requests count for users who can respond to price requests
@@ -166,6 +168,8 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
         {navItems.map((item) => {
           // Hide worker-logs menu for roles that shouldn't see it
           if (item.workerMenu && !showWorkerMenu) return null
+          // Hide price-requests menu for roles that don't have access
+          if (item.priceRequestMenu && !showPriceRequestMenu) return null
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           const badgeCount =
             item.badgeKey === 'priceRequests' && canRespondPrice

@@ -18,10 +18,14 @@ import { toast } from 'sonner'
 import { PRODUCT_TYPE_LABELS, ProductType } from '@/types/price-request'
 import type { QuotationItem } from '@/types/quotation'
 
+const ALLOWED_ROLES = ['admin', 'executive', 'factory_manager', 'accounting']
+
 interface CustomItemDialogProps {
   open: boolean
   quotationId: string
   projectId?: string | null
+  /** Role of the current user — used to hide the dialog for unauthorized roles (e.g. sales) */
+  userRole?: string
   onClose: () => void
   /** Called with newly created QuotationItem (with is_custom=true) */
   onAdded: (item: QuotationItem) => void
@@ -33,9 +37,14 @@ export function CustomItemDialog({
   open,
   quotationId,
   projectId,
+  userRole,
   onClose,
   onAdded,
 }: CustomItemDialogProps) {
+  // If role is not in allowed list, render nothing
+  if (userRole !== undefined && !ALLOWED_ROLES.includes(userRole)) {
+    return null
+  }
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
     product_type: '' as ProductType | '',

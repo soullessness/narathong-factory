@@ -77,7 +77,18 @@ export default function NewQuotationPage() {
   const [refreshingPrices, setRefreshingPrices] = useState(false)
   // savedQuotationId: set once the quotation is actually saved to DB
   const [savedQuotationId, setSavedQuotationId] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string>('')
   const autoRefreshTimer = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Load current user role
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserRole(user.user_metadata?.role ?? '')
+    })
+  }, [])
+
+  const canSendPriceRequest = ['admin', 'executive', 'factory_manager', 'accounting'].includes(userRole)
 
   const fetchProject = useCallback(async () => {
     try {
@@ -413,14 +424,16 @@ export default function NewQuotationPage() {
               <Button size="sm" variant="outline" onClick={addItem} className="gap-1">
                 <Plus className="w-3.5 h-3.5" /> เพิ่มรายการ
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setCustomItemOpen(true)}
-                className="gap-1 text-purple-700 border-purple-300 hover:bg-purple-50"
-              >
-                <Sparkles className="w-3.5 h-3.5" /> สินค้า Custom (ขอราคา)
-              </Button>
+              {canSendPriceRequest && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setCustomItemOpen(true)}
+                  className="gap-1 text-purple-700 border-purple-300 hover:bg-purple-50"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> สินค้า Custom (ขอราคา)
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -750,6 +763,7 @@ export default function NewQuotationPage() {
         open={customItemOpen}
         quotationId={savedQuotationId ?? 'pending'}
         projectId={project?.id ?? projectId}
+        userRole={userRole}
         onClose={() => setCustomItemOpen(false)}
         onAdded={addCustomItem}
       />
