@@ -325,21 +325,31 @@ export default function ProductsPage() {
                       className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/60'}
                     >
                       <TableCell className="pl-4">
-                        <div className="space-y-0.5">
-                          <p className="font-medium text-gray-800 text-sm leading-snug">{product.name}</p>
-                          {product.sku && (
-                            <p className="text-xs text-gray-400">SKU: {product.sku}</p>
-                          )}
-                          {product.price_per_sqm && (
-                            <p className="text-xs text-green-700">
-                              ≈ {product.price_per_sqm.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.
-                            </p>
-                          )}
-                          {product.price_per_pack && product.pieces_per_pack && (
-                            <p className="text-xs text-gray-500">
-                              แพ็ค {product.pieces_per_pack} แผ่น = {product.price_per_pack.toLocaleString('th-TH')} บาท
-                            </p>
-                          )}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-md overflow-hidden bg-sky-50 flex-shrink-0 flex items-center justify-center">
+                            {product.image_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-lg">🪵</span>
+                            )}
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="font-medium text-sm text-gray-800">{product.name}</p>
+                            {product.sku && (
+                              <p className="text-xs text-gray-400">SKU: {product.sku}</p>
+                            )}
+                            {product.price_per_sqm && (
+                              <p className="text-xs text-green-700">
+                                ≈ {product.price_per_sqm.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.
+                              </p>
+                            )}
+                            {product.price_per_pack && product.pieces_per_pack && (
+                              <p className="text-xs text-gray-500">
+                                แพ็ค {product.pieces_per_pack} แผ่น = {product.price_per_pack.toLocaleString('th-TH')} บาท
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -415,16 +425,26 @@ export default function ProductsPage() {
                       className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/60'}
                     >
                       <TableCell className="pl-4">
-                        <div className="space-y-0.5">
-                          <p className="font-medium text-gray-800 text-sm leading-snug">{product.name}</p>
-                          {product.sku && (
-                            <p className="text-xs text-gray-400">SKU: {product.sku}</p>
-                          )}
-                          {product.price_per_sqm && (
-                            <p className="text-xs text-green-700">
-                              ≈ {product.price_per_sqm.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.
-                            </p>
-                          )}
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-md overflow-hidden bg-sky-50 flex-shrink-0 flex items-center justify-center">
+                            {product.image_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-lg">🪵</span>
+                            )}
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="font-medium text-sm text-gray-800">{product.name}</p>
+                            {product.sku && (
+                              <p className="text-xs text-gray-400">SKU: {product.sku}</p>
+                            )}
+                            {product.price_per_sqm && (
+                              <p className="text-xs text-green-700">
+                                ≈ {product.price_per_sqm.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -477,14 +497,14 @@ export default function ProductsPage() {
         </div>
       ) : (
         /* ─── GRID VIEW ─── */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {filtered.map((product) => (
             <div
               key={product.id}
               className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               {/* Image */}
-              <div className="relative h-44 bg-sky-50">
+              <div className="relative h-28 bg-sky-50">
                 {product.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -500,31 +520,20 @@ export default function ProductsPage() {
               </div>
 
               {/* Content */}
-              <div className="p-3.5 space-y-2">
+              <div className="p-2.5 space-y-1.5">
                 {product.category && (
                   <Badge variant="secondary" className="text-xs bg-sky-100 text-sky-700 border-0">
                     {product.category.name}
                   </Badge>
                 )}
-                <p className="font-semibold text-sm text-gray-800 line-clamp-3 leading-snug">{product.name}</p>
-                {product.sku && <p className="text-xs text-gray-400">SKU: {product.sku}</p>}
+                <p className="font-semibold text-xs text-gray-800 line-clamp-2 leading-snug">{product.name}</p>
 
                 {/* Pricing */}
-                <div className="space-y-0.5 pt-1 border-t border-gray-100">
-                  <p className="text-base font-bold" style={{ color: '#2BA8D4' }}>
+                <div className="pt-1 border-t border-gray-100">
+                  <p className="text-sm font-bold" style={{ color: '#2BA8D4' }}>
                     {product.price_per_unit.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
                     <span className="text-xs font-normal text-gray-500 ml-1">บาท/{product.unit}</span>
                   </p>
-                  {product.price_per_sqm && (
-                    <p className="text-xs text-green-700 font-medium">
-                      ≈ {product.price_per_sqm.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.
-                    </p>
-                  )}
-                  {product.price_per_pack && product.pieces_per_pack && (
-                    <p className="text-xs text-gray-500">
-                      แพ็ค {product.pieces_per_pack} แผ่น = {product.price_per_pack.toLocaleString('th-TH')} บาท
-                    </p>
-                  )}
                 </div>
 
                 {/* Actions */}
