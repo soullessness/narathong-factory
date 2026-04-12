@@ -1,10 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { CreateProjectInput } from '@/types/crm'
 
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // ดึง role จาก profiles table (ไม่ใช้ user_metadata)
+    const adminClient = createAdminClient()
+    const { data: profile } = await adminClient
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    const userRole = profile?.role ?? 'worker'
+
     const { searchParams } = new URL(request.url)
     const stage = searchParams.get('stage')
 
@@ -21,6 +39,11 @@ export async function GET(request: NextRequest) {
 
     if (stage) {
       query = query.eq('stage', stage)
+    }
+
+    // sales role เห็นเฉพาะโปรเจกต์ที่ assigned_sales = user.id
+    if (userRole === 'sales') {
+      query = query.eq('assigned_sales', user.id)
     }
 
     const { data, error } = await query

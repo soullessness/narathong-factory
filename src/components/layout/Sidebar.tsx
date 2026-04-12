@@ -97,7 +97,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'worker' }:
   const canRespondPrice = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
   const canApproveWorkerLogs = ['admin', 'factory_manager', 'team_lead'].includes(userRole)
   const showWorkerMenu = ['worker', 'team_lead', 'factory_manager', 'executive', 'admin'].includes(userRole)
-  const showPriceRequestMenu = ['admin', 'executive', 'factory_manager', 'accounting'].includes(userRole)
+  const showPriceRequestMenu = ['admin', 'executive', 'factory_manager', 'accounting', 'sales'].includes(userRole)
   const [workerLogPendingCount, setWorkerLogPendingCount] = useState(0)
   const [productionInProgressCount, setProductionInProgressCount] = useState(0)
 
