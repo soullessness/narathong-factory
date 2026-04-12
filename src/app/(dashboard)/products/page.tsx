@@ -5,7 +5,27 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Search, Pencil, Trash2, Settings2, ShieldOff } from 'lucide-react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Settings2,
+  ShieldOff,
+  LayoutGrid,
+  List,
+  Package,
+  Tag,
+  CheckCircle2,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { ProductDialog } from '@/components/product/ProductDialog'
 import { CategoryDialog } from '@/components/product/CategoryDialog'
@@ -13,6 +33,8 @@ import type { Product, ProductCategory } from '@/types/product'
 import { computeAreaPricing } from '@/types/product'
 import { useUserRole } from '@/hooks/useUserRole'
 import { canAccess } from '@/lib/permissions'
+
+type ViewMode = 'list' | 'grid'
 
 export default function ProductsPage() {
   const router = useRouter()
@@ -22,6 +44,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState<string>('all')
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
 
   // Dialogs
   const [productDialogOpen, setProductDialogOpen] = useState(false)
@@ -79,6 +102,21 @@ export default function ProductsPage() {
     }
   }
 
+  // Stats
+  const totalProducts = products.length
+  const totalCategories = categories.length
+  const activeProducts = products.filter((p) => p.is_active).length
+
+  // Group filtered products by category for list view
+  const groupedProducts = categories
+    .map((cat) => ({
+      category: cat,
+      items: filtered.filter((p) => p.category_id === cat.id),
+    }))
+    .filter((g) => g.items.length > 0)
+
+  const uncategorized = filtered.filter((p) => !p.category_id)
+
   if (!roleLoading && role !== null && !canAccess(role, 'products')) {
     return (
       <div className="flex flex-col items-center justify-center h-full py-20 text-center">
@@ -93,14 +131,14 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">สินค้า</h1>
           <p className="text-sm text-gray-500 mt-0.5">จัดการรายการสินค้าและกลุ่มสินค้า</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
@@ -122,15 +160,77 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <Input
-          className="pl-9 text-sm"
-          placeholder="ค้นหาสินค้า..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      {/* Summary Stats Bar */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white border border-gray-200 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#EBF8FD' }}>
+            <Package className="w-5 h-5" style={{ color: '#2BA8D4' }} />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-gray-800 leading-none">{totalProducts}</p>
+            <p className="text-xs text-gray-500 mt-0.5">สินค้าทั้งหมด</p>
+          </div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#FFF7ED' }}>
+            <Tag className="w-5 h-5 text-orange-400" />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-gray-800 leading-none">{totalCategories}</p>
+            <p className="text-xs text-gray-500 mt-0.5">หมวดหมู่</p>
+          </div>
+        </div>
+        <div className="bg-white border border-gray-200 rounded-xl p-3 flex items-center gap-3 shadow-sm">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#F0FDF4' }}>
+            <CheckCircle2 className="w-5 h-5 text-green-500" />
+          </div>
+          <div>
+            <p className="text-xl font-bold text-gray-800 leading-none">{activeProducts}</p>
+            <p className="text-xs text-gray-500 mt-0.5">ใช้งานอยู่</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Search + View Toggle */}
+      <div className="flex gap-3 items-center flex-wrap">
+        <div className="relative flex-1 min-w-[200px] max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            className="pl-9 text-sm"
+            placeholder="ค้นหาสินค้า..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        {/* View Toggle */}
+        <div className="flex border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+          <button
+            onClick={() => setViewMode('list')}
+            className={`px-3 py-1.5 flex items-center gap-1.5 text-sm font-medium transition-colors ${
+              viewMode === 'list'
+                ? 'text-white'
+                : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            style={viewMode === 'list' ? { backgroundColor: '#2BA8D4' } : {}}
+            title="มุมมองรายการ"
+          >
+            <List className="w-4 h-4" />
+            <span className="hidden sm:inline">รายการ</span>
+          </button>
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`px-3 py-1.5 flex items-center gap-1.5 text-sm font-medium transition-colors ${
+              viewMode === 'grid'
+                ? 'text-white'
+                : 'text-gray-500 hover:bg-gray-50'
+            }`}
+            style={viewMode === 'grid' ? { backgroundColor: '#2BA8D4' } : {}}
+            title="มุมมองตาราง"
+          >
+            <LayoutGrid className="w-4 h-4" />
+            <span className="hidden sm:inline">ตาราง</span>
+          </button>
+        </div>
       </div>
 
       {/* Category tabs */}
@@ -184,7 +284,7 @@ export default function ProductsPage() {
         })}
       </div>
 
-      {/* Product grid */}
+      {/* Content */}
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
@@ -195,15 +295,196 @@ export default function ProductsPage() {
           <p className="font-medium">ยังไม่มีสินค้า</p>
           <p className="text-sm mt-1">กดปุ่ม &quot;เพิ่มสินค้า&quot; เพื่อเริ่มต้น</p>
         </div>
+      ) : viewMode === 'list' ? (
+        /* ─── LIST VIEW ─── */
+        <div className="space-y-6">
+          {/* Grouped by category */}
+          {groupedProducts.map(({ category, items }) => (
+            <div key={category.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              {/* Category header */}
+              <div className="px-4 py-2.5 border-b border-gray-100 flex items-center gap-2" style={{ backgroundColor: '#F0FAFD' }}>
+                <Tag className="w-4 h-4 flex-shrink-0" style={{ color: '#2BA8D4' }} />
+                <span className="font-semibold text-sm text-gray-700">{category.name}</span>
+                {category.has_area_pricing && <span className="text-xs">📐</span>}
+                <span className="ml-auto text-xs text-gray-400">{items.length} รายการ</span>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="w-[40%] pl-4">ชื่อสินค้า</TableHead>
+                    <TableHead className="text-right">ราคา/หน่วย</TableHead>
+                    <TableHead className="text-center">หน่วย</TableHead>
+                    <TableHead className="text-center">สถานะ</TableHead>
+                    <TableHead className="text-center pr-4">จัดการ</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {items.map((product, idx) => (
+                    <TableRow
+                      key={product.id}
+                      className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/60'}
+                    >
+                      <TableCell className="pl-4">
+                        <div className="space-y-0.5">
+                          <p className="font-medium text-gray-800 text-sm leading-snug">{product.name}</p>
+                          {product.sku && (
+                            <p className="text-xs text-gray-400">SKU: {product.sku}</p>
+                          )}
+                          {product.price_per_sqm && (
+                            <p className="text-xs text-green-700">
+                              ≈ {product.price_per_sqm.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.
+                            </p>
+                          )}
+                          {product.price_per_pack && product.pieces_per_pack && (
+                            <p className="text-xs text-gray-500">
+                              แพ็ค {product.pieces_per_pack} แผ่น = {product.price_per_pack.toLocaleString('th-TH')} บาท
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="font-bold text-sm" style={{ color: '#2BA8D4' }}>
+                          {product.price_per_unit.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className="text-sm text-gray-600">{product.unit}</span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {product.is_active ? (
+                          <Badge className="text-xs bg-green-100 text-green-700 border-0 hover:bg-green-100">
+                            ใช้งาน
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-600 border-0">
+                            ปิด
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center pr-4">
+                        <div className="flex gap-1 justify-center">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={() => { setEditingProduct(product); setProductDialogOpen(true) }}
+                            title="แก้ไข"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                            onClick={() => handleDelete(product)}
+                            title="ลบ"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ))}
+
+          {/* Uncategorized */}
+          {uncategorized.length > 0 && (
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-4 py-2.5 border-b border-gray-100 flex items-center gap-2 bg-gray-50">
+                <Tag className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                <span className="font-semibold text-sm text-gray-500">ไม่มีหมวดหมู่</span>
+                <span className="ml-auto text-xs text-gray-400">{uncategorized.length} รายการ</span>
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="w-[40%] pl-4">ชื่อสินค้า</TableHead>
+                    <TableHead className="text-right">ราคา/หน่วย</TableHead>
+                    <TableHead className="text-center">หน่วย</TableHead>
+                    <TableHead className="text-center">สถานะ</TableHead>
+                    <TableHead className="text-center pr-4">จัดการ</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {uncategorized.map((product, idx) => (
+                    <TableRow
+                      key={product.id}
+                      className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/60'}
+                    >
+                      <TableCell className="pl-4">
+                        <div className="space-y-0.5">
+                          <p className="font-medium text-gray-800 text-sm leading-snug">{product.name}</p>
+                          {product.sku && (
+                            <p className="text-xs text-gray-400">SKU: {product.sku}</p>
+                          )}
+                          {product.price_per_sqm && (
+                            <p className="text-xs text-green-700">
+                              ≈ {product.price_per_sqm.toLocaleString('th-TH', { maximumFractionDigits: 0 })} บาท/ตร.ม.
+                            </p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="font-bold text-sm" style={{ color: '#2BA8D4' }}>
+                          {product.price_per_unit.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <span className="text-sm text-gray-600">{product.unit}</span>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {product.is_active ? (
+                          <Badge className="text-xs bg-green-100 text-green-700 border-0 hover:bg-green-100">
+                            ใช้งาน
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs bg-gray-200 text-gray-600 border-0">
+                            ปิด
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center pr-4">
+                        <div className="flex gap-1 justify-center">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={() => { setEditingProduct(product); setProductDialogOpen(true) }}
+                            title="แก้ไข"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                            onClick={() => handleDelete(product)}
+                            title="ลบ"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        /* ─── GRID VIEW ─── */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((product) => (
             <div
               key={product.id}
               className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               {/* Image */}
-              <div className="relative h-40 bg-sky-50">
+              <div className="relative h-44 bg-sky-50">
                 {product.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -219,19 +500,20 @@ export default function ProductsPage() {
               </div>
 
               {/* Content */}
-              <div className="p-3 space-y-1.5">
+              <div className="p-3.5 space-y-2">
                 {product.category && (
                   <Badge variant="secondary" className="text-xs bg-sky-100 text-sky-700 border-0">
                     {product.category.name}
                   </Badge>
                 )}
-                <p className="font-semibold text-sm text-gray-800 line-clamp-2">{product.name}</p>
-                {product.sku && <p className="text-xs text-gray-400">{product.sku}</p>}
+                <p className="font-semibold text-sm text-gray-800 line-clamp-3 leading-snug">{product.name}</p>
+                {product.sku && <p className="text-xs text-gray-400">SKU: {product.sku}</p>}
 
                 {/* Pricing */}
-                <div className="space-y-0.5 pt-1">
-                  <p className="text-sm font-bold" style={{ color: '#2BA8D4' }}>
-                    {product.price_per_unit.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท/{product.unit}
+                <div className="space-y-0.5 pt-1 border-t border-gray-100">
+                  <p className="text-base font-bold" style={{ color: '#2BA8D4' }}>
+                    {product.price_per_unit.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+                    <span className="text-xs font-normal text-gray-500 ml-1">บาท/{product.unit}</span>
                   </p>
                   {product.price_per_sqm && (
                     <p className="text-xs text-green-700 font-medium">
@@ -246,22 +528,22 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-1.5 pt-2 border-t border-gray-100">
+                <div className="flex gap-1.5 pt-2">
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="flex-1 h-7 text-xs gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    className="flex-1 h-8 text-xs gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border border-blue-100"
                     onClick={() => { setEditingProduct(product); setProductDialogOpen(true) }}
                   >
-                    <Pencil className="w-3 h-3" /> แก้ไข
+                    <Pencil className="w-3.5 h-3.5" /> แก้ไข
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="flex-1 h-7 text-xs gap-1 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    className="flex-1 h-8 text-xs gap-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 border border-red-100"
                     onClick={() => handleDelete(product)}
                   >
-                    <Trash2 className="w-3 h-3" /> ลบ
+                    <Trash2 className="w-3.5 h-3.5" /> ลบ
                   </Button>
                 </div>
               </div>
