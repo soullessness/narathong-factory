@@ -20,22 +20,26 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { canAccess } from '@/lib/permissions'
 
 const navItems = [
   {
     href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
+    permissionKey: 'dashboard' as const,
   },
   {
     href: '/projects',
     label: 'โปรเจค',
     icon: FolderKanban,
+    permissionKey: 'projects' as const,
   },
   {
     href: '/customers',
     label: 'ลูกค้า',
     icon: Users,
+    permissionKey: 'customers' as const,
   },
   {
     href: '/price-requests',
@@ -43,6 +47,7 @@ const navItems = [
     icon: ClipboardList,
     badgeKey: 'priceRequests',
     priceRequestMenu: true,
+    permissionKey: 'priceRequests' as const,
   },
   {
     href: '/products',
@@ -60,6 +65,7 @@ const navItems = [
     icon: ClipboardList,
     badgeKey: 'workerLogs',
     workerMenu: true,
+    permissionKey: 'workerLogs' as const,
   },
   {
     href: '/settings',
@@ -170,6 +176,8 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'admin' }: 
           if (item.workerMenu && !showWorkerMenu) return null
           // Hide price-requests menu for roles that don't have access
           if (item.priceRequestMenu && !showPriceRequestMenu) return null
+          // Hide items with explicit permissionKey based on role permissions
+          if (item.permissionKey && !canAccess(userRole, item.permissionKey)) return null
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           const badgeCount =
             item.badgeKey === 'priceRequests' && canRespondPrice

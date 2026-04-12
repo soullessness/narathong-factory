@@ -4,11 +4,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plus, RefreshCw, LayoutGrid, List } from 'lucide-react'
+import { Plus, RefreshCw, LayoutGrid, List, ShieldOff } from 'lucide-react'
 import { CRMProject, CRMStage, CRMStageLog, STAGE_ORDER, STAGE_CONFIG } from '@/types/crm'
 import { KanbanColumn } from '@/components/crm/KanbanColumn'
 import { ProjectDialog } from '@/components/crm/ProjectDialog'
 import { ProjectDetailDialog } from '@/components/crm/ProjectDetailDialog'
+import { useUserRole } from '@/hooks/useUserRole'
+import { canAccess } from '@/lib/permissions'
 
 type ViewMode = 'kanban' | 'list'
 
@@ -34,6 +36,7 @@ function formatValue(val: number | null | undefined): string {
 
 export default function ProjectsPage() {
   const router = useRouter()
+  const { role, loading: roleLoading } = useUserRole()
   const [projects, setProjects] = useState<CRMProject[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -144,6 +147,19 @@ export default function ProjectsPage() {
   const activeCount = projects.filter(
     (p) => p.stage !== 'completed' && p.stage !== 'cancelled'
   ).length
+
+  if (!roleLoading && role !== null && !canAccess(role, 'projects')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+        <ShieldOff className="w-12 h-12 text-gray-300 mb-4" />
+        <h2 className="text-lg font-semibold text-gray-600">ไม่มีสิทธิ์เข้าถึง</h2>
+        <p className="text-sm text-gray-400 mt-1">คุณไม่มีสิทธิ์ดูหน้านี้</p>
+        <Button variant="outline" className="mt-4" onClick={() => router.push('/worker-logs')}>
+          ไปหน้าบันทึกงาน
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full">

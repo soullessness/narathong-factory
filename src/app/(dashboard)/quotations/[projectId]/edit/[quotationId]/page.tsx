@@ -19,6 +19,7 @@ import type { QuotationItem, Quotation } from '@/types/quotation'
 import type { Product } from '@/types/product'
 import { computeAreaPricing } from '@/types/product'
 import type { PriceRequestStatus } from '@/types/price-request'
+import { canAccess } from '@/lib/permissions'
 
 function formatCurrency(v: number) {
   return new Intl.NumberFormat('th-TH', {
@@ -298,6 +299,19 @@ export default function EditQuotationPage() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (userRole && !canAccess(userRole, 'quotations')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+        <span className="text-5xl mb-4">🔒</span>
+        <h2 className="text-lg font-semibold text-gray-600">ไม่มีสิทธิ์เข้าถึง</h2>
+        <p className="text-sm text-gray-400 mt-1">คุณไม่มีสิทธิ์แก้ไขใบเสนอราคา</p>
+        <Button variant="outline" className="mt-4" onClick={() => router.back()}>
+          กลับ
+        </Button>
       </div>
     )
   }

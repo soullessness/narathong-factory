@@ -1,3 +1,6 @@
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+import { canAccess } from '@/lib/permissions'
 import { KpiCard } from '@/components/dashboard/KpiCard'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,6 +12,7 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
+  ShieldOff,
 } from 'lucide-react'
 
 const kpiData = [
@@ -84,7 +88,18 @@ const statusConfig: Record<string, { label: string; variant: 'default' | 'second
   completed: { label: 'เสร็จสิ้น', variant: 'outline', icon: CheckCircle2 },
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const role: string = user?.user_metadata?.role ?? ''
+
+  if (!canAccess(role, 'dashboard')) {
+    redirect('/worker-logs')
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Title */}

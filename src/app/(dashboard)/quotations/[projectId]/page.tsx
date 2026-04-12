@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useUserRole } from '@/hooks/useUserRole'
+import { canAccess } from '@/lib/permissions'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,6 +54,7 @@ export default function QuotationListPage() {
   const params = useParams()
   const router = useRouter()
   const projectId = params.projectId as string
+  const { role, loading: roleLoading } = useUserRole()
 
   const [quotations, setQuotations] = useState<Quotation[]>([])
   const [loading, setLoading] = useState(true)
@@ -103,6 +106,19 @@ export default function QuotationListPage() {
   }
 
   const projectName = quotations[0]?.projects?.name || 'โปรเจค'
+
+  if (!roleLoading && role !== null && !canAccess(role, 'quotations')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+        <span className="text-5xl mb-4">🔒</span>
+        <h2 className="text-lg font-semibold text-gray-600">ไม่มีสิทธิ์เข้าถึง</h2>
+        <p className="text-sm text-gray-400 mt-1">คุณไม่มีสิทธิ์ดูหน้าใบเสนอราคา</p>
+        <Button variant="outline" className="mt-4" onClick={() => router.push('/worker-logs')}>
+          ไปหน้าบันทึกงาน
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

@@ -4,9 +4,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plus, RefreshCw, Users } from 'lucide-react'
+import { Plus, RefreshCw, Users, ShieldOff } from 'lucide-react'
 import { Customer, CUSTOMER_TYPE_LABELS } from '@/types/crm'
 import { AddCustomerDialog } from '@/components/crm/AddCustomerDialog'
+import { useUserRole } from '@/hooks/useUserRole'
+import { canAccess } from '@/lib/permissions'
 
 function formatDate(dateStr: string): string {
   try {
@@ -28,6 +30,7 @@ const typeVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
 
 export default function CustomersPage() {
   const router = useRouter()
+  const { role, loading: roleLoading } = useUserRole()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -61,6 +64,19 @@ export default function CustomersPage() {
 
   const handleRowClick = (customerId: string) => {
     router.push(`/projects?customer=${customerId}`)
+  }
+
+  if (!roleLoading && role !== null && !canAccess(role, 'customers')) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+        <ShieldOff className="w-12 h-12 text-gray-300 mb-4" />
+        <h2 className="text-lg font-semibold text-gray-600">ไม่มีสิทธิ์เข้าถึง</h2>
+        <p className="text-sm text-gray-400 mt-1">คุณไม่มีสิทธิ์ดูหน้านี้</p>
+        <Button variant="outline" className="mt-4" onClick={() => router.push('/worker-logs')}>
+          ไปหน้าบันทึกงาน
+        </Button>
+      </div>
+    )
   }
 
   return (
