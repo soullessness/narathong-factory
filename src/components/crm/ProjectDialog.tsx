@@ -30,6 +30,7 @@ import {
   CreateProjectInput,
 } from '@/types/crm'
 import { AddCustomerDialog } from './AddCustomerDialog'
+import { createClient } from '@/lib/supabase/client'
 
 interface ProjectDialogProps {
   open: boolean
@@ -50,6 +51,7 @@ export function ProjectDialog({
   const [error, setError] = useState<string | null>(null)
   const [customers, setCustomers] = useState<Customer[]>([])
   const [salesProfiles, setSalesProfiles] = useState<Profile[]>([])
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [showAddCustomer, setShowAddCustomer] = useState(false)
 
   const [form, setForm] = useState<CreateProjectInput>({
@@ -59,7 +61,7 @@ export function ProjectDialog({
     value: undefined,
     deposit_amount: undefined,
     deadline: '',
-    assigned_sales: undefined,
+    assigned_sales: currentUserId || undefined,
     notes: '',
   })
 
@@ -112,6 +114,10 @@ export function ProjectDialog({
     } catch {
       // profiles might not have dedicated API, skip
     }
+    // Get current user
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) setCurrentUserId(user.id)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
