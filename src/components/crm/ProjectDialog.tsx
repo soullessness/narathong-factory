@@ -95,6 +95,13 @@ export function ProjectDialog({
     }
   }, [open, editProject, initialStage])
 
+  // Auto-set assigned_sales to current user when user ID loads
+  useEffect(() => {
+    if (currentUserId && form.assigned_sales === undefined) {
+      setForm((f) => ({ ...f, assigned_sales: currentUserId }))
+    }
+  }, [currentUserId])
+
   const fetchCustomers = async () => {
     const res = await fetch('/api/customers')
     if (res.ok) {
