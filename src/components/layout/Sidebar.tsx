@@ -80,6 +80,7 @@ const navItems = [
     subItems: [
       { href: '/settings/users', label: 'จัดการผู้ใช้', adminOnly: true },
       { href: '/settings/teams', label: 'จัดการทีม', adminOnly: false, managerOnly: true },
+      { href: '/settings/customer-types', label: 'ประเภทลูกค้า', adminOnly: true },
     ],
   },
 ]

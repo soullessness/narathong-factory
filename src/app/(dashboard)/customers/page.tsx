@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Plus, RefreshCw, Users, ShieldOff } from 'lucide-react'
-import { Customer, CUSTOMER_TYPE_LABELS } from '@/types/crm'
+import { Customer } from '@/types/crm'
+import { createClient } from '@/lib/supabase/client'
 import { AddCustomerDialog } from '@/components/crm/AddCustomerDialog'
 import { useUserRole } from '@/hooks/useUserRole'
 import { canAccess } from '@/lib/permissions'
@@ -22,6 +23,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
+type CustomerTypeData = { id: string; name: string; description: string; color: string }
 const typeVariant: Record<string, 'default' | 'secondary' | 'outline'> = {
   retail: 'secondary',
   contractor: 'default',
@@ -35,6 +37,7 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
+  const [customerTypes, setCustomerTypes] = useState<CustomerTypeData[]>([])
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true)
@@ -56,6 +59,13 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchCustomers()
+    // Load customer types from database
+    const loadTypes = async () => {
+      const supabase = createClient()
+      const { data } = await supabase.from('customer_types').select('*').eq('is_active', true).order('sort_order')
+      if (data) setCustomerTypes(data)
+    }
+    loadTypes()
   }, [fetchCustomers])
 
   const handleCustomerCreated = (customer: Customer) => {
@@ -179,8 +189,11 @@ export default function CustomersPage() {
                         {customer.phone || '-'}
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <Badge variant={typeVariant[customer.customer_type] ?? 'secondary'} className="text-xs">
-                          {CUSTOMER_TYPE_LABELS[customer.customer_type]}
+                        <Badge 
+                        className="text-xs"
+                        style={{ backgroundColor: customerTypes.find(t => t.name === customer.customer_type)?.color + '20', color: customerTypes.find(t => t.name === customer.customer_type)?.color }}
+                      >
+                          {customerTypes.find(t => t.name === customer.customer_type)?.description || customer.customer_type}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-center text-gray-500 whitespace-nowrap">

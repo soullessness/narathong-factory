@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Customer, CreateCustomerInput, CUSTOMER_TYPE_LABELS } from '@/types/crm'
+import { Customer, CreateCustomerInput } from '@/types/crm'
+import { createClient } from '@/lib/supabase/client'
 
 interface AddCustomerDialogProps {
   open: boolean
@@ -30,6 +31,7 @@ interface AddCustomerDialogProps {
 export function AddCustomerDialog({ open, onClose, onCreated }: AddCustomerDialogProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [customerTypes, setCustomerTypes] = useState<{name: string, description: string}[]>([])
   const [form, setForm] = useState<CreateCustomerInput>({
     name: '',
     contact_name: '',
@@ -39,8 +41,31 @@ export function AddCustomerDialog({ open, onClose, onCreated }: AddCustomerDialo
     customer_type: 'retail',
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const supabase = createClient()
+
+  useEffect(() => {
+    const loadTypes = async () => {
+      const { data } = await supabase.from('customer_types').select('name,description').eq('is_active', true).order('sort_order')
+      if (data) setCustomerTypes(data)
+    }
+    loadTypes()
+  }, [])
+
+  useEffect(() => {
+    if (!open) {
+      setForm({
+        name: '',
+        contact_name: '',
+        phone: '',
+        email: '',
+        address: '',
+        customer_type: 'retail',
+      })
+      setError(null)
+    }
+  }, [open])
+
+  const handleSubmit = async () => {
     if (!form.name.trim()) {
       setError('กรุณากรอกชื่อลูกค้า')
       return
@@ -50,141 +75,122 @@ export function AddCustomerDialog({ open, onClose, onCreated }: AddCustomerDialo
     setError(null)
 
     try {
-      const res = await fetch('/api/customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const json = await res.json()
-      if (!res.ok) {
-        setError(json.error || 'เกิดข้อผิดพลาด')
-        return
+      const { data, error: insertError } = await supabase
+        .from('customers')
+        .insert({
+          name: form.name,
+          contact_name: form.contact_name,
+          phone: form.phone,
+          email: form.email,
+          address: form.address,
+          customer_type: form.customer_type,
+        })
+        .select()
+        .single()
+
+      if (insertError) throw insertError
+
+      if (data) {
+        onCreated(data as Customer)
+        onClose()
       }
-      onCreated(json.data)
-      handleClose()
-    } catch {
-      setError('เกิดข้อผิดพลาด กรุณาลองใหม่')
+    } catch (err: unknown) {
+      console.error('Create customer error:', err)
+      setError('เกิดข้อผิดพลาดในการบันทึก')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleClose = () => {
-    setForm({
-      name: '',
-      contact_name: '',
-      phone: '',
-      email: '',
-      address: '',
-      customer_type: 'retail',
-    })
-    setError(null)
-    onClose()
-  }
-
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>เพิ่มลูกค้าใหม่</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="cust-name">
-              ชื่อบริษัท/ลูกค้า <span className="text-red-500">*</span>
-            </Label>
+
+        <div className="space-y-4 py-4">
+          <div>
+            <Label>ชื่อลูกค้า *</Label>
             <Input
-              id="cust-name"
               value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              placeholder="ชื่อบริษัท หรือชื่อลูกค้า"
-              required
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="ชื่อลูกค้า"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cust-contact">ชื่อผู้ติดต่อ</Label>
+          <div>
+            <Label>ผู้ติดต่อ</Label>
             <Input
-              id="cust-contact"
               value={form.contact_name}
-              onChange={(e) => setForm((f) => ({ ...f, contact_name: e.target.value }))}
-              placeholder="ชื่อ-นามสกุลผู้ติดต่อ"
+              onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
+              placeholder="ชื่อผู้ติดต่อ"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="cust-phone">เบอร์โทร</Label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>เบอร์โทร</Label>
               <Input
-                id="cust-phone"
                 value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                placeholder="0XX-XXX-XXXX"
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                placeholder="เบอร์โทร"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="cust-email">Email</Label>
-              <Input
-                id="cust-email"
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                placeholder="email@example.com"
-              />
+
+            <div>
+              <Label>ประเภทลูกค้า</Label>
+              <Select
+                value={form.customer_type}
+                onValueChange={(v) => setForm({ ...form, customer_type: v as 'retail' | 'contractor' | 'developer' })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {customerTypes.map((t) => (
+                    <SelectItem key={t.name} value={t.name}>
+                      {t.description}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cust-type">ประเภทลูกค้า</Label>
-            <Select
-              value={form.customer_type}
-              onValueChange={(v) =>
-                setForm((f) => ({
-                  ...f,
-                  customer_type: v as 'retail' | 'contractor' | 'developer',
-                }))
-              }
-            >
-              <SelectTrigger id="cust-type">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(CUSTOMER_TYPE_LABELS).map(([val, label]) => (
-                  <SelectItem key={val} value={val}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="cust-address">ที่อยู่</Label>
-            <Textarea
-              id="cust-address"
-              value={form.address}
-              onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-              placeholder="ที่อยู่ลูกค้า"
-              rows={2}
+          <div>
+            <Label>อีเมล</Label>
+            <Input
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="email@example.com"
+              type="email"
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          <div>
+            <Label>ที่อยู่</Label>
+            <Textarea
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              placeholder="ที่อยู่ลูกค้า"
+              rows={3}
+            />
+          </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
-              ยกเลิก
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-              style={{ backgroundColor: '#2BA8D4' }}
-              className="text-white"
-            >
-              {loading ? 'กำลังบันทึก...' : 'เพิ่มลูกค้า'}
-            </Button>
-          </DialogFooter>
-        </form>
+          {error && (
+            <p className="text-sm text-red-500">{error}</p>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
+            ยกเลิก
+          </Button>
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? 'กำลังบันทึก...' : 'บันทึก'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
