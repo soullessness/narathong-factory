@@ -77,23 +77,27 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
     })
   }, [])
 
-  // Load team workers when team changes
+  // Load workers — filter by team if selected, else load all workers
   const loadWorkers = useCallback(async (tid: string) => {
-    if (!tid) {
-      setWorkers([])
-      return
-    }
     try {
-      const res = await fetch(`/api/profiles?team_id=${tid}`)
+      const url = tid ? `/api/profiles?team_id=${tid}` : `/api/profiles?role=worker`
+      const res = await fetch(url)
       const json = await res.json()
-      setWorkers(json.data ?? [])
+      // fallback: if team filter returns empty, load all
+      if (tid && (json.data ?? []).length === 0) {
+        const allRes = await fetch('/api/profiles')
+        const allJson = await allRes.json()
+        setWorkers(allJson.data ?? [])
+      } else {
+        setWorkers(json.data ?? [])
+      }
     } catch {
       setWorkers([])
     }
   }, [])
 
   useEffect(() => {
-    if (teamId) loadWorkers(teamId)
+    loadWorkers(teamId)
   }, [teamId, loadWorkers])
 
   // Pre-fill rows from existing items
@@ -269,7 +273,7 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
     workers.length > 0
       ? workers
       : userId
-      ? [{ id: userId, full_name: 'ฉัน' }]
+      ? [{ id: userId, full_name: 'ตัวเอง' }]
       : []
 
   return (
@@ -290,16 +294,17 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="team">ทีม</Label>
+          <Label htmlFor="team">ทีม <span className="text-gray-400">(ถ้ามี)</span></Label>
           <Select
-            value={teamId}
-            onValueChange={(v) => setTeamId(v ?? '')}
+            value={teamId || 'none'}
+            onValueChange={(v) => setTeamId(v === 'none' ? '' : (v ?? ''))}
             disabled={!!isLocked || isEditMode}
           >
             <SelectTrigger className="text-sm">
-              <SelectValue placeholder="เลือกทีม" />
+              <SelectValue placeholder="เลือกทีม (ไม่บังคับ)" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="none" className="text-sm text-gray-400">— ไม่ระบุทีม —</SelectItem>
               {teams.map((t) => (
                 <SelectItem key={t.id} value={t.id} className="text-sm">
                   {t.name}

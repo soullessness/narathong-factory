@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('profiles')
       .select('id, full_name, role, phone, department_id, team_id, is_active')
-      .eq('is_active', true)
       .order('full_name', { ascending: true })
 
     if (role) {
