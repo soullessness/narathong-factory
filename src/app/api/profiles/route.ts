@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const role = searchParams.get('role')
     const departmentId = searchParams.get('department_id')
+    const teamId = searchParams.get('team_id')
 
     let query = supabase
       .from('profiles')
@@ -20,6 +21,10 @@ export async function GET(request: NextRequest) {
 
     if (departmentId) {
       query = query.eq('department_id', departmentId)
+    }
+
+    if (teamId) {
+      query = query.eq('team_id', teamId)
     }
 
     const { data, error } = await query

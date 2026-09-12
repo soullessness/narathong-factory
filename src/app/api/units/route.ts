@@ -7,11 +7,8 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { data, error } = await supabase
-    .from('teams')
-    .select(`
-      *,
-      department:departments (id, name)
-    `)
+    .from('units')
+    .select('*')
     .eq('is_active', true)
     .order('name', { ascending: true })
 

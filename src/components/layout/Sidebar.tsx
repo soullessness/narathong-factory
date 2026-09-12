@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Package,
   ClipboardList,
+  FileText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -70,6 +71,12 @@ const navItems = [
     badgeKey: 'workerLogs',
     workerMenu: true,
     permissionKey: 'workerLogs' as const,
+  },
+  {
+    href: '/work-reports',
+    label: 'รายงานผลงาน',
+    icon: FileText,
+    permissionKey: 'workReports' as const,
   },
   {
     href: '/settings',

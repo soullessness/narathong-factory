@@ -7,10 +7,10 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { data, error } = await supabase
-    .from('teams')
+    .from('work_types')
     .select(`
       *,
-      department:departments (id, name)
+      default_unit:units!work_types_default_unit_id_fkey (id, name, symbol)
     `)
     .eq('is_active', true)
     .order('name', { ascending: true })
