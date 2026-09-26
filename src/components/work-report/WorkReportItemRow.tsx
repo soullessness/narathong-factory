@@ -63,7 +63,11 @@ export function WorkReportItemRow({
           disabled={disabled}
         >
           <SelectTrigger className="h-8 text-xs w-full min-w-[120px]">
-            <SelectValue placeholder="เลือกพนักงาน" />
+            <SelectValue placeholder="เลือกพนักงาน">
+              {data.worker_id
+                ? (workers.find((w) => w.id === data.worker_id)?.full_name ?? 'เลือกพนักงาน')
+                : 'เลือกพนักงาน'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {workers.map((w) => (
@@ -91,7 +95,11 @@ export function WorkReportItemRow({
           disabled={disabled}
         >
           <SelectTrigger className="h-8 text-xs w-full min-w-[120px]">
-            <SelectValue placeholder="เลือกประเภทงาน" />
+            <SelectValue placeholder="เลือกประเภทงาน">
+              {data.work_type_id
+                ? (workTypes.find((wt) => wt.id === data.work_type_id)?.name ?? 'เลือกประเภทงาน')
+                : 'เลือกประเภทงาน'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {workTypes.map((wt) => (
