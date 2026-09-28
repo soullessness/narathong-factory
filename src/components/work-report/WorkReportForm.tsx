@@ -354,15 +354,15 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
           <table className="w-full text-xs">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="py-2 px-2 text-left text-gray-500 w-8">#</th>
-                <th className="py-2 px-2 text-left text-gray-500 min-w-[120px]">พนักงาน</th>
-                <th className="py-2 px-2 text-left text-gray-500 min-w-[120px]">ประเภทงาน</th>
-                <th className="py-2 px-2 text-left text-gray-500 w-24">จำนวน</th>
-                <th className="py-2 px-2 text-left text-gray-500 w-24">หน่วย</th>
-                <th className="py-2 px-2 text-left text-gray-500 w-20">ชั่วโมง</th>
-                <th className="py-2 px-2 text-left text-gray-500 w-20">ดี</th>
-                <th className="py-2 px-2 text-left text-gray-500 w-20">เสีย</th>
-                <th className="py-2 px-2 text-left text-gray-500">หมายเหตุ</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs w-8">#</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs min-w-[130px]">พนักงาน</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs min-w-[130px]">ประเภทงาน</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs w-24">จำนวน</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs w-28">หน่วย</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs w-24">ชั่วโมง</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs w-24">ดี</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs w-24">เสีย</th>
+                <th className="py-2 px-2 text-left text-gray-500 text-xs">หมายเหตุ</th>
                 <th className="py-2 px-2 w-10"></th>
               </tr>
             </thead>

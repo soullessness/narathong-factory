@@ -62,12 +62,12 @@ export function WorkReportItemRow({
           onValueChange={(v) => onChange(index, 'worker_id', v ?? '')}
           disabled={disabled}
         >
-          <SelectTrigger className="h-8 text-xs w-full min-w-[120px]">
-            <SelectValue placeholder="เลือกพนักงาน">
+          <SelectTrigger className="h-9 text-sm w-full min-w-[130px]">
+            <span className="truncate">
               {data.worker_id
                 ? (workers.find((w) => w.id === data.worker_id)?.full_name ?? 'เลือกพนักงาน')
                 : 'เลือกพนักงาน'}
-            </SelectValue>
+            </span>
           </SelectTrigger>
           <SelectContent>
             {workers.map((w) => (
@@ -94,12 +94,12 @@ export function WorkReportItemRow({
           }}
           disabled={disabled}
         >
-          <SelectTrigger className="h-8 text-xs w-full min-w-[120px]">
-            <SelectValue placeholder="เลือกประเภทงาน">
+          <SelectTrigger className="h-9 text-sm w-full min-w-[130px]">
+            <span className="truncate">
               {data.work_type_id
                 ? (workTypes.find((wt) => wt.id === data.work_type_id)?.name ?? 'เลือกประเภทงาน')
                 : 'เลือกประเภทงาน'}
-            </SelectValue>
+            </span>
           </SelectTrigger>
           <SelectContent>
             {workTypes.map((wt) => (
@@ -118,21 +118,27 @@ export function WorkReportItemRow({
           min="0"
           value={data.quantity}
           onChange={(e) => onChange(index, 'quantity', e.target.value)}
-          className="h-8 text-xs"
+          className="h-9 text-sm"
           placeholder="0"
           disabled={disabled}
         />
       </td>
 
       {/* หน่วย */}
-      <td className="py-2 px-2 w-24">
+      <td className="py-2 px-2 w-28">
         <Select
           value={data.unit_id}
           onValueChange={(v) => onChange(index, 'unit_id', v ?? '')}
           disabled={disabled}
         >
-          <SelectTrigger className="h-8 text-xs">
-            <SelectValue placeholder="หน่วย" />
+          <SelectTrigger className="h-9 text-sm">
+            <span className="truncate">
+              {data.unit_id
+                ? (units.find((u) => u.id === data.unit_id)
+                    ? `${units.find((u) => u.id === data.unit_id)!.name} (${units.find((u) => u.id === data.unit_id)!.symbol})`
+                    : data.unit_id)
+                : 'หน่วย'}
+            </span>
           </SelectTrigger>
           <SelectContent>
             {units.map((u) => (
@@ -145,38 +151,38 @@ export function WorkReportItemRow({
       </td>
 
       {/* ชั่วโมง */}
-      <td className="py-2 px-2 w-20">
+      <td className="py-2 px-2 w-24">
         <Input
           type="number"
           min="0"
           step="0.5"
           value={data.hours_worked}
           onChange={(e) => onChange(index, 'hours_worked', e.target.value)}
-          className="h-8 text-xs"
+          className="h-9 text-sm"
           placeholder="0"
           disabled={disabled}
         />
       </td>
 
       {/* ดี/เสีย */}
-      <td className="py-2 px-2 w-20">
+      <td className="py-2 px-2 w-24">
         <Input
           type="number"
           min="0"
           value={data.good_quantity}
           onChange={(e) => onChange(index, 'good_quantity', e.target.value)}
-          className="h-8 text-xs"
+          className="h-9 text-sm"
           placeholder="0"
           disabled={disabled}
         />
       </td>
-      <td className="py-2 px-2 w-20">
+      <td className="py-2 px-2 w-24">
         <Input
           type="number"
           min="0"
           value={data.reject_quantity}
           onChange={(e) => onChange(index, 'reject_quantity', e.target.value)}
-          className="h-8 text-xs"
+          className="h-9 text-sm"
           placeholder="0"
           disabled={disabled}
         />
@@ -187,7 +193,7 @@ export function WorkReportItemRow({
         <Input
           value={data.note}
           onChange={(e) => onChange(index, 'note', e.target.value)}
-          className="h-8 text-xs"
+          className="h-9 text-sm"
           placeholder="หมายเหตุ"
           disabled={disabled}
         />
