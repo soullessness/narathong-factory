@@ -165,6 +165,16 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
         const json = await res.json()
         if (!res.ok) throw new Error(json.error ?? 'บันทึกไม่สำเร็จ')
         reportData = json.data
+
+        // Replace all items via PUT
+        const items = buildPayload().items
+        const itemsRes = await fetch(`/api/work-reports/${report.id}/items`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(items),
+        })
+        const itemsJson = await itemsRes.json()
+        if (!itemsRes.ok) throw new Error(itemsJson.error ?? 'บันทึกรายการไม่สำเร็จ')
       } else {
         // Create new report
         const payload = buildPayload()
@@ -190,7 +200,7 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
 
       toast.success('บันทึกฉบับร่างเรียบร้อย')
       if (onSaved) onSaved(reportData)
-      if (!isEditMode) router.push(`/work-reports/${reportData.id}`)
+      router.push(`/work-reports/${reportData.id}`)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'เกิดข้อผิดพลาด')
     } finally {
@@ -288,7 +298,7 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
             value={reportDate}
             onChange={(e) => setReportDate(e.target.value)}
             max={today}
-            disabled={isLocked || isEditMode}
+            disabled={!!isLocked}
             className="text-sm"
           />
         </div>
@@ -298,7 +308,7 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
           <Select
             value={teamId || 'none'}
             onValueChange={(v) => setTeamId(v === 'none' ? '' : (v ?? ''))}
-            disabled={!!isLocked || isEditMode}
+            disabled={!!isLocked}
           >
             <SelectTrigger className="text-sm">
               <span className="truncate">

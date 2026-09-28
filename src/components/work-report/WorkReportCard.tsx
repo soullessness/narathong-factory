@@ -78,7 +78,7 @@ export function WorkReportCard({ report, onDelete, canDelete, canEdit }: WorkRep
         </Link>
         {canEdit && isDraft && (
           <Link
-            href={`/work-reports/${report.id}`}
+            href={`/work-reports/${report.id}/edit`}
             className="flex items-center gap-1 text-xs text-gray-500 hover:text-sky-700 transition-colors px-2 py-1"
           >
             <Pencil className="w-3.5 h-3.5" />
