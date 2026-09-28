@@ -301,7 +301,11 @@ export function WorkReportForm({ report, onSaved }: WorkReportFormProps) {
             disabled={!!isLocked || isEditMode}
           >
             <SelectTrigger className="text-sm">
-              <SelectValue placeholder="เลือกทีม (ไม่บังคับ)" />
+              <span className="truncate">
+                {teamId
+                  ? (teams.find((t) => t.id === teamId)?.name ?? teamId)
+                  : 'เลือกทีม (ไม่บังคับ)'}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none" className="text-sm text-gray-400">— ไม่ระบุทีม —</SelectItem>
