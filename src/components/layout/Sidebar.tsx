@@ -13,6 +13,7 @@ import {
   Package,
   ClipboardList,
   FileText,
+  QrCode,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -77,6 +78,11 @@ const navItems = [
     label: 'รายงานผลงาน',
     icon: FileText,
     permissionKey: 'workReports' as const,
+  },
+  {
+    href: '/qr',
+    label: 'QR Code',
+    icon: QrCode,
   },
   {
     href: '/settings',
