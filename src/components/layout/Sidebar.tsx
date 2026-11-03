@@ -151,7 +151,7 @@ export function Sidebar({ userEmail = 'user@example.com', userRole = 'worker' }:
   }, [canApproveWorkerLogs])
 
   // Load in_progress production orders count
-  const canSeeProduction = ['admin', 'executive', 'factory_manager', 'team_lead', 'worker'].includes(userRole)
+  const canSeeProduction = ['admin', 'executive', 'factory_manager', 'team_lead', 'worker', 'accounting'].includes(userRole)
   useEffect(() => {
     if (!canSeeProduction) return
     const load = async () => {
