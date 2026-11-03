@@ -8,6 +8,7 @@ export const ROLE_PERMISSIONS = {
   workerLogs: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker', 'accounting'],
   productionOrders: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker'],
   workReports: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker'],
+  qr: ['admin', 'executive', 'factory_manager', 'accounting', 'sales'],
   settings: ['admin'],
   settingsUsers: ['admin'],
   settingsTeams: ['admin', 'factory_manager'],

@@ -83,6 +83,7 @@ const navItems = [
     href: '/qr',
     label: 'QR Code',
     icon: QrCode,
+    permissionKey: 'qr' as const,
   },
   {
     href: '/settings',
