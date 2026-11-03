@@ -4,7 +4,7 @@ export const ROLE_PERMISSIONS = {
   customers: ['admin', 'executive', 'factory_manager', 'sales'],
   quotations: ['admin', 'executive', 'factory_manager', 'sales'],
   products: ['admin', 'executive', 'factory_manager', 'sales', 'accounting'],
-  priceRequests: ['admin', 'executive', 'factory_manager', 'accounting', 'sales'],
+  priceRequests: ['admin', 'executive', 'factory_manager', 'sales'],
   workerLogs: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker', 'accounting'],
   productionOrders: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker', 'accounting'],
   workReports: ['admin', 'executive', 'factory_manager', 'team_lead', 'worker', 'accounting'],
